@@ -1,0 +1,264 @@
+form Main
+{
+	layout = LAYOUT_VERTICAL
+	alignment = ALIGN_VCENTER_RIGHT
+	
+    label title
+	{ 
+		text = The First Law
+	}
+	button play
+	{
+		text = Play
+	}
+	button settings
+	{
+		text = Settings
+	}
+	button about
+	{
+		text = About
+	}
+    button exit
+	{
+        text = Exit
+	}
+}
+
+form About
+{
+	layout = LAYOUT_VERTICAL
+	alignment = ALIGN_VCENTER_RIGHT
+	
+    label info
+	{}
+	
+	label text
+	{
+		text = log:
+	}
+	
+	container log
+	{
+		layout = LAYOUT_VERTICAL
+		size = 500,300
+		scroll = SCROLL_BOTH
+		scrollBarsAutoHide = false 
+		
+	}
+	
+	button clear
+	{
+		text = Clear
+	}
+	
+	button return
+	{
+		text = Return 
+	}
+}
+
+form Play
+{
+	layout = LAYOUT_VERTICAL
+	alignment = ALIGN_VCENTER_HCENTER 
+	size = 80%,100%
+	
+	label title
+	{
+		text = New Game
+	}
+
+	label title1
+	{
+		text = LAN Server:
+	}
+	
+	container servers
+	{
+		layout = LAYOUT_VERTICAL
+		scroll = SCROLL_BOTH
+		scrollBarsAutoHide = true 
+		size =80%,30%
+	}
+	
+	label title2
+	{
+		text = Maps:
+	}
+	
+	container maps
+	{
+		layout = LAYOUT_VERTICAL
+		scroll = SCROLL_BOTH
+		scrollBarsAutoHide = true 
+		size =80%,30%
+	}
+	
+	container LAN
+	{
+		width =100%
+		layout = LAYOUT_FLOW
+		label title3
+		{
+			text = Server IP:
+		}
+		textbox IP
+		{
+			inputMode = TEXT
+			size = 300,50
+		}
+		button connect
+		{
+			text = Join
+		}
+	}
+	
+	button return
+	{
+		alignment = ALIGN_BOTTOM
+		text = Return 
+	}
+	
+}
+
+form Settings
+{
+	layout = LAYOUT_VERTICAL
+	alignment = ALIGN_VCENTER_HCENTER 
+	size = 80%,80%
+	scroll = SCROLL_VERTICAL
+	scrollBarsAutoHide = true 
+	
+	slider width
+	{
+		text = width
+		width = 50%
+		min =  800
+		max =  4096
+		step = 1
+		valueTextVisible = true 
+		valueTextPrecision = 0 
+	}
+	
+	slider height
+	{
+		text = height
+		width = 50%
+		min =  600
+		max =  2160
+		step = 1
+		valueTextVisible = true 
+		valueTextPrecision = 0 
+	}
+	
+	button currentsize
+	{
+		text = Current Size
+	}
+	
+	checkBox fullscreen
+	{
+		text = Full Screen
+	}
+	
+	button reload
+	{
+		text = Reload
+	}
+	
+	button return
+	{
+		alignment = ALIGN_BOTTOM
+		text = Save and Return 
+	}
+}
+
+form Server
+{
+	layout = LAYOUT_VERTICAL
+	alignment = ALIGN_VCENTER_HCENTER 
+	
+	label IP
+	{
+	}
+	
+	label state
+	{
+	}
+	
+	button run
+	{
+		text = Go
+	}
+
+	button return
+	{
+		text = Return 
+	}
+}
+
+form Client
+{
+	layout = LAYOUT_VERTICAL
+	alignment = ALIGN_VCENTER_HCENTER 
+	
+	slider group
+	{
+		text = Group
+		height = 100
+		width = 300
+		min =  1
+		max =  4
+		step = 1
+		valueTextVisible = true 
+		valueTextPrecision = 0 
+	}
+	
+	button return
+	{
+		text = Return 
+	} 
+	
+}
+
+form GameMain
+{
+	layout = LAYOUT_VERTICAL
+	alignment = ALIGN_VCENTER_RIGHT 
+	size = 20%,100%
+	
+	button return
+	{
+		height = 10%
+		text = Exit
+	}
+	
+	label state
+	{
+		height = 10%
+	}
+	
+	slider weight
+	{
+		height = 20%
+		width = 100%
+		min =  1
+		max =  1000
+		step = 1
+		valueTextVisible = true
+		valueTextPrecision = 0
+	}
+	
+	container units
+	{
+		layout = LAYOUT_VERTICAL
+		width = 100%
+		height = 60%
+		scroll = SCROLL_BOTH
+		scrollBarsAutoHide = true 
+	}
+}
+
+
+

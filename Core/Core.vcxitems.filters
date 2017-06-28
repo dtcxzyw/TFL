@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Client.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)common.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Map.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)TFL.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Server.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)UI.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Unit.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)UnitController.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Client.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)common.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Map.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Message.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Server.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)UI.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Unit.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)UnitController.h" />
+  </ItemGroup>
+</Project>

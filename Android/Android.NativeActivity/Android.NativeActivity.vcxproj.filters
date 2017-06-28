@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="android_native_app_glue.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="android_native_app_glue.c" />
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\ALc.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\alcConfig.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\alcRing.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\ALu.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\common\atomic.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\effects\autowah.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\bs2b.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\effects\chorus.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\effects\compressor.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\effects\dedicated.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\effects\distortion.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\midi\dummy.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\effects\echo.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\effects\equalizer.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\effects\flanger.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\midi\fluidsynth.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\helpers.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\hrtf.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\backends\loopback.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\mixer.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\mixer_c.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\effects\modulator.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\backends\opensl.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\panning.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\effects\reverb.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\common\rwlock.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\midi\sf2load.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\midi\soft.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\common\threads.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\common\uintmap.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\backends\wave.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\midi\base2.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\backends\base1.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\backends\null1.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc\effects\null2.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\alAuxEffectSlot.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\alBuffer.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\alEffect.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\alError.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\alExtension.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\alFilter.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\alFontsound.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\alListener.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\alMidi.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\alPreset.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\alSoundfont.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\alSource.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\alState.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\alThunk.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\sample_cvt.c">
+      <Filter>OpenAL</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="OpenAL">
+      <UniqueIdentifier>{07b65f32-53be-431d-a6f4-9f07bb951aca}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

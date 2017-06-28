@@ -1,0 +1,34 @@
+material green
+{ 		
+    technique
+    { 
+		renderState
+		{
+			cullFace = true
+			depthTest = true
+		}
+		
+        pass
+        {
+			u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
+			u_inverseTransposeWorldViewMatrix = INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX
+			u_directionalLightDirection[0] = LIGHT_DIRECTION
+			u_directionalLightColor[0] = LIGHT_COLOR
+			u_ambientColor = SCENE_AMBIENT_COLOR
+			
+            vertexShader = res/shaders/textured.vert
+            fragmentShader = res/shaders/textured.frag
+            defines = DIRECTIONAL_LIGHT_COUNT 1
+
+			sampler u_diffuseTexture
+			{
+				path = res/common/green.png
+				mipmap = true
+				wrapS = REPEAT
+				wrapT = REPEAT
+				minFilter = LINEAR_MIPMAP_LINEAR
+				magFilter = LINEAR
+			}
+        }
+    }
+}

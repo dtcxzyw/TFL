@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <ItemsProjectGuid>{411f580c-a37e-49cc-b62f-24e58bd5200f}</ItemsProjectGuid>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Client.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)common.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Map.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Message.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Server.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)UI.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)Unit.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)UnitController.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Client.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)common.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Map.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)TFL.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Server.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)UI.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)Unit.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)UnitController.cpp" />
+  </ItemGroup>
+</Project>

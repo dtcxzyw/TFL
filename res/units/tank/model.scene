@@ -1,0 +1,19 @@
+scene tank
+{
+	node root
+	{
+		scale = 0.05,0.05,0.05
+		
+		node chassis
+		{
+			url = res/units/tank/model.gpb#chassis 
+			material = res/common/green.material
+		}
+		
+		node turret
+		{
+			url = res/units/tank/model.gpb#turret
+			material = res/common/green.material
+		}
+	}
+}

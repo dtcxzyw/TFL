@@ -1,0 +1,17 @@
+HP = 100
+cost = 2000
+FOV = 800
+plane= 5,10
+offset=0,-8,0
+radius=20
+control
+{
+	type=Tank
+	RST = 0.002
+	RSC = 0.001
+	v=50
+	dis = 500
+	time = 1000
+	harm = 60
+	rfac = 0.5
+}

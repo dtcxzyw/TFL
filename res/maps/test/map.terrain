@@ -1,0 +1,48 @@
+terrain
+{
+	material = res/common/terrain.material
+	
+	heightmap = res/maps/test/height.png 
+
+	size = 10000, 500, 10000
+	patchSize = 32
+	
+	layer rock
+	{
+		texture
+		{
+			path = res/maps/test/rock.png
+			repeat = 30,30
+		}
+	}
+
+    layer dirt
+    {
+		texture
+		{
+			path = res/maps/test/dirt.png
+			repeat = 750,750
+		}
+
+		blend
+		{
+            path = res/maps/test/dirt.png
+            channel = 3
+		}
+    }
+
+    layer grass
+	{
+		texture
+		{
+			path = res/maps/test/grass.png
+			repeat = 500,500
+		}
+
+		blend
+		{
+            path = res/maps/test/grass.png
+            channel = 3
+		}
+	}
+}
