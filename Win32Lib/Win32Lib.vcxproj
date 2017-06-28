@@ -77,16 +77,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

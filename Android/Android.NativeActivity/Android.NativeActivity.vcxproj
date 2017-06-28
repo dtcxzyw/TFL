@@ -191,7 +191,7 @@
       <CompileAs>Default</CompileAs>
       <CLanguageStandard>c11</CLanguageStandard>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
-      <AdditionalIncludeDirectories>C:\工作目录\The First Law\Deps\RakNet;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
@@ -223,7 +223,7 @@
       <CompileAs>Default</CompileAs>
       <CLanguageStandard>c11</CLanguageStandard>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
-      <AdditionalIncludeDirectories>C:\工作目录\The First Law\Deps\RakNet;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
@@ -254,7 +254,7 @@
       <CompileAs>Default</CompileAs>
       <CLanguageStandard>c11</CLanguageStandard>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
-      <AdditionalIncludeDirectories>C:\工作目录\The First Law\Deps\RakNet;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
@@ -286,7 +286,7 @@
       <CompileAs>Default</CompileAs>
       <CLanguageStandard>c11</CLanguageStandard>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
-      <AdditionalIncludeDirectories>C:\工作目录\The First Law\Deps\RakNet;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
@@ -317,7 +317,7 @@
       <CompileAs>Default</CompileAs>
       <CLanguageStandard>c11</CLanguageStandard>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
-      <AdditionalIncludeDirectories>C:\工作目录\The First Law\Deps\RakNet;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
@@ -349,7 +349,7 @@
       <CompileAs>Default</CompileAs>
       <CLanguageStandard>c11</CLanguageStandard>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
-      <AdditionalIncludeDirectories>C:\工作目录\The First Law\Deps\RakNet;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
@@ -380,7 +380,7 @@
       <CompileAs>Default</CompileAs>
       <CLanguageStandard>c11</CLanguageStandard>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
-      <AdditionalIncludeDirectories>C:\工作目录\The First Law\Deps\RakNet;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
@@ -412,7 +412,7 @@
       <CompileAs>Default</CompileAs>
       <CLanguageStandard>c11</CLanguageStandard>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
-      <AdditionalIncludeDirectories>C:\工作目录\The First Law\Deps\RakNet;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
