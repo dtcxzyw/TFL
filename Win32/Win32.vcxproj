@@ -103,7 +103,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <LanguageStandard>stdcpp14</LanguageStandard>
-      <ForcedIncludeFiles>C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\freetype-2.4.5\include\ft2build.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(SolutionDir)Deps\GamePlay-deps-3.0.0\freetype-2.4.5\include\ft2build.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>true</OpenMPSupport>
       <SDLCheck>true</SDLCheck>
@@ -132,7 +132,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <LanguageStandard>stdcpp14</LanguageStandard>
-      <ForcedIncludeFiles>C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\freetype-2.4.5\include\ft2build.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(SolutionDir)Deps\GamePlay-deps-3.0.0\freetype-2.4.5\include\ft2build.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>true</OpenMPSupport>
       <SDLCheck>true</SDLCheck>
@@ -163,7 +163,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions);FT2_BUILD_LIBRARY;alloca=_alloca;GLEW_STATIC;_USE_MATH_DEFINES</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp14</LanguageStandard>
-      <ForcedIncludeFiles>C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\freetype-2.4.5\include\ft2build.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(SolutionDir)Deps\GamePlay-deps-3.0.0\freetype-2.4.5\include\ft2build.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>true</OpenMPSupport>
       <SDLCheck>false</SDLCheck>
@@ -198,7 +198,7 @@
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions);FT2_BUILD_LIBRARY;alloca=_alloca;GLEW_STATIC;_USE_MATH_DEFINES;WIN32</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp14</LanguageStandard>
-      <ForcedIncludeFiles>C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\freetype-2.4.5\include\ft2build.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(SolutionDir)Deps\GamePlay-deps-3.0.0\freetype-2.4.5\include\ft2build.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>true</OpenMPSupport>
       <SDLCheck>false</SDLCheck>

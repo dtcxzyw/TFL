@@ -153,7 +153,7 @@
     <IncludePath>$(IncludePath)</IncludePath>
     <UseMultiToolTask>true</UseMultiToolTask>
     <ExtensionsToDeleteOnClean>$(ExtensionsToDeleteOnClean)</ExtensionsToDeleteOnClean>
-    <PackageDebugSymbols>true</PackageDebugSymbols>
+    <PackageDebugSymbols>false</PackageDebugSymbols>
     <TargetName>libTFL</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -191,17 +191,17 @@
       <CompileAs>Default</CompileAs>
       <CLanguageStandard>c11</CLanguageStandard>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
-      <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(SolutionDir)Android/Android.NativeActivity/pch.h</ForcedIncludeFiles>
       <PreprocessorDefinitions>;FT2_BUILD_LIBRARY;ANDROID;LUA_COMPAT_APIINTCASTS</PreprocessorDefinitions>
       <ExceptionHandling>Enabled</ExceptionHandling>
       <StrictAliasing>true</StrictAliasing>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <PrecompiledHeaderCompileAs>CompileAsC</PrecompiledHeaderCompileAs>
-      <Verbose>false</Verbose>
+      <Verbose>true</Verbose>
       <DataLevelLinking>false</DataLevelLinking>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
@@ -223,20 +223,21 @@
       <CompileAs>Default</CompileAs>
       <CLanguageStandard>c11</CLanguageStandard>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
-      <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(SolutionDir)Android/Android.NativeActivity/pch.h</ForcedIncludeFiles>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);FT2_BUILD_LIBRARY;ANDROID;LUA_COMPAT_APIINTCASTS</PreprocessorDefinitions>
       <ExceptionHandling>Enabled</ExceptionHandling>
       <StrictAliasing>true</StrictAliasing>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <PrecompiledHeaderCompileAs>CompileAsC</PrecompiledHeaderCompileAs>
-      <Verbose>false</Verbose>
+      <Verbose>true</Verbose>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
       </UndefineAllPreprocessorDefinitions>
+      <FloatABI>hard</FloatABI>
     </ClCompile>
     <Link>
       <LibraryDependencies>%(LibraryDependencies);GLESv2;EGL;m;OpenSLES</LibraryDependencies>
@@ -254,17 +255,17 @@
       <CompileAs>Default</CompileAs>
       <CLanguageStandard>c11</CLanguageStandard>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
-      <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(SolutionDir)Android/Android.NativeActivity/pch.h</ForcedIncludeFiles>
       <PreprocessorDefinitions>;FT2_BUILD_LIBRARY;ANDROID;LUA_COMPAT_APIINTCASTS</PreprocessorDefinitions>
       <ExceptionHandling>Enabled</ExceptionHandling>
       <StrictAliasing>true</StrictAliasing>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <PrecompiledHeaderCompileAs>CompileAsC</PrecompiledHeaderCompileAs>
-      <Verbose>false</Verbose>
+      <Verbose>true</Verbose>
       <DataLevelLinking>false</DataLevelLinking>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
@@ -286,24 +287,27 @@
       <CompileAs>Default</CompileAs>
       <CLanguageStandard>c11</CLanguageStandard>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
-      <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(SolutionDir)Android/Android.NativeActivity/pch.h</ForcedIncludeFiles>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);FT2_BUILD_LIBRARY;ANDROID;LUA_COMPAT_APIINTCASTS</PreprocessorDefinitions>
       <ExceptionHandling>Enabled</ExceptionHandling>
       <StrictAliasing>true</StrictAliasing>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <PrecompiledHeaderCompileAs>CompileAsC</PrecompiledHeaderCompileAs>
-      <Verbose>false</Verbose>
+      <Verbose>true</Verbose>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
       </UndefineAllPreprocessorDefinitions>
+      <EnableNeonCodegen>true</EnableNeonCodegen>
+      <FloatABI>hard</FloatABI>
     </ClCompile>
     <Link>
       <LibraryDependencies>%(LibraryDependencies);GLESv2;EGL;m;OpenSLES</LibraryDependencies>
       <OptimizeforMemory>false</OptimizeforMemory>
+      <DebuggerSymbolInformation>OmitAllSymbolInformation</DebuggerSymbolInformation>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -317,17 +321,17 @@
       <CompileAs>Default</CompileAs>
       <CLanguageStandard>c11</CLanguageStandard>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
-      <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(SolutionDir)Android/Android.NativeActivity/pch.h</ForcedIncludeFiles>
       <PreprocessorDefinitions>;FT2_BUILD_LIBRARY;ANDROID;LUA_COMPAT_APIINTCASTS</PreprocessorDefinitions>
       <ExceptionHandling>Enabled</ExceptionHandling>
       <StrictAliasing>true</StrictAliasing>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <PrecompiledHeaderCompileAs>CompileAsC</PrecompiledHeaderCompileAs>
-      <Verbose>false</Verbose>
+      <Verbose>true</Verbose>
       <DataLevelLinking>false</DataLevelLinking>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
@@ -349,20 +353,21 @@
       <CompileAs>Default</CompileAs>
       <CLanguageStandard>c11</CLanguageStandard>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
-      <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(SolutionDir)Android/Android.NativeActivity/pch.h</ForcedIncludeFiles>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);FT2_BUILD_LIBRARY;ANDROID;LUA_COMPAT_APIINTCASTS</PreprocessorDefinitions>
       <ExceptionHandling>Enabled</ExceptionHandling>
       <StrictAliasing>true</StrictAliasing>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <PrecompiledHeaderCompileAs>CompileAsC</PrecompiledHeaderCompileAs>
-      <Verbose>false</Verbose>
+      <Verbose>true</Verbose>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
       </UndefineAllPreprocessorDefinitions>
+      <FloatABI>hard</FloatABI>
     </ClCompile>
     <Link>
       <LibraryDependencies>%(LibraryDependencies);GLESv2;EGL;m;OpenSLES</LibraryDependencies>
@@ -380,17 +385,17 @@
       <CompileAs>Default</CompileAs>
       <CLanguageStandard>c11</CLanguageStandard>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
-      <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(SolutionDir)Android/Android.NativeActivity/pch.h</ForcedIncludeFiles>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);FT2_BUILD_LIBRARY;ANDROID;LUA_COMPAT_APIINTCASTS</PreprocessorDefinitions>
       <ExceptionHandling>Enabled</ExceptionHandling>
       <StrictAliasing>true</StrictAliasing>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <PrecompiledHeaderCompileAs>CompileAsC</PrecompiledHeaderCompileAs>
-      <Verbose>false</Verbose>
+      <Verbose>true</Verbose>
       <DataLevelLinking>false</DataLevelLinking>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
@@ -412,20 +417,21 @@
       <CompileAs>Default</CompileAs>
       <CLanguageStandard>c11</CLanguageStandard>
       <CppLanguageStandard>c++1y</CppLanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;C:\工作目录\The First Law\Deps\GamePlay-deps-3.0.0\include;C:\工作目录\The First Law\Deps\GamePlay</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\Alc;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\openal-1.16.0\OpenAL32\Include;$(SolutionDir)Deps\GamePlay-deps-3.0.0\vorbis-1.3.4\lib;%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay</AdditionalIncludeDirectories>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
-      <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles>$(SolutionDir)Android/Android.NativeActivity/pch.h</ForcedIncludeFiles>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);FT2_BUILD_LIBRARY;ANDROID;LUA_COMPAT_APIINTCASTS</PreprocessorDefinitions>
       <ExceptionHandling>Enabled</ExceptionHandling>
       <StrictAliasing>true</StrictAliasing>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <PrecompiledHeaderCompileAs>CompileAsC</PrecompiledHeaderCompileAs>
-      <Verbose>false</Verbose>
+      <Verbose>true</Verbose>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
       </UndefineAllPreprocessorDefinitions>
+      <FloatABI>hard</FloatABI>
     </ClCompile>
     <Link>
       <LibraryDependencies>%(LibraryDependencies);GLESv2;EGL;m;OpenSLES</LibraryDependencies>
