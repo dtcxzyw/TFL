@@ -289,3 +289,7 @@ __pycache__/
 
 #TFL PAK
 *.pak
+
+#Tools
+Packer.*
+FileLineCount.exe

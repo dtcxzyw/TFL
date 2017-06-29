@@ -19,10 +19,11 @@ void Server::chooseNew(KeyInfo& k) {
     auto pos = mt() % sum;
     uint16_t idx = 0;
     for (auto x : w) {
-        if (x >= pos)break;
+        if (x > pos)break;
         ++idx, pos -= x;
     }
-    k.id = idx;
+
+    k.id = (idx==w.size())?0:idx;
     if (k.time)
         k.time += getUnit(k.id).getTime();
     else
