@@ -22,7 +22,7 @@ material green
 
 			sampler u_diffuseTexture
 			{
-				path = res/common/green.png
+				path = res/shared/Core/green.png
 				mipmap = true
 				wrapS = REPEAT
 				wrapT = REPEAT

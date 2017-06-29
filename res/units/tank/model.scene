@@ -7,13 +7,13 @@ scene tank
 		node chassis
 		{
 			url = res/units/tank/model.gpb#chassis 
-			material = res/common/green.material
+			material = res/shared/Core/green.material
 		}
 		
 		node turret
 		{
 			url = res/units/tank/model.gpb#turret
-			material = res/common/green.material
+			material = res/shared/Core/green.material
 		}
 	}
 }
