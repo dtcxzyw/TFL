@@ -140,18 +140,11 @@ void Server::update(float delta) {
         }
         CheckHeader(ClientMessage::setAttackTarget) {
             auto& units = mGroups[mClients[packet->systemAddress].group].units;
-            uint32_t size;
-            data.Read(size);
-            for (uint32_t i = 0; i < size; ++i) {
-                uint32_t object, idSize, id;
-                data.Read(object);
-                data.Read(idSize);
-                for (uint32_t j = 0; j < idSize; ++j) {
-                    data.Read(id);
-                    auto u = units.find(id);
-                    if (u != units.cend())
-                        u->second.setAttackTarget(object);
-                }
+            uint32_t x, y;
+            while (data.Read(x) && data.Read(y)) {
+                auto xi = units.find(x);
+                if (xi != units.cend())
+                    xi->second.setAttackTarget(y);
             }
         }
         CheckHeader(ClientMessage::setMoveTarget) {
@@ -315,7 +308,8 @@ void Server::update(float delta) {
                 if (p.distanceSquared(mu.second.getNode()->getTranslationWorld())
                     < mu.second.getKind().getFOV()) {
                     uint16_t uk = getUnitID(u.second.getKind().getName());
-                    saw.push_back({ u.first,uk,p,u.second.getNode()->getRotation(),g.first,mu.first,u.second.getAttackTarget()});
+                    saw.push_back({ u.first,uk,p,u.second.getNode()->getRotation(),
+                        g.first,u.second.getAttackTarget()});
                     break;
                 }
         }
@@ -367,12 +361,8 @@ void Server::attack(uint32_t id, float harm) {
         auto&& units = g.second.units;
         auto i = units.find(id);
         if (i != units.end()) {
-            if (i->second.attacked(harm)) {
-                if(std::find(mDeferred.cbegin(),mDeferred.cend(),std::make_pair(g.first,id))
-                    ==mDeferred.cend())
-                    INFO("unit ", id, " died.(group=", static_cast<uint16_t>(g.first), ")");
+            if (i->second.attacked(harm))
                 mDeferred.push_back({ g.first,id });
-            }
             break;
         }
     }

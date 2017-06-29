@@ -20,6 +20,7 @@ private:
     void drawNode(Node* node);
     bool draw(Node* node,bool choosed);
     Vector2 getPoint(int x, int y) const;
+    float mCnt;
     //control
     int mX, mY,mBX,mBY;
     bool checkCamera();

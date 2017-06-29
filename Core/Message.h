@@ -34,7 +34,6 @@ struct UnitSyncInfo final {
     Vector3 pos;
     Quaternion rotation;
     uint8_t group;
-    uint32_t discover;
     uint32_t at;
 };
 

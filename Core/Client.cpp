@@ -76,7 +76,7 @@ void Client::move(int x, int y) {
 
 Client::Client(const std::string & server,bool& res) :
     mPeer(RakNet::RakPeerInterface::GetInstance()), mServer(server.c_str(), 23333),
-    mState(false), mWeight(globalUnits.size(), 1) {
+    mState(false), mWeight(globalUnits.size(), 1),mCnt(0.0f) {
 
     RakNet::SocketDescriptor SD;
     mPeer->Startup(1, &SD, 1);
@@ -190,8 +190,8 @@ bool Client::update(float delta) {
     }
 #endif // WIN32
 
-    std::map<uint32_t, std::vector<uint32_t>> attackMap;
-    std::set<uint32_t> free;
+    std::set<uint32_t> others;
+    std::set<uint32_t> mine;
 
     auto isStop = false;
     for (auto packet = mPeer->Receive(); packet; mPeer->DeallocatePacket(packet), packet = mPeer->Receive()) {
@@ -232,10 +232,10 @@ bool Client::update(float delta) {
                     i.first->second.update(0);
                     i.first->second.setAttackTarget(u.at);
                 }
-                if (u.group != mGroup)
-                    attackMap[u.id] = { u.discover };
+                if (u.group == mGroup)
+                    mine.insert(u.id);
                 else
-                    free.insert(u.id);
+                    others.insert(u.id);
             }
             for (auto&& o : old) {
                 mScene->removeNode(mUnits[o].getNode());
@@ -257,32 +257,33 @@ bool Client::update(float delta) {
         x.second.update(delta);
 
     //control
-    if (mt() % 100 == 0) {
-        for (auto&& x : free)
-            for (auto&& m : attackMap) {
-                if (mUnits[x].getNode()->getTranslationWorld()
-                    .distanceSquared(mUnits[m.first].getNode()->getTranslationWorld()) <
-                    mUnits[x].getKind().getFOV()) {
-                    m.second.emplace_back(x);
-                    break;
-                }
-            }
+    mCnt += delta;
+    if (mCnt>500.0f) {
 
         RakNet::BitStream data;
         data.Write(ClientMessage::setAttackTarget);
-        data.Write(static_cast<uint32_t>(attackMap.size()));
-        for (auto&& m : attackMap) {
-            data.Write(m.first);
-            data.Write(m.second.size());
-            for (auto&& u : m.second) {
-                data.Write(u);
-                mUnits[u].setAttackTarget(m.first);
+        
+        for (auto&& x : mine) {
+            float md = std::numeric_limits<float>::max();
+            uint32_t maxwell;
+            for (auto&& y : others) {
+              auto dis= mUnits[x].getNode()->getTranslationWorld().
+                    distanceSquared(mUnits[y].getNode()->getTranslationWorld());
+              if (dis < md)
+                  md = dis, maxwell = y;
+            }
+            if (md < mUnits[x].getKind().getFOV()) {
+                data.Write(x);
+                data.Write(maxwell);
             }
         }
 
         mPeer->Send(&data, PacketPriority::HIGH_PRIORITY,
             PacketReliability::RELIABLE_ORDERED, 0, mServer, false);
+
+        mCnt = 0.0f;
     }
+
     return true;
 }
 
