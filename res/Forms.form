@@ -33,6 +33,16 @@ form About
     label info
 	{}
 	
+	button code
+	{
+		text = View code on GitHub
+	}
+	
+	button report
+	{
+		text = Report a bug
+	}
+	
 	label text
 	{
 		text = log:

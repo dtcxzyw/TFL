@@ -116,6 +116,10 @@ void AboutMenu::event(Control* control, Event evt) {
         auto c = get<Container>("log");
         const_cast<std::vector<Control*>&>(c->getControls()).clear();
     }
+    if (evt == Event::PRESS && CMPID("code"))
+        Game::getInstance()->launchURL("https://github.com/dtcxzyw/TFL");
+    if (evt == Event::PRESS && CMPID("report"))
+        Game::getInstance()->launchURL("https://github.com/dtcxzyw/TFL/issues");
 }
 
 PlayMenu::PlayMenu() :UI("Play") {

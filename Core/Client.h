@@ -52,6 +52,7 @@ public:
     void beginPoint(int x, int y);
     void endPoint(int x, int y);
     void cancel();
+    bool hasChoosed() const;
 };
 
 extern std::unique_ptr<Client> localClient;

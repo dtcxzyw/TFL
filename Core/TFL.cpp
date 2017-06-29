@@ -298,12 +298,17 @@ public:
                 break;
             case Touch::TOUCH_RELEASE:
             {
-                if ((px-x)*(px-x)+(py-y)*(py-y)<25) {
-                    if (press) localClient->endPoint(x, y);
-                    else localClient->beginPoint(x, y);
-                    press = !press;
+                if (localClient->hasChoosed()) {
+                    localClient->beginPoint(x, y);
+                    localClient->endPoint(x, y);
                 }
-                else localClient->beginPoint(x, y);
+                else {
+                    if ((px - x)*(px - x) + (py - y)*(py - y)<25) {
+                        if (press) localClient->endPoint(x, y);
+                        else localClient->beginPoint(x, y);
+                        press = !press;
+                    }
+                }
             }
             break;
             case Touch::TOUCH_MOVE:

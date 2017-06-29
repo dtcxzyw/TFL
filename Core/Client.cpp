@@ -31,7 +31,7 @@ Vector2 Client::getPoint(int x, int y) const {
     float minError = std::numeric_limits<float>::max();
     auto reslover = [ray](float x) {return ray.getOrigin() -
         ray.getDirection()*(ray.getOrigin().y*x / ray.getDirection().y); };
-    constexpr auto num = 256.0;
+    constexpr auto num = 16.0f;
     for (uint8_t i = 0; i <num ; ++i) {
         auto x = i/num;
         auto p=reslover(x);
@@ -396,11 +396,7 @@ void Client::beginPoint(int x, int y) {
 
 void Client::endPoint(int x, int y) {
     if (mState) {
-        if ((mBX-x)*(mBX-x)+(mBY-y)*(mBY-y)>256
-#ifdef ANDROID
-            && mChoosed.empty()
-#endif // ANDROID  
-            ) {
+        if ((mBX-x)*(mBX-x)+(mBY-y)*(mBY-y)>256) {
             Vector2 b = getPoint(mBX, mBY), e = getPoint(x, y);
             auto x1 = b.x, y1 = b.y, x2 = e.x, y2 = e.y;
             if (x1 > x2)std::swap(x1, x2);
@@ -420,4 +416,8 @@ void Client::endPoint(int x, int y) {
 
 void Client::cancel() {
     mChoosed.clear();
+}
+
+bool Client::hasChoosed() const {
+    return mChoosed.size();
 }
