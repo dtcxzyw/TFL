@@ -153,7 +153,7 @@
     <IncludePath>$(IncludePath)</IncludePath>
     <UseMultiToolTask>true</UseMultiToolTask>
     <ExtensionsToDeleteOnClean>$(ExtensionsToDeleteOnClean)</ExtensionsToDeleteOnClean>
-    <PackageDebugSymbols>false</PackageDebugSymbols>
+    <PackageDebugSymbols>true</PackageDebugSymbols>
     <TargetName>libTFL</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -242,6 +242,7 @@
     <Link>
       <LibraryDependencies>%(LibraryDependencies);GLESv2;EGL;m;OpenSLES</LibraryDependencies>
       <OptimizeforMemory>false</OptimizeforMemory>
+      <DebuggerSymbolInformation>OmitAllSymbolInformation</DebuggerSymbolInformation>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -297,12 +298,12 @@
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <PrecompiledHeaderCompileAs>CompileAsC</PrecompiledHeaderCompileAs>
-      <Verbose>true</Verbose>
+      <Verbose>false</Verbose>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
       </UndefineAllPreprocessorDefinitions>
       <EnableNeonCodegen>true</EnableNeonCodegen>
-      <FloatABI>hard</FloatABI>
+      <FloatABI>soft</FloatABI>
     </ClCompile>
     <Link>
       <LibraryDependencies>%(LibraryDependencies);GLESv2;EGL;m;OpenSLES</LibraryDependencies>
@@ -372,6 +373,7 @@
     <Link>
       <LibraryDependencies>%(LibraryDependencies);GLESv2;EGL;m;OpenSLES</LibraryDependencies>
       <OptimizeforMemory>false</OptimizeforMemory>
+      <DebuggerSymbolInformation>OmitAllSymbolInformation</DebuggerSymbolInformation>
     </Link>
     <PreBuildEvent>
       <Command>
@@ -436,6 +438,7 @@
     <Link>
       <LibraryDependencies>%(LibraryDependencies);GLESv2;EGL;m;OpenSLES</LibraryDependencies>
       <OptimizeforMemory>false</OptimizeforMemory>
+      <DebuggerSymbolInformation>OmitAllSymbolInformation</DebuggerSymbolInformation>
     </Link>
     <PreBuildEvent>
       <Command>
