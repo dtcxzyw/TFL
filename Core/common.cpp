@@ -65,5 +65,22 @@ bool listDirs(const char* dirPath, std::vector<std::string>& dirs) {
 #endif
 }
 
+void removeAll(const std::string & path) {
+    {
+        std::vector<std::string> files;
+        FileSystem::listFiles(path.c_str(), files);
+        for (auto && file : files)
+            remove((path + '/' + file).c_str());
+    }
+    {
+        std::vector<std::string> dirs;
+        listDirs(path.c_str(), dirs);
+        for (auto&& dir : dirs) {
+            removeAll(path+"/"+dir);
+        }
+    }
+    rmdir(path.c_str());
+}
+
 std::mt19937_64 mt(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 

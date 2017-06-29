@@ -86,3 +86,5 @@ struct BindingResolver final :private RenderState::AutoBindingResolver {
 using uint64_t = unsigned long long;
 static_assert(sizeof(uint64_t) == 8, "");
 #endif
+
+void removeAll(const std::string& path);

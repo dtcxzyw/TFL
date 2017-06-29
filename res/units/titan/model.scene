@@ -7,13 +7,13 @@ scene titan
 		node chassis
 		{
 			url = res/units/titan/model.gpb#chassis 
-			material = res/common/green.material
+			material = res/shared/Core/green.material
 		}
 		
 		node turret
 		{
 			url = res/units/titan/model.gpb#turret
-			material = res/common/green.material
+			material = res/shared/Core/green.material
 		}
 	}
 }

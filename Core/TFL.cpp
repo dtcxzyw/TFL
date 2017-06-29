@@ -121,7 +121,7 @@ void unpackAllPacks() {
 
     if (!reload)return;
 
-    rmdir("res");
+    removeAll("res");
 
     std::map<std::string, std::vector<uint8_t>> parents;
     std::set<std::string> out;
@@ -294,23 +294,25 @@ public:
 
         if (localClient) {
             switch (evt) {
-            case Touch::TOUCH_PRESS:lx = x, ly = y;
+            case Touch::TOUCH_PRESS:lx =px= x, ly =py= y;
                 break;
             case Touch::TOUCH_RELEASE:
             {
-                if (lx == x && ly == y) {
+                if ((px-x)*(px-x)+(py-y)*(py-y)<25) {
                     if (press) localClient->endPoint(x, y);
                     else localClient->beginPoint(x, y);
                     press = !press;
                 }
-                lx = 0;
+                else localClient->beginPoint(x, y);
             }
             break;
             case Touch::TOUCH_MOVE:
             {
                 constexpr auto unit = 0.001f;
-                if (lx != x || ly != y)press = false;
-                if (lx)localClient->moveEvent((lx - x)*unit, (ly - y)*unit);
+                if ((px - x)*(px*x) + (py - y)*(py - y)>25) {
+                    localClient->moveEvent((lx - x)*unit, (ly - y)*unit);
+                    press = false;
+                }
                 lx = x, ly = y;
             }
             break;

@@ -201,7 +201,7 @@
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <PrecompiledHeaderCompileAs>CompileAsC</PrecompiledHeaderCompileAs>
-      <Verbose>true</Verbose>
+      <Verbose>false</Verbose>
       <DataLevelLinking>false</DataLevelLinking>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
@@ -233,7 +233,7 @@
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <PrecompiledHeaderCompileAs>CompileAsC</PrecompiledHeaderCompileAs>
-      <Verbose>true</Verbose>
+      <Verbose>false</Verbose>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
       </UndefineAllPreprocessorDefinitions>
@@ -266,7 +266,7 @@
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <PrecompiledHeaderCompileAs>CompileAsC</PrecompiledHeaderCompileAs>
-      <Verbose>true</Verbose>
+      <Verbose>false</Verbose>
       <DataLevelLinking>false</DataLevelLinking>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
@@ -332,7 +332,7 @@
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <PrecompiledHeaderCompileAs>CompileAsC</PrecompiledHeaderCompileAs>
-      <Verbose>true</Verbose>
+      <Verbose>false</Verbose>
       <DataLevelLinking>false</DataLevelLinking>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
@@ -364,7 +364,7 @@
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <PrecompiledHeaderCompileAs>CompileAsC</PrecompiledHeaderCompileAs>
-      <Verbose>true</Verbose>
+      <Verbose>false</Verbose>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
       </UndefineAllPreprocessorDefinitions>
@@ -397,7 +397,7 @@
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <PrecompiledHeaderCompileAs>CompileAsC</PrecompiledHeaderCompileAs>
-      <Verbose>true</Verbose>
+      <Verbose>false</Verbose>
       <DataLevelLinking>false</DataLevelLinking>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
@@ -429,7 +429,7 @@
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <PrecompiledHeaderCompileAs>CompileAsC</PrecompiledHeaderCompileAs>
-      <Verbose>true</Verbose>
+      <Verbose>false</Verbose>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
       </UndefineAllPreprocessorDefinitions>

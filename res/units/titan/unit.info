@@ -1,9 +1,9 @@
 HP = 150
 cost = 3000
 FOV = 2000
-plane= 5,10
-offset=0,-8,0
-radius=30
+plane= 10,10
+offset=0,-10,0
+radius=35
 control
 {
 	type=Tank
