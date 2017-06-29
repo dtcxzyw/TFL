@@ -2,6 +2,7 @@
 #include "Client.h"
 #include "Server.h"
 #include <functional>
+#include <array>
 
 void UnitController::setMoveTarget(Vector2 dest) { mDest = dest; }
 
@@ -12,6 +13,66 @@ uint32_t UnitController::getAttackTarget() const {
 }
 
 void UnitController::isServer() { mIsServer = true; }
+
+void correct(UnitInstance& instance) {
+    auto node = instance.getNode();
+    auto kind = &instance.getKind();
+    auto p = node->getTranslation();
+    auto b = p + kind->getOffset();
+    auto h = localClient->getHeight(b.x, b.z);
+    node->setTranslationY(h - kind->getOffset().y);
+    auto d = kind->getPlane();
+
+    std::array<Vector2, 4> base =
+    { Vector2{ b.x + d.x,b.z + d.y },
+        Vector2{ b.x + d.x,b.z - d.y } ,
+        Vector2{ b.x - d.x,b.z + d.y } ,
+        Vector2{ b.x - d.x,b.z - d.y } };
+    std::array<Vector3, 4> sample;
+    size_t idx = 0;
+    for (auto&&x : base) {
+        sample[idx] = Vector3{ x.x,localClient->getHeight(x.x,x.y),x.y };
+        ++idx;
+    }
+
+    Vector3 mean;
+    for (size_t i = 0; i < 4; ++i) {
+        auto a = sample[(i + 3) % 4] - sample[i];
+        a.normalize();
+        auto b = sample[(i + 1) % 4] - sample[i];
+        b.normalize();
+        Vector3 up;
+        Vector3::cross(a, b, &up);
+        if (up.y < 0)up.negate();
+        up.normalize();
+        mean += up / 4.0f;
+    }
+
+    mean.normalize();
+    auto dot = [&] {
+        auto u = node->getUpVectorWorld();
+        u.normalize();
+        return u.dot(mean);
+    };
+    constexpr auto unit = 0.001f;
+    auto cd = dot();
+#define TEST(a,b)\
+    while (true) {\
+        node->rotate##a((b));\
+        auto nd = dot();\
+        if (cd < nd)cd = nd;\
+        else {\
+            node->rotate##a(-(b));\
+            break;\
+        }\
+    }\
+
+    TEST(X, unit);
+    TEST(X, -unit);
+    TEST(Y, unit);
+    TEST(Y, -unit);
+#undef TEST
+}
 
 #define Init(name) name(info->getFloat(#name))
 struct Tank final :public UnitController {
@@ -28,7 +89,8 @@ struct Tank final :public UnitController {
         return obj.dot(x);
     }
 
-    bool update(Node* node, float delta) override {
+    bool update(UnitInstance& instance, float delta) override {
+        auto node = instance.getNode();
         count += delta;
         count = std::min(count, time + 0.1f);
 
@@ -106,11 +168,15 @@ struct Tank final :public UnitController {
             auto f = c->getForwardVectorWorld();
             f.normalize();
             auto fd = 1.0f + f.dot(-Vector3::unitY());
-            if (d > 0.7f)
+            if (d > 0.7f) {
                 c->translateForward(std::min(delta*v*fd*fac, np.distance(mDest)))
-                , sample += delta;
+                    , sample += delta;
+                correct(instance);
+                return true;
+            }
         }
-        return true;
+        correct(instance);
+        return false;
     }
 };
 #undef Init

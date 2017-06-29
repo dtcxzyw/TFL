@@ -121,7 +121,7 @@ void unpackAllPacks() {
 
     if (!reload)return;
 
-    removeAll("res");
+    removeAll(std::string(FileSystem::getResourcePath())+"res");
 
     std::map<std::string, std::vector<uint8_t>> parents;
     std::set<std::string> out;
@@ -290,14 +290,15 @@ public:
     }
     void touchEvent(Touch::TouchEvent evt, int x, int y, unsigned int contactIndex) override {
         static int lx = 0, ly, px, py;
-        static bool press = false;
+        static bool press = false,flag;
 
         if (localClient) {
             switch (evt) {
-            case Touch::TOUCH_PRESS:lx =px= x, ly =py= y;
+            case Touch::TOUCH_PRESS:lx = px = x, ly = py = y, flag = false;
                 break;
             case Touch::TOUCH_RELEASE:
             {
+                flag = true;
                 if (localClient->hasChoosed()) {
                     localClient->beginPoint(x, y);
                     localClient->endPoint(x, y);
@@ -314,9 +315,9 @@ public:
             case Touch::TOUCH_MOVE:
             {
                 constexpr auto unit = 0.001f;
-                if ((px - x)*(px*x) + (py - y)*(py - y)>25) {
+                if ((px - x)*(px*x) + (py - y)*(py - y)>25|| flag) {
                     localClient->moveEvent((lx - x)*unit, (ly - y)*unit);
-                    press = false;
+                    press = false, flag = true;
                 }
                 lx = x, ly = y;
             }

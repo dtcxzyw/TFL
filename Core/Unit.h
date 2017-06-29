@@ -56,7 +56,7 @@ public:
     }
 #endif
     void setAttackTarget(uint32_t id);
-    void update(float delta);
+    bool update(float delta);
     BoundingSphere getBound() const;
     //Server
     Node* getNode();

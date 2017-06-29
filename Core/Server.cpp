@@ -260,12 +260,9 @@ void Server::update(float delta) {
 
         std::shuffle(units.begin(), units.end(), mt);
 
-        for (auto&& u : units) {
-            auto old = u.instance->getNode()->getTranslation();
-            u.instance->update(delta);
-            if (old != u.instance->getNode()->getTranslation())
+        for (auto&& u : units)
+            if (u.instance->update(delta))
                 check.insert(u);
-        }
     }
 
     for (auto&& x : mDeferred) {

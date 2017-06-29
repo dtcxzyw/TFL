@@ -2,7 +2,6 @@
 #include "Client.h"
 #include "Unit.h"
 #include <iterator>
-#include <array>
 
 std::map<std::string, Unit> globalUnits;
 
@@ -69,69 +68,12 @@ void UnitInstance::setMoveTarget(Vector2 pos) {
     mController->setMoveTarget(pos);
 }
 
-void UnitInstance::update(float delta) {
+bool UnitInstance::update(float delta) {
     auto p = mNode->getTranslation();
     if (localClient->getPos(mController->getAttackTarget()).
         distanceSquared({ p.x,p.z }) > mKind->getFOV())
         mController->setAttackTarget(0);
-    if (mController->update(mNode.get(), delta)) {
-        //correct
-        auto p = mNode->getTranslation();
-        auto b = p + mKind->getOffset();
-        auto h = localClient->getHeight(b.x, b.z);
-        mNode->setTranslationY(h - mKind->getOffset().y);
-        auto d = mKind->getPlane();
-
-        std::array<Vector2, 4> base =
-        { Vector2{b.x + d.x,b.z + d.y},
-            Vector2{ b.x + d.x,b.z - d.y } ,
-            Vector2{ b.x - d.x,b.z + d.y } ,
-            Vector2{ b.x - d.x,b.z - d.y } };
-        std::array<Vector3, 4> sample;
-        size_t idx = 0;
-        for (auto&&x : base) {
-            sample[idx] = Vector3{ x.x,localClient->getHeight(x.x,x.y),x.y };
-            ++idx;
-        }
-
-        Vector3 mean;
-        for (size_t i = 0; i < 4; ++i) {
-            auto a = sample[(i + 3) % 4] - sample[i];
-            a.normalize();
-            auto b = sample[(i + 1) % 4] - sample[i];
-            b.normalize();
-            Vector3 up;
-            Vector3::cross(a, b, &up);
-            if (up.y < 0)up.negate();
-            up.normalize();
-            mean += up / 4.0f;
-        }
-
-        mean.normalize();
-        auto dot = [&, this] {
-            auto u = mNode->getUpVectorWorld();
-            u.normalize();
-            return u.dot(mean);
-        };
-        constexpr auto unit = 0.001f;
-        auto cd = dot();
-#define TEST(a,b)\
-    while (true) {\
-        mNode->rotate##a((b));\
-        auto nd = dot();\
-        if (cd < nd)cd = nd;\
-        else {\
-            mNode->rotate##a(-(b));\
-            break;\
-        }\
-    }\
-
-        TEST(X, unit);
-        TEST(X, -unit);
-        TEST(Y, unit);
-        TEST(Y, -unit);
-#undef TEST
-    }
+    return mController->update(*this, delta);
 }
 
 BoundingSphere UnitInstance::getBound() const {

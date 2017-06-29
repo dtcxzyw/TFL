@@ -1,6 +1,8 @@
 #pragma once
 #include "common.h"
 
+class UnitInstance;
+
 class UnitController {
 public:
     static void initAllController();
@@ -9,7 +11,7 @@ public:
     void setAttackTarget(uint32_t id);
     uint32_t getAttackTarget() const;
     void isServer();
-    virtual bool update(Node* node,float delta) = 0;
+    virtual bool update(UnitInstance& instance,float delta) = 0;
 protected:
     uint32_t mObject=0;
     Vector2 mDest=Vector2::zero();

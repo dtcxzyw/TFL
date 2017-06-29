@@ -198,6 +198,7 @@ bool Client::update(float delta) {
         data.IgnoreBytes(1);
         CheckBegin;
         CheckHeader(ServerMessage::stop) {
+            INFO("The game stopped.");
             isStop = true;
             continue;
         }
@@ -206,6 +207,8 @@ bool Client::update(float delta) {
         }
         CheckHeader(ServerMessage::out) {
             INFO("What a pity!");
+            isStop = true;
+            continue;
         }
         CheckHeader(ServerMessage::updateUnit) {
             uint32_t size;
@@ -360,8 +363,8 @@ void Client::moveEvent(float x, float y) {
         auto pos = node->getTranslation();
         node->translate(x, 0.0f, y);
         auto height = mMap->getHeight(node->getTranslationX(), node->getTranslationZ());
-        if (node->getTranslationY() < height + 200.0f)
-            node->setTranslationY(height + 200.0f);
+        if (node->getTranslationY() < height + 100.0f)
+            node->setTranslationY(height + 100.0f);
 
         auto game = Game::getInstance();
         if (game->getWidth() && game->getHeight() && checkCamera())
@@ -373,7 +376,7 @@ void Client::scaleEvent(float x) {
     if (mState) {
         auto node = mCamera->getNode();
         auto height = mMap->getHeight(node->getTranslationX(), node->getTranslationZ());
-        if (node->getTranslationY() > 200.0f && node->getTranslationY() - 200.0f > height) {
+        if (node->getTranslationY() > 200.0f && node->getTranslationY() - 100.0f > height) {
             node->translateY(x);
             if (checkCamera())
                 node->translateY(-x);
