@@ -70,13 +70,13 @@ void UnitInstance::setMoveTarget(Vector2 pos) {
 }
 
 void UnitInstance::update(float delta) {
-    auto p = mNode->getTranslationWorld();
+    auto p = mNode->getTranslation();
     if (localClient->getPos(mController->getAttackTarget()).
         distanceSquared({ p.x,p.z }) > mKind->getFOV())
         mController->setAttackTarget(0);
     if (mController->update(mNode.get(), delta)) {
         //correct
-        auto p = mNode->getTranslationWorld();
+        auto p = mNode->getTranslation();
         auto b = p + mKind->getOffset();
         auto h = localClient->getHeight(b.x, b.z);
         mNode->setTranslationY(h - mKind->getOffset().y);

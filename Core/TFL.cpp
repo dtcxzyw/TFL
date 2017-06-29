@@ -26,7 +26,7 @@ std::string getLogPath() {
 
 std::stringstream logtext;
 uniqueRAII<Form> label;
-double lastTime=0.0f;
+double lastTime = 0.0f;
 void logCallback(Logger::Level level, const char* message) {
 #ifdef WIN32
     static std::ofstream log(getLogPath());
@@ -174,7 +174,7 @@ private:
 
 #ifdef ANDROID
         bool unpack = false;
-        if (FileSystem::fileExists("paks/Core.pak")){
+        if (FileSystem::fileExists("paks/Core.pak")) {
             uniqueRAII<Stream> old = FileSystem::open("paks/Core.pak");
             uniqueRAII<Stream> now = FileSystem::open("Core.pak");
             uint64_t k1, k2;
@@ -183,7 +183,7 @@ private:
             unpack = k1 != k2;
         }
         else unpack = true;
-        
+
         if (unpack) {
             INFO("Unpacking Core");
             uniqueRAII<Stream> pak = FileSystem::open("Core.pak");
@@ -234,7 +234,7 @@ protected:
 
         //input
         setMultiTouch(false);
-        setVsync(true);
+        setVsync(false);
 
         INFO("Loading units...");
         br = std::make_unique<BindingResolver>();
@@ -261,8 +261,7 @@ protected:
             update(delta);
             return;
         }
-#endif // WIN32
-
+#endif
         clear(CLEAR_COLOR_DEPTH, Vector4::zero(), 1.0f, 0);
         if (localClient)localClient->render();
         else setViewport(gameplay::Rectangle(getWidth(), getHeight()));

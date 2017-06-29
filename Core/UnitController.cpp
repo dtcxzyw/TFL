@@ -15,9 +15,9 @@ void UnitController::isServer() { mIsServer = true; }
 
 #define Init(name) name(info->getFloat(#name))
 struct Tank final :public UnitController {
-    float RST, RSC, v, time, harm, dis, count,rfac,sample;
+    float RST, RSC, v, time, harm, dis, count, rfac, sample;
     Vector2 last;
-    Tank(const Properties* info) : Init(RST), Init(RSC), Init(v), Init(time), Init(harm), Init(dis),Init(rfac)
+    Tank(const Properties* info) : Init(RST), Init(RSC), Init(v), Init(time), Init(harm), Init(dis), Init(rfac)
         , count(0.0f), sample(0.0f) {
         v /= 1000.0f;
     }
@@ -35,11 +35,11 @@ struct Tank final :public UnitController {
         auto c = node;
         auto t = node->findNode("turret");
         auto point = localClient->getPos(mObject);
-        auto now = node->getTranslationWorld();
+        auto now = node->getTranslation();
         Vector2 np{ now.x,now.z };
 
         if (sample > 100.0f && !mDest.isZero()) {
-            if (last.distanceSquared(np) < 10.0f*v && np.distanceSquared(mDest)<10000.0f)
+            if (last.distanceSquared(np) < 10.0f*v && np.distanceSquared(mDest) < 10000.0f)
                 mDest = Vector2::zero();
             last = np;
             sample = 0.0f;
@@ -105,9 +105,9 @@ struct Tank final :public UnitController {
             auto d = dot(c, obj);
             auto f = c->getForwardVectorWorld();
             f.normalize();
-            auto fd =1.0f + f.dot(-Vector3::unitY());
-            if (d > 0.7f) 
-                c->translateForward(std::min(delta*v*fd*fac,np.distance(mDest)))
+            auto fd = 1.0f + f.dot(-Vector3::unitY());
+            if (d > 0.7f)
+                c->translateForward(std::min(delta*v*fd*fac, np.distance(mDest)))
                 , sample += delta;
         }
         return true;

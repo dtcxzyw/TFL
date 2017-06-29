@@ -267,8 +267,8 @@ bool Client::update(float delta) {
             float md = std::numeric_limits<float>::max();
             uint32_t maxwell;
             for (auto&& y : others) {
-              auto dis= mUnits[x].getNode()->getTranslationWorld().
-                    distanceSquared(mUnits[y].getNode()->getTranslationWorld());
+              auto dis= mUnits[x].getNode()->getTranslation().
+                    distanceSquared(mUnits[y].getNode()->getTranslation());
               if (dis < md)
                   md = dis, maxwell = y;
             }
@@ -324,7 +324,7 @@ void Client::render() {
 Vector2 Client::getPos(uint32_t id) {
     auto i = mUnits.find(id);
     if (i != mUnits.cend()) {
-        auto p = i->second.getNode()->getTranslationWorld();
+        auto p = i->second.getNode()->getTranslation();
         return { p.x,p.z };
     }
     return Vector2::zero();
@@ -408,7 +408,7 @@ void Client::endPoint(int x, int y) {
             mChoosed.clear();
             for (auto&& x : mUnits)
                 if (x.second.getGroup() == mGroup) {
-                    auto p = x.second.getNode()->getTranslationWorld();
+                    auto p = x.second.getNode()->getTranslation();
                     if (x1<p.x && x2>p.x && y1<p.z && y2>p.z)
                         mChoosed.emplace_back(x.first);
                 }

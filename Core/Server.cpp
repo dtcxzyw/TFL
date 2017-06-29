@@ -171,7 +171,7 @@ void Server::update(float delta) {
             for (auto&& g : mGroups) {
                 auto minDis = std::numeric_limits<float>::max();
                 for (auto&& u : g.second.units) {
-                    auto p = u.second.getNode()->getTranslationWorld();
+                    auto p = u.second.getNode()->getTranslation();
                     minDis = std::min(minDis, k.pos.distanceSquared({ p.x,p.z }));
                 }
                 dis[g.first] = minDis;
@@ -221,8 +221,11 @@ void Server::update(float delta) {
         uint32_t id;
         uint8_t group;
         UnitInstance* instance;
+        bool operator<(const CheckInfo& rhs) const {
+            return id < rhs.id;
+        }
     };
-    std::vector<CheckInfo> check;
+    std::set<CheckInfo> check;
 
     //produce unit
     auto now = Game::getAbsoluteTime();
@@ -239,7 +242,7 @@ void Server::update(float delta) {
                 mGroups[k.owner].units.
                     insert({ id,std::move(UnitInstance{ getUnit(k.id), k.owner, id, mScene.get(), true, p }) });
                 mGroups[k.owner].units[id].update(0);
-                check.push_back({ id,k.owner,&mGroups[k.owner].units[id] });
+                check.insert({ id,k.owner,&mGroups[k.owner].units[id] });
                 chooseNew(k);
                 flag = true;
             }
@@ -261,7 +264,7 @@ void Server::update(float delta) {
             auto old = u.instance->getNode()->getTranslation();
             u.instance->update(delta);
             if (old != u.instance->getNode()->getTranslation())
-                check.emplace_back(u);
+                check.insert(u);
         }
     }
 
@@ -275,24 +278,35 @@ void Server::update(float delta) {
     }
     mDeferred.clear();
 
-    for (auto&& c : check)
-        if (mGroups[c.group].units.find(c.id) != mGroups[c.group].units.cend()) {
-            for (auto&& x : mGroups)
-                for (auto&& u : x.second.units)
-                    if (c.id != u.first) {
-                        auto bs1 = c.instance->getBound();
-                        auto bs2 = u.second.getBound();
-                        if (bs1.intersects(bs2)) {
-                            auto v = bs1.center - bs2.center;
-                            v.normalize();
-                            v *= bs1.radius + bs2.radius - bs1.center.distance(bs2.center);
-                            auto cube = [](float x) {return x*x*x; };
-                            auto ss = cube(bs1.radius) + cube(bs2.radius);
-                            c.instance->getNode()->translate(v*cube(bs2.radius) / ss);
-                            u.second.getNode()->translate(-v*cube(bs1.radius) / ss);
-                        }
-                    }
+    std::set<CheckInfo> newCheck;
+    do {
+        if (newCheck.size()) {
+            check.swap(newCheck);
+            newCheck.clear();
         }
+
+        for (auto&& c : check)
+            if (mGroups[c.group].units.find(c.id) != mGroups[c.group].units.cend()) {
+                for (auto&& x : mGroups)
+                    for (auto&& u : x.second.units)
+                        if (c.id != u.first) {
+                            auto bs1 = c.instance->getBound();
+                            auto bs2 = u.second.getBound();
+                            if (bs1.intersects(bs2)) {
+                                auto v = bs1.center - bs2.center;
+                                v.normalize();
+                                v *= bs1.radius + bs2.radius - bs1.center.distance(bs2.center);
+                                auto cube = [](float x) {return x*x*x; };
+                                auto ss = cube(bs1.radius) + cube(bs2.radius);
+                                c.instance->getNode()->translate(v*cube(bs2.radius) / ss);
+                                u.second.getNode()->translate(-v*cube(bs1.radius) / ss);
+                                newCheck.insert(c);
+                                newCheck.insert({ u.first,x.first,&u.second });
+                            }
+                        }
+            }
+    }
+    while (newCheck.size() && Game::getAbsoluteTime() - now < 10.0);
 
     std::vector<uint8_t> groups;
     for (auto c : mClients)
@@ -304,9 +318,9 @@ void Server::update(float delta) {
     std::vector<UnitSyncInfo> saw;
     for (auto&& g : mGroups)
         for (auto&& u : g.second.units) {
-            auto p = u.second.getNode()->getTranslationWorld();
+            auto p = u.second.getNode()->getTranslation();
             for (auto&& mu : update.units)
-                if (p.distanceSquared(mu.second.getNode()->getTranslationWorld())
+                if (p.distanceSquared(mu.second.getNode()->getTranslation())
                     < mu.second.getKind().getFOV()) {
                     uint16_t uk = getUnitID(u.second.getKind().getName());
                     saw.push_back({ u.first,uk,p,u.second.getNode()->getRotation(),
