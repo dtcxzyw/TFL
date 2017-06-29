@@ -12,6 +12,7 @@ using namespace gameplay;
 #include <map>
 #include <vector>
 #include <random>
+#include <algorithm>
 using namespace std::literals;
 #undef max
 
@@ -84,8 +85,10 @@ p2:
     };
 
     bool isStop = false;
-    std::set<uint32_t> old;
+    std::set<uint32_t> moveGroup;
+    std::vector<Vector2> find;
 
+    auto begin = std::chrono::system_clock::now();
     while (true) {
         std::vector<unsigned char> latestData;
         FORNET{
@@ -128,21 +131,34 @@ p2:
             latest.Read(u);
             if (u.group == group) {
                 mine.insert({ u.id,u.pos });
-                RakNet::BitStream data;
-                data.Write(ClientMessage::setMoveTarget);
-                if (old.find(u.id) == old.cend()) {
-                    auto random = [] {return mt() % 10000; };
-                    Vector2 p = { -5000.0f + random(),-5000.0f + random() };
+                moveGroup.insert(u.id);
+                if (moveGroup.size()>10) {
+                    RakNet::BitStream data;
+                    data.Write(ClientMessage::setMoveTarget);
+                    auto x =mt()%(find.size() + 1);
+                    Vector2 p;
+                    if (x == find.size()) {
+                        auto random = [&] {return mt() % 15000 - 7500.0f; };
+                        p = { random(), random() };
+                    }
+                    else p = find[x];
                     data.Write(p);
-                    data.Write(static_cast<uint32_t>(1));
-                    data.Write(u.id);
+                    data.Write(static_cast<uint32_t>(moveGroup.size()));
+                    for (auto&& x : moveGroup)
+                        data.Write(x);
                     peer.Send(&data, PacketPriority::HIGH_PRIORITY,
                         PacketReliability::RELIABLE, 0, server, false);
-                    old.insert(u.id);
+                    moveGroup.clear();
                 }
             }
-            else
+            else {
                 army.insert({ u.id,u.pos });
+                find.push_back({ u.pos.x,u.pos.y });
+                if (find.size() > 2000) {
+                    std::shuffle(find.begin(), find.end(), mt);
+                    find.resize(1000);
+                }
+            }
         }
 
         RakNet::BitStream data;
@@ -168,6 +184,9 @@ p2:
         std::cout << "mine:" << mine.size() << " armies:" << army.size()<<std::endl;
         std::this_thread::sleep_for(1s);
     }
+
+    auto second = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - begin).count();
+    std::cout << "time:" << second / 60 << ":" << second % 60 << std::endl;
 
     peer.Shutdown(500,0,IMMEDIATE_PRIORITY);
     std::cin.get();

@@ -143,6 +143,8 @@ void Server::update(float delta) {
             uint16_t id, weight;
             data.Read(id);
             data.Read(weight);
+            if (weight < 1)weight = 1;
+            if (weight > 1000)weight = 1000;
             mGroups[group].weight[id] = weight;
             updateWeight = true;
         }
