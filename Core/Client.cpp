@@ -119,7 +119,7 @@ Client::WaitResult Client::wait() {
             return WaitResult::Disconnected;
         }
         CheckHeader(ServerMessage::info) {
-            RakNet::BitStream data(packet->data, packet->bitSize >> 3, false);
+            RakNet::BitStream data(packet->data, packet->length, false);
             data.IgnoreBytes(1);
             uint64_t key;
             data.Read(key);
@@ -194,7 +194,7 @@ bool Client::update(float delta) {
     auto isStop = false;
     for (auto packet = mPeer->Receive(); packet; mPeer->DeallocatePacket(packet), packet = mPeer->Receive()) {
         if (isStop)continue;
-        RakNet::BitStream data(packet->data, packet->bitSize >> 3, false);
+        RakNet::BitStream data(packet->data, packet->length, false);
         data.IgnoreBytes(1);
         CheckBegin;
         CheckHeader(ServerMessage::stop) {

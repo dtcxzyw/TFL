@@ -45,7 +45,7 @@ Server::~Server() {
 
 void Server::waitClient() {
     for (auto packet = mPeer->Receive(); packet; mPeer->DeallocatePacket(packet), packet = mPeer->Receive()) {
-        RakNet::BitStream data(packet->data, packet->bitSize >> 3, false);
+        RakNet::BitStream data(packet->data, packet->length, false);
         data.IgnoreBytes(1);
         CheckBegin;
         CheckHeader(ID_NEW_INCOMING_CONNECTION) {
@@ -70,6 +70,14 @@ void Server::waitClient() {
 }
 
 const std::map<RakNet::SystemAddress, ClientInfo>& Server::getClientInfo() {
+    std::vector<RakNet::SystemAddress> deferred;
+    for (auto&& x : mClients)
+        if (mPeer->GetConnectionState(x.first) != RakNet::ConnectionState::IS_CONNECTED)
+            deferred.emplace_back(x.first);
+    for (auto&& x : deferred) {
+        INFO("A client has disconnected this server.", "(IP=",x.ToString(), ")");
+        mClients.erase(x);
+    }
     return mClients;
 }
 
@@ -119,7 +127,7 @@ void Server::update(float delta) {
     bool updateWeight = false;
 
     for (auto packet = mPeer->Receive(); packet; mPeer->DeallocatePacket(packet), packet = mPeer->Receive()) {
-        RakNet::BitStream data(packet->data, packet->bitSize >> 3, false);
+        RakNet::BitStream data(packet->data, packet->length, false);
         data.IgnoreBytes(1);
         CheckBegin;
         CheckHeader(ID_DISCONNECTION_NOTIFICATION) {

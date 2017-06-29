@@ -37,28 +37,31 @@ int main() {
             ban.find(packet->systemAddress) == ban.cend()) {
                 std::cout << "Find server " << packet->systemAddress.ToString() << std::endl;
                 std::cout << "Shall we connect it?(y/n)" << std::endl;
-                char c[2];
-                std::cin.getline(c, 2);
-                if (c[0] == 'y') {
+                char c;
+                std::cin >> c;
+                if (c == 'y') {
                     server = packet->systemAddress;
                     auto res = peer.Connect(server.ToString(false), 23333, nullptr,0);
                     if (res == RakNet::CONNECTION_ATTEMPT_STARTED) {
-                        std::this_thread::sleep_for(500ms);
-                        if (peer.NumberOfConnections() == 1) {
-                            std::cout << "OK!" << std::endl;
-                            goto p1;
-                        }
+                        while (peer.NumberOfConnections() != 1)
+                            std::this_thread::sleep_for(1ms);
+                        std::cout << "OK!" << std::endl;
+                        peer.DeallocatePacket(packet);
+                        goto p1;
                     }
                 }
                 else ban.insert(packet->systemAddress);
             }
         }
+        std::this_thread::sleep_for(1ms);
     }
 p1:
     {
         RakNet::BitStream data;
         data.Write(ClientMessage::changeGroup);
         data.Write(static_cast<uint8_t>(group));
+        peer.Send(&data, PacketPriority::IMMEDIATE_PRIORITY,
+            PacketReliability::RELIABLE_ORDERED, 0, server, false);
     }
 
     while (true) {
@@ -69,6 +72,7 @@ p1:
                 goto p2;
             }
         }
+        std::this_thread::sleep_for(1ms);
     }
 p2:
     struct UnitInfo final {
@@ -80,10 +84,10 @@ p2:
 
     bool isStop = false;
     while (true) {
-        RakNet::BitStream latest;
+        std::vector<unsigned char> latestData;
         FORNET{
             if (isStop)continue;
-            RakNet::BitStream data(packet->data, packet->bitSize >> 3, false);
+            RakNet::BitStream data(packet->data, packet->length, false);
             data.IgnoreBytes(1);
             CheckBegin;
             CheckHeader(ServerMessage::out) {
@@ -102,18 +106,21 @@ p2:
                 continue;
             }
             CheckHeader(ServerMessage::updateUnit) {
-                latest.SetWriteOffset(0);
-                latest.WriteBits(packet->data, packet->bitSize);
-                latest.IgnoreBytes(1);
+                latestData=std::vector<unsigned char>(packet->data, packet->data + packet->length);
             }
         }
-        if (isStop)break;
+        if (isStop || 
+            peer.GetConnectionState(server)!=RakNet::ConnectionState::IS_CONNECTED)break;
+        if (latestData.empty())continue;
 
         std::set<uint32_t> mine;
         std::set<uint32_t> army;
         std::set<uint32_t> old;
         for (auto&& x : units)
             old.insert(x.first);
+
+        RakNet::BitStream latest(latestData.data(),latestData.size(),false);
+        latest.IgnoreBytes(1);
         uint32_t size;
         latest.Read(size);
         for (uint32_t i = 0; i < size; ++i) {
