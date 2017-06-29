@@ -83,7 +83,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)Bin</OutDir>
-    <TargetName>TFL</TargetName>
+    <TargetName>TFL_x64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -95,7 +95,7 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)Bin</OutDir>
-    <TargetName>TFL</TargetName>
+    <TargetName>TFL_x64</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

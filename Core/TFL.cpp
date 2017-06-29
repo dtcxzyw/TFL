@@ -68,7 +68,7 @@ void unpackPack(Stream* pak, uint64_t& p, uint64_t all) {
     } tmp;
 
     while (pak->read(&tmp, sizeof(tmp), 1)) {
-        INFO("Unpack File ", tmp.name);
+        INFO("Unpacking File ", tmp.name);
         buildDir(tmp.name);
         uniqueRAII<Stream> file = FileSystem::open(tmp.name, FileSystem::WRITE);
         std::vector<char> data(tmp.size);
