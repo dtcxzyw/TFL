@@ -255,12 +255,10 @@ protected:
         label->update(delta);
     }
 
-    void render(float delta) override {
+    void render(float) override {
 #ifdef WIN32
-        if (!(getWidth() && getHeight())) {
-            update(delta);
-            return;
-        }
+        if (!(getWidth() && getHeight()))
+            std::this_thread::yield();
 #endif
         clear(CLEAR_COLOR_DEPTH, Vector4::zero(), 1.0f, 0);
         if (localClient)localClient->render();

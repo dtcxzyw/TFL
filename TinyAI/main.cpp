@@ -76,13 +76,16 @@ p1:
     }
 p2:
     struct UnitInfo final {
-        uint8_t group;
+        uint32_t id;
         Vector3 pos;
+        bool operator<(const UnitInfo& rhs) const {
+            return id < rhs.id;
+        }
     };
 
-    std::map<uint32_t, UnitInfo> units;
-
     bool isStop = false;
+    std::set<uint32_t> old;
+
     while (true) {
         std::vector<unsigned char> latestData;
         FORNET{
@@ -113,11 +116,8 @@ p2:
             peer.GetConnectionState(server)!=RakNet::ConnectionState::IS_CONNECTED)break;
         if (latestData.empty())continue;
 
-        std::set<uint32_t> mine;
-        std::set<uint32_t> army;
-        std::set<uint32_t> old;
-        for (auto&& x : units)
-            old.insert(x.first);
+        std::set<UnitInfo> mine;
+        std::set<UnitInfo> army;
 
         RakNet::BitStream latest(latestData.data(),latestData.size(),false);
         latest.IgnoreBytes(1);
@@ -126,17 +126,24 @@ p2:
         for (uint32_t i = 0; i < size; ++i) {
             UnitSyncInfo u;
             latest.Read(u);
-            units[u.id] = { u.group,u.pos };
-            auto iter = old.find(u.id);
-            if (iter != old.cend())
-                old.erase(iter);
-            if (u.group == group)
-                mine.insert(u.id);
+            if (u.group == group) {
+                mine.insert({ u.id,u.pos });
+                RakNet::BitStream data;
+                data.Write(ClientMessage::setMoveTarget);
+                if (old.find(u.id) == old.cend()) {
+                    auto random = [] {return mt() % 10000; };
+                    Vector2 p = { -5000.0f + random(),-5000.0f + random() };
+                    data.Write(p);
+                    data.Write(static_cast<uint32_t>(1));
+                    data.Write(u.id);
+                    peer.Send(&data, PacketPriority::HIGH_PRIORITY,
+                        PacketReliability::RELIABLE, 0, server, false);
+                    old.insert(u.id);
+                }
+            }
             else
-                army.insert(u.id);
+                army.insert({ u.id,u.pos });
         }
-        for (auto&& x : old)
-            units.erase(x);
 
         RakNet::BitStream data;
         data.Write(ClientMessage::setAttackTarget);
@@ -146,9 +153,9 @@ p2:
                 float md = std::numeric_limits<float>::max();
                 uint32_t maxwell = 0;
                 for (auto&& a : army) {
-                    auto dis = units[a].pos.distanceSquared(units[m].pos);
+                    auto dis = m.pos.distanceSquared(a.pos);
                     if (dis < md)
-                        md = dis, maxwell = a;
+                        md = dis, maxwell = a.id;
                     if (md < 1e6f) {
                         data.Write(m);
                         data.Write(maxwell);
@@ -158,24 +165,6 @@ p2:
             peer.Send(&data, PacketPriority::HIGH_PRIORITY, PacketReliability::RELIABLE, 0, server, false);
         }
 
-        {
-            std::vector<uint32_t> choosed;
-            for (auto&& x : mine)
-                if (mt() % 10)
-                    choosed.emplace_back(x);
-            if (choosed.size()) {
-                RakNet::BitStream data;
-                data.Write(ClientMessage::setMoveTarget);
-                auto random = [] {return mt() % 10000; };
-                Vector2 p = { -5000.0f + random(),-5000.0f + random() };
-                data.Write(p);
-                data.Write(static_cast<uint32_t>(choosed.size()));
-                for (auto&& x : choosed)
-                    data.Write(x);
-                peer.Send(&data, PacketPriority::HIGH_PRIORITY,
-                    PacketReliability::RELIABLE, 0, server, false);
-            }
-        }
         std::cout << "mine:" << mine.size() << " armies:" << army.size()<<std::endl;
         std::this_thread::sleep_for(1s);
     }
