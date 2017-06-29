@@ -266,7 +266,7 @@ bool Client::update(float delta) {
         
         for (auto&& x : mine) {
             float md = std::numeric_limits<float>::max();
-            uint32_t maxwell;
+            uint32_t maxwell=0;
             for (auto&& y : others) {
               auto dis= mUnits[x].getNode()->getTranslation().
                     distanceSquared(mUnits[y].getNode()->getTranslation());

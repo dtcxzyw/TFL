@@ -164,9 +164,7 @@ void PlayMenu::event(Control * control, Event evt) {
             localClient->changeGroup(1);
             push<ClientMenu>();
         }
-        else {
-            localClient.reset();
-        }
+        else localClient.reset();
     }
 }
 

@@ -52,11 +52,11 @@ void Server::waitClient() {
             mClients[packet->systemAddress];
             INFO("A client has connected this server.", "(IP=",
                 packet->systemAddress.ToString(), ")");
-            RakNet::BitStream map;
-            map.Write(ServerMessage::info);
-            map.Write(pakKey);
-            map.Write(mMapName.c_str());
-            mPeer->Send(&map, IMMEDIATE_PRIORITY, RELIABLE_ORDERED, 0,
+            RakNet::BitStream info;
+            info.Write(ServerMessage::info);
+            info.Write(pakKey);
+            info.Write(mMapName.c_str());
+            mPeer->Send(&info, IMMEDIATE_PRIORITY, RELIABLE_ORDERED, 0,
                 packet->systemAddress, false);
         }
         CheckHeader(ClientMessage::changeGroup) {
