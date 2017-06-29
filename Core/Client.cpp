@@ -60,17 +60,15 @@ bool Client::checkCamera() {
 }
 
 void Client::move(int x, int y) {
-    auto p = getPoint(x, y);
-
     if (mChoosed.size()) {
         RakNet::BitStream data;
         data.Write(ClientMessage::setMoveTarget);
-        data.Write(p);
+        data.Write(getPoint(x, y));
         data.Write(static_cast<uint32_t>(mChoosed.size()));
         for (auto x : mChoosed)
             data.Write(x);
         mPeer->Send(&data, PacketPriority::HIGH_PRIORITY,
-            PacketReliability::RELIABLE_ORDERED, 0, mServer, false);
+            PacketReliability::RELIABLE, 0, mServer, false);
     }
 }
 

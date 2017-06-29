@@ -206,6 +206,7 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
       </UndefineAllPreprocessorDefinitions>
+      <FloatABI>softfp</FloatABI>
     </ClCompile>
     <Link>
       <LibraryDependencies>%(LibraryDependencies);GLESv2;EGL;m;OpenSLES</LibraryDependencies>
@@ -237,7 +238,7 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
       </UndefineAllPreprocessorDefinitions>
-      <FloatABI>hard</FloatABI>
+      <FloatABI>softfp</FloatABI>
     </ClCompile>
     <Link>
       <LibraryDependencies>%(LibraryDependencies);GLESv2;EGL;m;OpenSLES</LibraryDependencies>
@@ -271,6 +272,7 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
       </UndefineAllPreprocessorDefinitions>
+      <FloatABI>softfp</FloatABI>
     </ClCompile>
     <Link>
       <LibraryDependencies>%(LibraryDependencies);GLESv2;EGL;m;OpenSLES</LibraryDependencies>
@@ -303,7 +305,7 @@
       <UndefineAllPreprocessorDefinitions>
       </UndefineAllPreprocessorDefinitions>
       <EnableNeonCodegen>true</EnableNeonCodegen>
-      <FloatABI>soft</FloatABI>
+      <FloatABI>softfp</FloatABI>
     </ClCompile>
     <Link>
       <LibraryDependencies>%(LibraryDependencies);GLESv2;EGL;m;OpenSLES</LibraryDependencies>
@@ -337,6 +339,7 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
       </UndefineAllPreprocessorDefinitions>
+      <FloatABI>softfp</FloatABI>
     </ClCompile>
     <Link>
       <LibraryDependencies>%(LibraryDependencies);GLESv2;EGL;m;OpenSLES</LibraryDependencies>
@@ -368,7 +371,7 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
       </UndefineAllPreprocessorDefinitions>
-      <FloatABI>hard</FloatABI>
+      <FloatABI>softfp</FloatABI>
     </ClCompile>
     <Link>
       <LibraryDependencies>%(LibraryDependencies);GLESv2;EGL;m;OpenSLES</LibraryDependencies>
@@ -402,6 +405,7 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
       </UndefineAllPreprocessorDefinitions>
+      <FloatABI>softfp</FloatABI>
     </ClCompile>
     <Link>
       <LibraryDependencies>%(LibraryDependencies);GLESv2;EGL;m;OpenSLES</LibraryDependencies>
@@ -433,7 +437,7 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <UndefineAllPreprocessorDefinitions>
       </UndefineAllPreprocessorDefinitions>
-      <FloatABI>hard</FloatABI>
+      <FloatABI>softfp</FloatABI>
     </ClCompile>
     <Link>
       <LibraryDependencies>%(LibraryDependencies);GLESv2;EGL;m;OpenSLES</LibraryDependencies>
