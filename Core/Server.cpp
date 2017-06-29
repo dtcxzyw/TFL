@@ -23,7 +23,7 @@ void Server::chooseNew(KeyInfo& k) {
         ++idx, pos -= x;
     }
 
-    k.id = (idx==w.size())?0:idx;
+    k.id = (idx == w.size()) ? 0 : idx;
     if (k.time)
         k.time += getUnit(k.id).getTime();
     else
@@ -220,7 +220,7 @@ void Server::update(float delta) {
     struct CheckInfo {
         uint32_t id;
         uint8_t group;
-        UnitInstance& instance;
+        UnitInstance* instance;
     };
     std::vector<CheckInfo> check;
 
@@ -239,7 +239,7 @@ void Server::update(float delta) {
                 mGroups[k.owner].units.
                     insert({ id,std::move(UnitInstance{ getUnit(k.id), k.owner, id, mScene.get(), true, p }) });
                 mGroups[k.owner].units[id].update(0);
-                check.push_back({ id,k.owner,mGroups[k.owner].units[id] });
+                check.push_back({ id,k.owner,&mGroups[k.owner].units[id] });
                 chooseNew(k);
                 flag = true;
             }
@@ -249,19 +249,20 @@ void Server::update(float delta) {
 
     {
         //shuffle groups to make the game blance.
-        std::vector<decltype(mGroups)::iterator> groups;
-        for (auto i = mGroups.begin(); i != mGroups.end(); ++i)
-            groups.emplace_back(i);
+        std::vector<CheckInfo> units;
 
-        std::shuffle(groups.begin(), groups.end(), mt);
+        for (auto&& x : mGroups)
+            for (auto&& u : x.second.units)
+                units.push_back({ u.first,x.first,&u.second });
 
-        for (auto&& x : groups)
-            for (auto&& u : x->second.units) {
-                auto old = u.second.getNode()->getTranslation();
-                u.second.update(delta);
-                if (u.second.getNode()->getTranslation() != old)
-                    check.push_back({ u.first,x->first,u.second });
-            }
+        std::shuffle(units.begin(), units.end(), mt);
+
+        for (auto&& u : units) {
+            auto old = u.instance->getNode()->getTranslation();
+            u.instance->update(delta);
+            if (old != u.instance->getNode()->getTranslation())
+                check.emplace_back(u);
+        }
     }
 
     for (auto&& x : mDeferred) {
@@ -279,7 +280,7 @@ void Server::update(float delta) {
             for (auto&& x : mGroups)
                 for (auto&& u : x.second.units)
                     if (c.id != u.first) {
-                        auto bs1 = c.instance.getBound();
+                        auto bs1 = c.instance->getBound();
                         auto bs2 = u.second.getBound();
                         if (bs1.intersects(bs2)) {
                             auto v = bs1.center - bs2.center;
@@ -287,7 +288,7 @@ void Server::update(float delta) {
                             v *= bs1.radius + bs2.radius - bs1.center.distance(bs2.center);
                             auto cube = [](float x) {return x*x*x; };
                             auto ss = cube(bs1.radius) + cube(bs2.radius);
-                            c.instance.getNode()->translate(v*cube(bs2.radius) / ss);
+                            c.instance->getNode()->translate(v*cube(bs2.radius) / ss);
                             u.second.getNode()->translate(-v*cube(bs1.radius) / ss);
                         }
                     }
@@ -309,11 +310,10 @@ void Server::update(float delta) {
                     < mu.second.getKind().getFOV()) {
                     uint16_t uk = getUnitID(u.second.getKind().getName());
                     saw.push_back({ u.first,uk,p,u.second.getNode()->getRotation(),
-                        g.first,u.second.getAttackTarget()});
+                        g.first,u.second.getAttackTarget() });
                     break;
                 }
         }
-
     RakNet::BitStream data;
     data.Write(ServerMessage::updateUnit);
     data.Write(static_cast<uint32_t>(saw.size()));
