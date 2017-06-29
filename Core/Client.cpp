@@ -26,23 +26,25 @@ Vector2 Client::getPoint(int x, int y) const {
     auto rect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
     mCamera->setAspectRatio(rect.width / rect.height);
     mCamera->pickRay(rect, x, y, &ray);
-    /*
+#ifdef ANDROID
     Vector3 maxwell;
     float minError = std::numeric_limits<float>::max();
     auto reslover = [ray](float x) {return ray.getOrigin() -
         ray.getDirection()*(ray.getOrigin().y*x / ray.getDirection().y); };
-    for (uint8_t i = 0; i < 128; ++i) {
-        auto x = i/128.0f;
+    constexpr auto num = 256.0;
+    for (uint8_t i = 0; i <num ; ++i) {
+        auto x = i/num;
         auto p=reslover(x);
         auto error = std::abs(p.y - mMap->getHeight(p.x, p.z));
         if (error < minError)
             minError = error, maxwell = p;
     }
     return { maxwell.x,maxwell.z };
-    */
+#else
     PhysicsController::HitResult res;
     game->getPhysicsController()->rayTest(ray, 1e10f, &res);
     return { res.point.x,res.point.z };
+#endif
 }
 
 bool Client::checkCamera() {
