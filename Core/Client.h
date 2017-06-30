@@ -37,7 +37,7 @@ public:
     void stop();
     bool update(float delta);
     void render();
-    Vector2 getPos(uint32_t id);
+    Vector3 getPos(uint32_t id);
     float getHeight(int x, int z) const;
     //UI
     void setViewport(uint32_t right);

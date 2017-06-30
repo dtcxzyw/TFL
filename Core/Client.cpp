@@ -345,13 +345,11 @@ void Client::render() {
     }
 }
 
-Vector2 Client::getPos(uint32_t id) {
+Vector3 Client::getPos(uint32_t id) {
     auto i = mUnits.find(id);
-    if (i != mUnits.cend()) {
-        auto p = i->second.getNode()->getTranslation();
-        return { p.x,p.z };
-    }
-    return Vector2::zero();
+    if (i != mUnits.cend()) 
+        return i->second.getNode()->getTranslation();
+    return Vector3::zero();
 }
 
 float Client::getHeight(int x, int z) const {

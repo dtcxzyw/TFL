@@ -76,10 +76,11 @@ void correct(UnitInstance& instance) {
 
 #define Init(name) name(info->getFloat(#name))
 struct Tank final :public UnitController {
-    float RST, RSC, v, time, harm, dis, count, rfac, sample;
+    float RST, RSC, v, time, harm, dis, count, rfac, sample,range,offset,speed;
     Vector2 last;
-    Tank(const Properties* info) : Init(RST), Init(RSC), Init(v), Init(time), Init(harm), Init(dis), Init(rfac)
-        , count(0.0f), sample(0.0f) {
+    std::string bullet;
+    Tank(const Properties* info) : Init(RST), Init(RSC), Init(v), Init(time), Init(harm), Init(dis), Init(rfac),
+        Init(range) , count(0.0f), sample(0.0f),bullet(info->getString("bullet")),Init(offset),Init(speed) {
         v /= 1000.0f;
     }
     auto dot(Node* node, Vector2 obj) {
@@ -125,11 +126,13 @@ struct Tank final :public UnitController {
 
 
         if (mObject && !point.isZero()) {
-            auto obj = point - np;
+            auto obj = Vector2{ point.x,point.z } -np;
             obj.normalize();
             auto d = dot(t, obj);
             if (d > 0.999f && count > time && obj.lengthSquared() < dis) {
-                if (mIsServer)localServer->attack(mObject, harm);
+                if (mIsServer)
+                    localServer->newBullet(BulletInstance(bullet,t->getTranslation() +
+                        offset*t->getForwardVector(),point,speed,harm,range));
                 count = 0.0f;
             }
             else {

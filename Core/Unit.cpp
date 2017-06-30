@@ -71,7 +71,7 @@ void UnitInstance::setMoveTarget(Vector2 pos) {
 bool UnitInstance::update(float delta) {
     auto p = mNode->getTranslation();
     if (localClient->getPos(mController->getAttackTarget()).
-        distanceSquared({ p.x,p.z }) > mKind->getFOV())
+        distanceSquared(p) > mKind->getFOV())
         mController->setAttackTarget(0);
     if (p.x < -5000.0f)mNode->setTranslationX(-5000.0f);
     if (p.x > 5000.0f)mNode->setTranslationX(5000.0f);

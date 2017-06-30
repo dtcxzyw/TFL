@@ -14,6 +14,7 @@ void Bullet::operator=(const std::string & name) {
     std::string full = "/res/bullets/" + name + "/";
     uniqueRAII<Bundle> bin = Bundle::create((full + "model.gpb").c_str());
     mModel = bin->loadNode("root");
+    dynamic_cast<Model*>(mModel->getDrawable())->setMaterial((full + "model.material").c_str());
     uniqueRAII<Properties> info = Properties::create((full + "bullet.info").c_str());
     mHitRadius = info->getFloat("radius");
 }
