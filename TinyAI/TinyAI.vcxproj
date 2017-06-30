@@ -72,22 +72,22 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)Deps\GamePlay;$(SolutionDir)Deps\RakNet;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)Bin</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)Deps\GamePlay;$(SolutionDir)Deps\RakNet;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)Bin</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)Deps\GamePlay;$(SolutionDir)Deps\RakNet;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)Bin</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)Deps\GamePlay;$(SolutionDir)Deps\RakNet;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)Bin</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

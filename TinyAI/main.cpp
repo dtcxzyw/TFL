@@ -1,12 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <Vector2.h>
-#include <Vector3.h>
-#include <Quaternion.h>
-using namespace gameplay;
-#include "../Core/Message.h"
-#include "../Core/common.cpp"
 #include <RakPeer.h>
 #include <set>
 #include <thread>
@@ -14,10 +8,13 @@ using namespace gameplay;
 #include <vector>
 #include <random>
 #include <algorithm>
+#undef REGISTERED
+#include "../Core/common.cpp"
+using namespace gameplay;
+#include "../Core/Message.h"
 using namespace std::literals;
 #undef max
-
-std::mt19937_64 mt(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+#undef min
 
 class AI final {
 private:
@@ -38,7 +35,7 @@ private:
         uint32_t size;
         Vector2 object;
     };
-    std::set<TeamInfo> mTeams;
+    std::vector<TeamInfo> mTeams;
     std::vector<uint32_t> mFree;
     Vector2 mRoot;
 public:
@@ -136,7 +133,7 @@ public:
                 break;
             }
             std::cout << std::endl;
-            uint16_t id;
+            uint16_t id=0;
             for (auto&& x : mUnits) {
                 if (x.second == mStep)
                     send(id, 1000);
@@ -155,7 +152,7 @@ public:
                 team.object = mRoot;
                 team.size = std::numeric_limits<uint32_t>::max();
                 send(team);
-                mTeams.insert(team);
+                mTeams.emplace_back(team);
                 uint16_t id = 0;
                 for (auto&& x : mUnits) {
                     if (x.second != Type::defense)
@@ -209,8 +206,12 @@ public:
 
         for (auto&& x : mTeams) {
             if (mFree.empty())continue;
-            std::remove_if(x.current.begin(), x.current.end(),
-                [this](uint32_t id) {return mMine.find(id) == mMine.cend(); });
+            std::set<uint32_t> deferred;
+            for (auto&& id : x.current)
+                if (mMine.find(id) == mMine.cend())
+                    deferred.insert(id);
+            for (auto&& y : deferred)
+                x.current.erase(y);
             uint32_t size = std::min(mFree.size(), x.size - x.current.size());
             std::partial_sort(mFree.begin(), mFree.begin() + size, mFree.end(), 
                 [this,&x](uint32_t a,uint32_t b) {
@@ -242,6 +243,7 @@ public:
             }
             mSend(data, PacketPriority::HIGH_PRIORITY, PacketReliability::RELIABLE);
         }
+
     }
 } tinyAI;
 
@@ -296,7 +298,7 @@ p1:
         FORNET{
             CheckBegin;
             CheckHeader(ServerMessage::info) {
-                RakNet::BitStream data(packet->data, packet->length);
+                RakNet::BitStream data(packet->data, packet->length,false);
                 data.IgnoreBytes(1 + sizeof(uint64_t));
                 RakNet::RakString str;
                 data.Read(str);
@@ -305,7 +307,7 @@ p1:
                 },str.C_String(),group);
             }
             CheckHeader(ServerMessage::go) {
-                RakNet::BitStream data(packet->data, packet->length);
+                RakNet::BitStream data(packet->data, packet->length,false);
                 data.IgnoreBytes(1);
                 Vector2 p;
                 data.Read(p);
