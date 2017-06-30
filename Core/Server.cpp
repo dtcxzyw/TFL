@@ -142,6 +142,7 @@ void Server::update(float delta) {
             auto group = mClients[packet->systemAddress].group;
             uint16_t id, weight;
             data.Read(id);
+            if (mGroups[group].weight.size() <= id)continue;
             data.Read(weight);
             if (weight < 1)weight = 1;
             if (weight > 1000)weight = 1000;

@@ -138,6 +138,7 @@ struct Tank final :public UnitController {
             }
         }
         else {
+            mObject = 0;
             auto f = node->getForwardVectorWorld();
             Vector2 obj{ f.x,f.z };
             obj.normalize();
