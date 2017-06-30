@@ -2,6 +2,7 @@ scene common
 {
 	node root
 	{
+		scale=0.1,0.1,0.1
 		url = res/bullets/common/model.gpb#root 
 		material = res/bullets/common/metal.material
 	}

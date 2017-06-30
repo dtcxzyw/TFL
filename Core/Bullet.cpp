@@ -16,7 +16,6 @@ void Bullet::operator=(const std::string & name) {
     mModel = scene->findNode("root")->clone();
     uniqueRAII<Properties> info = Properties::create((full + "bullet.info").c_str());
     mHitRadius = info->getFloat("radius");
-    INFO(mModel->getBoundingSphere().radius);
 }
 
 Node* Bullet::getModel() const {
