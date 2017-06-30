@@ -36,7 +36,12 @@ private:
     Map mMap;
     std::string mMapName;
     uniqueRAII<Scene> mScene;
-    std::vector<std::pair<uint8_t,uint32_t>> mDeferred;
+    struct DiedInfo {
+        uint8_t group;
+        uint32_t id;
+        double time;
+    };
+    std::vector<DiedInfo> mDeferred;
     void send(uint8_t group,const RakNet::BitStream& data,PacketPriority priority);
     void chooseNew(KeyInfo& k);
 public:

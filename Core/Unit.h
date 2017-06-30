@@ -66,6 +66,7 @@ public:
     void setMoveTarget(Vector2 pos);
     static uint32_t askID();
     uint32_t getAttackTarget() const;
+    bool isDied() const;
     //Client
     UnitInstance(const Unit& unit, uint8_t group, uint32_t id, Scene* add, bool isServer,Vector3 pos);
     uint16_t getGroup() const;

@@ -90,6 +90,10 @@ struct Tank final :public UnitController {
     }
 
     bool update(UnitInstance& instance, float delta) override {
+        if (instance.isDied()) {
+            correct(instance);
+            return false;
+        }
         auto node = instance.getNode();
         count += delta;
         count = std::min(count, time + 0.1f);

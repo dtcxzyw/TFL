@@ -275,16 +275,23 @@ void Server::update(float delta) {
             if (u.instance->update(delta))
                 check.insert(u);
     }
-
-    for (auto&& x : mDeferred) {
-        auto& units = mGroups[x.first].units;
-        auto i = units.find(x.second);
-        if (i != units.cend()) {
-            mScene->removeNode(i->second.getNode());
-            mGroups[x.first].units.erase(i);
-        }
+    
+    {
+        auto now = Game::getAbsoluteTime();
+        std::remove_if(mDeferred.begin(), mDeferred.end(), 
+            [this,now](const DiedInfo& x) {
+            if (now - x.time > 5000.0) {
+                auto& units = mGroups[x.group].units;
+                auto i = units.find(x.id);
+                if (i != units.cend()) {
+                    mScene->removeNode(i->second.getNode());
+                    mGroups[x.group].units.erase(i);
+                }
+                return true;
+            }
+            return false;
+        });
     }
-    mDeferred.clear();
 
     std::set<CheckInfo> newCheck;
     do {
@@ -332,7 +339,7 @@ void Server::update(float delta) {
                     < mu.second.getKind().getFOV()) {
                     uint16_t uk = getUnitID(u.second.getKind().getName());
                     saw.push_back({ u.first,uk,p,u.second.getNode()->getRotation(),
-                        g.first,u.second.getAttackTarget() });
+                        g.first,u.second.getAttackTarget(),u.second.isDied() });
                     break;
                 }
         }
@@ -384,7 +391,7 @@ void Server::attack(uint32_t id, float harm) {
         auto i = units.find(id);
         if (i != units.end()) {
             if (i->second.attacked(harm))
-                mDeferred.push_back({ g.first,id });
+                mDeferred.push_back({ g.first,id,Game::getAbsoluteTime() });
             break;
         }
     }

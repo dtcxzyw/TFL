@@ -35,6 +35,7 @@ struct UnitSyncInfo final {
     Quaternion rotation;
     uint8_t group;
     uint32_t at;
+    bool isDied;
 };
 
 extern uint64_t pakKey;

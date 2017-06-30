@@ -18,14 +18,12 @@ private:
     std::map<uint32_t, UnitInstance> mUnits;
     uint32_t mGroup;
     void drawNode(Node* node);
-    bool draw(Node* node,bool choosed);
     Vector2 getPoint(int x, int y) const;
     float mCnt;
     //control
     int mX, mY,mBX,mBY;
     bool checkCamera();
-    std::vector<uint32_t> mChoosed;
-    std::set<Node*> mChoosedSet;
+    std::set<uint32_t> mChoosed;
     void move(int x, int y);
 public:
     Client(const std::string& server,bool& res);

@@ -14,12 +14,6 @@ void Client::drawNode(Node * node) {
         drawNode(i);
 }
 
-bool Client::draw(Node * node, bool choosed) {
-    if ((mChoosedSet.find(node) == mChoosedSet.cend()) ^ choosed)
-        drawNode(node);
-    return false;
-}
-
 Vector2 Client::getPoint(int x, int y) const {
     auto game = Game::getInstance();
     Ray ray;
@@ -165,7 +159,6 @@ void Client::stop() {
     mCamera.reset();
     mUnits.clear();
     mChoosed.clear();
-    mChoosedSet.clear();
     RakNet::BitStream stream;
     stream.Write(ClientMessage::exit);
     mPeer->Send(&stream, PacketPriority::IMMEDIATE_PRIORITY, PacketReliability::RELIABLE_ORDERED
@@ -221,9 +214,9 @@ bool Client::update(float delta) {
                 data.Read(u);
                 auto oi = old.find(u.id);
                 if (oi != old.cend()) {
-                    mUnits[*oi].getNode()->setTranslation(u.pos);
-                    mUnits[*oi].getNode()->setRotation(u.rotation);
-                    mUnits[*oi].setAttackTarget(u.at);
+                    mUnits[u.id].getNode()->setTranslation(u.pos);
+                    mUnits[u.id].getNode()->setRotation(u.rotation);
+                    mUnits[u.id].setAttackTarget(u.at);
                     old.erase(oi);
                 }
                 else {
@@ -233,6 +226,8 @@ bool Client::update(float delta) {
                     i.first->second.update(0);
                     i.first->second.setAttackTarget(u.at);
                 }
+                if(u.isDied)
+                    mUnits[u.id].attacked(1e10f);
                 if (u.group == mGroup)
                     mine.insert(u.id);
                 else
@@ -294,16 +289,20 @@ void Client::render() {
         auto rect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
         game->setViewport(rect);
         mCamera->setAspectRatio(rect.width / rect.height);
-        mChoosedSet.clear();
-        for (auto&& x : mChoosed) {
-            auto i = mUnits.find(x);
-            if(i!=mUnits.cend())
-                mChoosedSet.insert(i->second.getNode());
-        }
+
+        mScene->setAmbientColor(-0.5f, -0.5f, -0.5f);
+        for (auto&& x : mUnits) 
+            if (x.second.isDied())
+                drawNode(x.second.getNode());
         mScene->setAmbientColor(0.0f, 0.3f, 0.0f);
-        mScene->visit(this, &Client::draw, true);
+        for (auto&& x : mUnits)
+            if (!x.second.isDied() && mChoosed.find(x.first)!=mChoosed.cend())
+                drawNode(x.second.getNode());
         mScene->setAmbientColor(0.0f, 0.0f, 0.0f);
-        mScene->visit(this, &Client::draw, false);
+        for (auto&& x : mUnits)
+            if (!x.second.isDied() && mChoosed.find(x.first) == mChoosed.cend())
+                drawNode(x.second.getNode());
+        
         auto rect2 = gameplay::Rectangle(game->getWidth(), game->getHeight());
         game->setViewport(rect2);
         mCamera->setAspectRatio(rect2.width / rect2.height);
@@ -407,7 +406,7 @@ void Client::endPoint(int x, int y) {
                 if (x.second.getGroup() == mGroup) {
                     auto p = x.second.getNode()->getTranslation();
                     if (x1<p.x && x2>p.x && y1<p.z && y2>p.z)
-                        mChoosed.emplace_back(x.first);
+                        mChoosed.insert(x.first);
                 }
         }
         else move(x, y);
