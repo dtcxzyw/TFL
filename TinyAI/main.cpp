@@ -167,7 +167,7 @@ public:
             {
                 for (auto&& x : mKeyPoint) {
                     TeamInfo team;
-                    team.size = 7;
+                    team.size = 3;
                     team.object = x;
                     mTeams.emplace_back(team);
                 }
@@ -201,6 +201,7 @@ public:
                 TeamInfo team;
                 team.size = x.second*1.5;
                 team.object = x.first;
+                mTeams.emplace_back(team);
             }
         }
 
@@ -211,6 +212,7 @@ public:
             TeamInfo team;
             team.size = 3;
             team.object = { mt() % 10000 - 5000.0f,mt() % 10000 - 5000.0f };
+            mTeams.emplace_back(team);
         }
 
         for (auto&& x : mTeams) {
