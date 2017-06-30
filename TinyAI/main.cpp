@@ -203,6 +203,13 @@ public:
                 team.object = x.first;
                 mTeams.emplace_back(team);
             }
+
+            for (auto&& x : mKeyPoint) {
+                TeamInfo team;
+                team.size = 50;
+                team.object = x;
+                mTeams.emplace_back(team);
+            }
         }
 
         std::remove_if(mFree.begin(), mFree.end(),
