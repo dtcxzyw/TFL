@@ -75,7 +75,7 @@ const std::map<RakNet::SystemAddress, ClientInfo>& Server::getClientInfo() {
         if (mPeer->GetConnectionState(x.first) != RakNet::ConnectionState::IS_CONNECTED)
             deferred.emplace_back(x.first);
     for (auto&& x : deferred) {
-        INFO("A client has disconnected this server.", "(IP=",x.ToString(), ")");
+        INFO("A client has disconnected this server.", "(IP=", x.ToString(), ")");
         mClients.erase(x);
     }
     return mClients;
@@ -275,11 +275,11 @@ void Server::update(float delta) {
             if (u.instance->update(delta))
                 check.insert(u);
     }
-    
+
     {
         auto now = Game::getAbsoluteTime();
-        std::remove_if(mDeferred.begin(), mDeferred.end(), 
-            [this,now](const DiedInfo& x) {
+        std::remove_if(mDeferred.begin(), mDeferred.end(),
+            [this, now](const DiedInfo& x) {
             if (now - x.time > 5000.0) {
                 auto& units = mGroups[x.group].units;
                 auto i = units.find(x.id);
@@ -323,6 +323,35 @@ void Server::update(float delta) {
     }
     while (newCheck.size() && Game::getAbsoluteTime() - now < 10.0);
 
+    {
+        std::set<uint32_t> deferred;
+        for (auto&& x : mBullets) {
+            x.second.update(delta);
+            auto bb = x.second.getHitBound();
+            bool boom = false;
+            for (auto&& g : mGroups)
+                for (auto&& u : g.second.units)
+                    if (bb.intersects(u.second.getBound())) {
+                        boom = true;
+                        goto point;
+                    }
+            if (bb.center.y - bb.radius < mMap.getHeight(bb.center.x, bb.center.z))
+                boom = true;
+        point:
+            if (boom) {
+                auto b = x.second.getHitBound();
+                for (auto&& g : mGroups)
+                    for (auto&& u : g.second.units) {
+                        auto bu = u.second.getBound();
+                        if (b.intersects(bu))
+                            attack(u.first, x.second.getHarm() / b.center.distance(bu.center)*b.radius);
+                    }
+                deferred.insert(x.first);
+            }
+        }
+        for (auto&& x : deferred)
+            mBullets.erase(x);
+    }
     std::vector<uint8_t> groups;
     for (auto c : mClients)
         groups.emplace_back(c.second.group);
@@ -330,26 +359,50 @@ void Server::update(float delta) {
     GroupInfo& update = mGroups[choose];
 
     //update unit
-    std::vector<UnitSyncInfo> saw;
-    for (auto&& g : mGroups)
-        for (auto&& u : g.second.units) {
-            auto p = u.second.getNode()->getTranslation();
+    {
+        std::vector<UnitSyncInfo> saw;
+        for (auto&& g : mGroups)
+            for (auto&& u : g.second.units) {
+                auto p = u.second.getNode()->getTranslation();
+                for (auto&& mu : update.units)
+                    if (p.distanceSquared(mu.second.getNode()->getTranslation())
+                        < mu.second.getKind().getFOV()) {
+                        uint16_t uk = getUnitID(u.second.getKind().getName());
+                        saw.push_back({ u.first,uk,p,u.second.getNode()->getRotation(),
+                            g.first,u.second.getAttackTarget(),u.second.isDied() });
+                        break;
+                    }
+            }
+        RakNet::BitStream data;
+        data.Write(ServerMessage::updateUnit);
+        data.Write(static_cast<uint32_t>(saw.size()));
+        for (auto&& u : saw)
+            data.Write(u);
+
+        send(choose, data, PacketPriority::HIGH_PRIORITY);
+    }
+
+    //update bullet
+    {
+        std::vector<BulletSyncInfo> saw;
+        for (auto&& b : mBullets) {
+            auto p = b.second.getBound().center;
             for (auto&& mu : update.units)
                 if (p.distanceSquared(mu.second.getNode()->getTranslation())
                     < mu.second.getKind().getFOV()) {
-                    uint16_t uk = getUnitID(u.second.getKind().getName());
-                    saw.push_back({ u.first,uk,p,u.second.getNode()->getRotation(),
-                        g.first,u.second.getAttackTarget(),u.second.isDied() });
+                    saw.push_back({b.first,b.second.getKind(),p,b.second.getNode()->getRotation()});
                     break;
                 }
         }
-    RakNet::BitStream data;
-    data.Write(ServerMessage::updateUnit);
-    data.Write(static_cast<uint32_t>(saw.size()));
-    for (auto&& u : saw)
-        data.Write(u);
 
-    send(choose, data, PacketPriority::HIGH_PRIORITY);
+        RakNet::BitStream data;
+        data.Write(ServerMessage::updateBullet);
+        data.Write(static_cast<uint32_t>(saw.size()));
+        for (auto&& u : saw)
+            data.Write(u);
+
+        send(choose, data, PacketPriority::HIGH_PRIORITY);
+    }
 
     //update weight
     if (updateWeight) {
@@ -395,6 +448,11 @@ void Server::attack(uint32_t id, float harm) {
             break;
         }
     }
+}
+
+void Server::newBullet(BulletInstance && bullet) {
+    auto id = BulletInstance::askID();
+    mBullets[id] = std::move(bullet);
 }
 
 GroupInfo::GroupInfo() :weight(globalUnits.size(), 1) {}

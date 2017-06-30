@@ -26,7 +26,7 @@ public:
 
 extern std::map<std::string,Unit> globalUnits;
 
-void loadAll();
+void loadAllUnits();
 uint16_t getUnitID(const std::string& name);
 Unit& getUnit(uint16_t id);
 

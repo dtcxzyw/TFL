@@ -236,9 +236,10 @@ protected:
         setMultiTouch(false);
         setVsync(false);
 
-        INFO("Loading units...");
+        INFO("Loading resources...");
         br = std::make_unique<BindingResolver>();
-        loadAll();
+        loadAllUnits();
+        loadAllBullets();
 
         UI::push<MainMenu>();
 

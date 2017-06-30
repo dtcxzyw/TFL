@@ -16,6 +16,7 @@ private:
     std::unique_ptr<Map> mMap;
     std::vector<uint16_t> mWeight;
     std::map<uint32_t, UnitInstance> mUnits;
+    std::map<uint32_t, BulletInstance> mBullets;
     uint32_t mGroup;
     void drawNode(Node* node);
     Vector2 getPoint(int x, int y) const;

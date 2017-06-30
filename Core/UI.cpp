@@ -222,7 +222,9 @@ void SettingsMenu::event(Control * control, Event evt) {
     if (evt == Event::PRESS && CMPID("reload")) {
         unpackAllPacks();
         globalUnits.clear();
-        loadAll();
+        loadAllUnits();
+        globalBullets.clear();
+        loadAllBullets();
     }
 }
 

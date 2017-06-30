@@ -19,6 +19,7 @@ enum class ServerMessage : unsigned char {
     go,
     updateUnit,
     updateWeight,
+    updateBullet,
     win,
     out,
     stop,
@@ -36,6 +37,13 @@ struct UnitSyncInfo final {
     uint8_t group;
     uint32_t at;
     bool isDied;
+};
+
+struct BulletSyncInfo final {
+    uint32_t id;
+    uint16_t kind;
+    Vector3 pos;
+    Quaternion rotation;
 };
 
 extern uint64_t pakKey;

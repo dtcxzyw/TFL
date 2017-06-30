@@ -110,7 +110,7 @@ UnitInstance::UnitInstance(const Unit & unit, uint8_t group, uint32_t id,
     if (isServer)mController->isServer();
 }
 
-void loadAll() {
+void loadAllUnits() {
     std::vector<std::string> paths;
     listDirs("/res/units", paths);
     for (auto p : paths)

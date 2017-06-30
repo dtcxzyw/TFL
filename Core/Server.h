@@ -31,6 +31,7 @@ private:
     RakNet::RakPeerInterface* mPeer;
     std::map<RakNet::SystemAddress, ClientInfo> mClients;
     std::map<uint8_t, GroupInfo> mGroups;
+    std::map<uint32_t, BulletInstance> mBullets;
     bool mState;
     std::vector<KeyInfo> mKey;
     Map mMap;
@@ -58,6 +59,7 @@ public:
     void stop();
     std::string getIP();
     void attack(uint32_t id, float harm);
+    void newBullet(BulletInstance&& bullet);
 };
 
 extern std::unique_ptr<Server> localServer;

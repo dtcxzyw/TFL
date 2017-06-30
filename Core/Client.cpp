@@ -238,6 +238,27 @@ bool Client::update(float delta) {
                 mUnits.erase(o);
             }
         }
+        CheckHeader(ServerMessage::updateBullet) {
+            uint32_t size;
+            data.Read(size);
+            std::set<uint32_t> old;
+            for (auto&& x : mBullets)
+                old.insert(x.first);
+            for (uint32_t i = 0; i < size; ++i) {
+                BulletSyncInfo info;
+                data.Read(info);
+                auto iter = old.find(info.id);
+                if (iter == old.cend()) {
+                    mBullets[info.id] = BulletInstance(info.kind, {}, {}, 0.0f, 0.0f, 0.0f);
+                    mBullets[info.id].set(mScene.get());
+                }
+                else old.erase(iter);
+                mBullets[info.id].getNode()->setTranslation(info.pos);
+                mBullets[info.id].getNode()->setRotation(info.rotation);
+            }
+            for (auto&& x : old)
+                mBullets.erase(x);
+        }
         CheckHeader(ServerMessage::updateWeight) {
             for (auto& x : mWeight)
                 data.Read(x);
@@ -302,6 +323,8 @@ void Client::render() {
         for (auto&& x : mUnits)
             if (!x.second.isDied() && mChoosed.find(x.first) == mChoosed.cend())
                 drawNode(x.second.getNode());
+        for (auto&& x : mBullets)
+            drawNode(x.second.getNode());
         mScene->findNode("terrain")->getDrawable()->draw();
 
         auto rect2 = gameplay::Rectangle(game->getWidth(), game->getHeight());
