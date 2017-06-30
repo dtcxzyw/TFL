@@ -115,12 +115,12 @@ public:
 
         auto old = mStep;
         //discover
-        if (mValue > -10.0f || mArmies.empty())mStep = Type::discover;
+        if (mValue > -20.0f || mArmies.empty())mStep = Type::discover;
         //attack
         if (mValue > 100.0f || (mArmies.size() && 
             mArmies.size() * 5 < mMine.size())) mStep = Type::attack;
         //defense
-        if (mValue<-10.0f || mArmies.size()>1.5*mMine.size())mStep = Type::defense;
+        if (mValue<-10.0f || mArmies.size()>0.2*mMine.size())mStep = Type::defense;
 
         if (old != mStep) {
             std::cout << "Switch state : ";
@@ -167,8 +167,9 @@ public:
             {
                 for (auto&& x : mKeyPoint) {
                     TeamInfo team;
-                    team.size = 10;
+                    team.size = 7;
                     team.object = x;
+                    mTeams.emplace_back(team);
                 }
             }
             break;
