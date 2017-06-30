@@ -339,7 +339,7 @@ void Server::update(float delta) {
                 boom = true;
         point:
             if (boom) {
-                auto b = x.second.getHitBound();
+                auto b = x.second.getBound();
                 for (auto&& g : mGroups)
                     for (auto&& u : g.second.units) {
                         auto bu = u.second.getBound();
@@ -349,8 +349,10 @@ void Server::update(float delta) {
                 deferred.insert(x.first);
             }
         }
-        for (auto&& x : deferred)
+        for (auto&& x : deferred) {
+            mScene->removeNode(mBullets[x].getNode());
             mBullets.erase(x);
+        }
     }
     std::vector<uint8_t> groups;
     for (auto c : mClients)
@@ -384,22 +386,22 @@ void Server::update(float delta) {
 
     //update bullet
     {
-        std::vector<BulletSyncInfo> saw;
+        std::vector<BulletSyncInfo> bullets;
         for (auto&& b : mBullets) {
             auto p = b.second.getBound().center;
             for (auto&& mu : update.units)
                 if (p.distanceSquared(mu.second.getNode()->getTranslation())
                     < mu.second.getKind().getFOV()) {
-                    saw.push_back({b.first,b.second.getKind(),p,b.second.getNode()->getRotation()});
+                    bullets.push_back({b.first,b.second.getKind(),p,b.second.getNode()->getRotation()});
                     break;
                 }
         }
 
         RakNet::BitStream data;
         data.Write(ServerMessage::updateBullet);
-        data.Write(static_cast<uint32_t>(saw.size()));
-        for (auto&& u : saw)
-            data.Write(u);
+        data.Write(static_cast<uint32_t>(bullets.size()));
+        for (auto&& b : bullets)
+            data.Write(b);
 
         send(choose, data, PacketPriority::HIGH_PRIORITY);
     }
@@ -452,7 +454,8 @@ void Server::attack(uint32_t id, float harm) {
 
 void Server::newBullet(BulletInstance && bullet) {
     auto id = BulletInstance::askID();
-    mBullets[id] = std::move(bullet);
+    mBullets.insert({ id,std::move(bullet) });
+    mScene->addNode(mBullets[id].getNode());
 }
 
 GroupInfo::GroupInfo() :weight(globalUnits.size(), 1) {}

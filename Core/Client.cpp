@@ -175,8 +175,8 @@ bool Client::update(float delta) {
         float vy = (mY - rect.height / 2) / rect.height;
         constexpr float unit = 0.001f;
         float m = unit*delta;
-        float mx = (std::abs(vx) < 0.5 && std::abs(vx) > 0.4) ? (vx > 0.0f ? m : -m) : 0.0f;
-        float my = (std::abs(vy) < 0.5 && std::abs(vy) > 0.4) ? (vy > 0.0f ? m : -m) : 0.0f;
+        float mx = (std::abs(vx) <= 0.5 && std::abs(vx) >= 0.4) ? (vx > 0.0f ? m : -m) : 0.0f;
+        float my = (std::abs(vy) <= 0.5 && std::abs(vy) >= 0.4) ? (vy > 0.0f ? m : -m) : 0.0f;
         moveEvent(mx, my);
     }
 #endif // WIN32
@@ -249,15 +249,18 @@ bool Client::update(float delta) {
                 data.Read(info);
                 auto iter = old.find(info.id);
                 if (iter == old.cend()) {
-                    mBullets[info.id] = BulletInstance(info.kind, {}, {}, 0.0f, 0.0f, 0.0f);
-                    mBullets[info.id].set(mScene.get());
+                    mBullets.insert({ info.id, BulletInstance(info.kind, {}, {}, 0.0f, 0.0f, 0.0f) });
+                    mScene->addNode(mBullets[info.id].getNode());
                 }
                 else old.erase(iter);
                 mBullets[info.id].getNode()->setTranslation(info.pos);
                 mBullets[info.id].getNode()->setRotation(info.rotation);
             }
-            for (auto&& x : old)
+
+            for (auto&& x : old) {
+                mScene->removeNode(mBullets[x].getNode());
                 mBullets.erase(x);
+            }
         }
         CheckHeader(ServerMessage::updateWeight) {
             for (auto& x : mWeight)

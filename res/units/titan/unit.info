@@ -18,5 +18,5 @@ control
 	range = 50
 	offset = 5
 	bullet =common
-	speed = 500
+	speed = 5
 }

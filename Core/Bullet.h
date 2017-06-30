@@ -44,7 +44,6 @@ public:
         mKind = rhs.mKind;
     }
 #endif
-    void set(Scene* scene);
     void update(float delta);
     BoundingSphere getHitBound();
     BoundingSphere getBound();

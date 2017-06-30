@@ -16,6 +16,7 @@ void Bullet::operator=(const std::string & name) {
     mModel = scene->findNode("root")->clone();
     uniqueRAII<Properties> info = Properties::create((full + "bullet.info").c_str());
     mHitRadius = info->getFloat("radius");
+    INFO(mModel->getBoundingSphere().radius);
 }
 
 Node* Bullet::getModel() const {
@@ -39,7 +40,7 @@ BulletInstance::BulletInstance(const std::string & kind, Vector3 begin, Vector3 
 
 BulletInstance::BulletInstance(uint16_t kind, Vector3 begin,Vector3 end,
     float speed, float harm, float radius)
-    :mHarm(harm),mBegin(begin),mEnd(mEnd),mCnt(0.0f),
+    :mHarm(harm),mBegin(begin),mEnd(end),mCnt(0.0f),
     mTime(begin.distance(end)/speed),mRadius(radius),mKind(kind){
     auto i = globalBullets.begin();
     std::advance(i, kind);
@@ -49,10 +50,6 @@ BulletInstance::BulletInstance(uint16_t kind, Vector3 begin,Vector3 end,
     Matrix mat;
     Matrix::createLookAt(begin, end, Vector3::unitY(), &mat);
     mNode->setRotation(mat);
-}
-
-void BulletInstance::set(Scene * scene) {
-    scene->addNode(mNode.get());
 }
 
 void BulletInstance::update(float delta) {
