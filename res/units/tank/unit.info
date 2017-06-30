@@ -4,6 +4,7 @@ FOV = 800
 plane= 5,10
 offset=0,-8,0
 radius=20
+AIType=attack
 control
 {
 	type=Tank

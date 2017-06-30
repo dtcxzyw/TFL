@@ -4,6 +4,7 @@ FOV = 2000
 plane= 10,10
 offset=0,-10,0
 radius=35
+AIType=defense
 control
 {
 	type=Tank

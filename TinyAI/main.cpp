@@ -117,9 +117,11 @@ public:
         //discover
         if (mValue > -10.0f || mArmies.empty())mStep = Type::discover;
         //attack
-        if (mValue > 20.0f || mArmies.size() * 5 < mMine.size()) mStep = Type::attack;
+        if (mValue > 100.0f || (mArmies.size() && 
+            mArmies.size() * 5 < mMine.size())) mStep = Type::attack;
         //defense
-        if (mValue<-20.0f || mArmies.size()>1.5*mMine.size())mStep = Type::defense;
+        if (mValue<-10.0f || mArmies.size()>1.5*mMine.size())mStep = Type::defense;
+
         if (old != mStep) {
             std::cout << "Switch state : ";
             switch (mStep) {
@@ -203,6 +205,12 @@ public:
 
         std::remove_if(mFree.begin(), mFree.end(),
             [this](uint32_t id) {return mMine.find(id) == mMine.cend(); });
+
+        if (mStep == Type::discover && mFree.size() > 5) {
+            TeamInfo team;
+            team.size = 3;
+            team.object = { mt() % 10000 - 5000.0f,mt() % 10000 - 5000.0f };
+        }
 
         for (auto&& x : mTeams) {
             if (mFree.empty())continue;
