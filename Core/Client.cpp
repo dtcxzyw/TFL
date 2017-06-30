@@ -290,7 +290,7 @@ void Client::render() {
         game->setViewport(rect);
         mCamera->setAspectRatio(rect.width / rect.height);
 
-        mScene->setAmbientColor(-0.5f, -0.5f, -0.5f);
+        mScene->setAmbientColor(-0.8f, -0.8f, -0.8f);
         for (auto&& x : mUnits) 
             if (x.second.isDied())
                 drawNode(x.second.getNode());
@@ -302,7 +302,8 @@ void Client::render() {
         for (auto&& x : mUnits)
             if (!x.second.isDied() && mChoosed.find(x.first) == mChoosed.cend())
                 drawNode(x.second.getNode());
-        
+        mScene->findNode("terrain")->getDrawable()->draw();
+
         auto rect2 = gameplay::Rectangle(game->getWidth(), game->getHeight());
         game->setViewport(rect2);
         mCamera->setAspectRatio(rect2.width / rect2.height);
