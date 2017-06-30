@@ -12,9 +12,8 @@ void loadAllBullets() {
 void Bullet::operator=(const std::string & name) {
     INFO("Load bullet ", name);
     std::string full = "/res/bullets/" + name + "/";
-    uniqueRAII<Bundle> bin = Bundle::create((full + "model.gpb").c_str());
-    mModel = bin->loadNode("root");
-    dynamic_cast<Model*>(mModel->getDrawable())->setMaterial((full + "model.material").c_str());
+    uniqueRAII<Scene> scene= Scene::load((full + "model.scene").c_str());
+    mModel = scene->findNode("root")->clone();
     uniqueRAII<Properties> info = Properties::create((full + "bullet.info").c_str());
     mHitRadius = info->getFloat("radius");
 }
@@ -39,8 +38,9 @@ BulletInstance::BulletInstance(const std::string & kind, Vector3 begin, Vector3 
     begin,end,time,harm,radius){}
 
 BulletInstance::BulletInstance(uint16_t kind, Vector3 begin,Vector3 end,
-    float time, float harm, float radius)
-    :mHarm(harm),mBegin(begin),mEnd(mEnd),mCnt(0.0f),mTime(time),mRadius(radius),mKind(kind){
+    float speed, float harm, float radius)
+    :mHarm(harm),mBegin(begin),mEnd(mEnd),mCnt(0.0f),
+    mTime(begin.distance(end)/speed),mRadius(radius),mKind(kind){
     auto i = globalBullets.begin();
     std::advance(i, kind);
     mNode = i->second.getModel();

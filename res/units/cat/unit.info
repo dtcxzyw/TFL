@@ -15,4 +15,8 @@ control
 	time = 500
 	harm = 40
 	rfac = 0.9
+	range = 10
+	offset = 5
+	bullet =common
+	speed = 200
 }

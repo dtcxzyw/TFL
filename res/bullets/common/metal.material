@@ -19,11 +19,11 @@ material metal
 			
             vertexShader = res/shaders/textured.vert
             fragmentShader = res/shaders/textured.frag
-            defines = DIRECTIONAL_LIGHT_COUNT 1;
+            defines = DIRECTIONAL_LIGHT_COUNT 1;SPECULAR
 
 			sampler u_diffuseTexture
 			{
-				path = res/shared/Core/metal.png
+				path = res/bullets/common/metal.png
 				mipmap = true
 				wrapS = REPEAT
 				wrapT = REPEAT

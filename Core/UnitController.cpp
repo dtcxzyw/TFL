@@ -130,9 +130,12 @@ struct Tank final :public UnitController {
             obj.normalize();
             auto d = dot(t, obj);
             if (d > 0.999f && count > time && obj.lengthSquared() < dis) {
-                if (mIsServer)
-                    localServer->newBullet(BulletInstance(bullet,t->getTranslation() +
-                        offset*t->getForwardVector(),point,speed,harm,range));
+                if (mIsServer) {
+                    auto f = t->getForwardVector();
+                    f.normalize();
+                    localServer->newBullet(BulletInstance(bullet, t->getTranslation() +
+                        offset*f, point, speed, harm, range));
+                }
                 count = 0.0f;
             }
             else {

@@ -1,0 +1,8 @@
+scene common
+{
+	node root
+	{
+		url = res/bullets/common/model.gpb#root 
+		material = res/bullets/common/metal.material
+	}
+}
