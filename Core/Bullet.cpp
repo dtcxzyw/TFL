@@ -11,7 +11,7 @@ void loadAllBullets() {
 
 void Bullet::operator=(const std::string & name) {
     INFO("Load bullet ", name);
-    std::string full = "/res/bullet/" + name + "/";
+    std::string full = "/res/bullets/" + name + "/";
     uniqueRAII<Bundle> bin = Bundle::create((full + "model.gpb").c_str());
     mModel = bin->loadNode("root");
     uniqueRAII<Properties> info = Properties::create((full + "bullet.info").c_str());
