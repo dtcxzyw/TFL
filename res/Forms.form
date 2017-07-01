@@ -197,6 +197,11 @@ form Server
 	{
 	}
 	
+	checkBox ai
+	{
+		text = Builtin AI
+	}
+	
 	button run
 	{
 		text = Go

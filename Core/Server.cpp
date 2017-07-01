@@ -88,13 +88,13 @@ void Server::run() {
     for (auto&& x : mMap.getKey())
         mKey.emplace_back(x);
 
-    bool flag[5]{};
+    bool flag[6]{};
     for (auto&& x : mClients)
         flag[x.second.group] = true;
 
     auto time = Game::getAbsoluteTime() + getUnit(0).getTime();
 
-    for (uint8_t i = 1; i <= 4; ++i)
+    for (uint8_t i = 1; i <= 5; ++i)
         if (flag[i]) {
             while (true) {
                 auto id = mt() % mKey.size();
@@ -370,7 +370,7 @@ void Server::update(float delta) {
             for (auto&& u : g.second.units) {
                 auto p = u.second.getNode()->getTranslation();
                 for (auto&& mu : update.units)
-                    if (p.distanceSquared(mu.second.getNode()->getTranslation())
+                    if (!mu.second.isDied() && p.distanceSquared(mu.second.getNode()->getTranslation())
                         < mu.second.getKind().getFOV()) {
                         uint16_t uk = getUnitID(u.second.getKind().getName());
                         saw.push_back({ u.first,uk,p,u.second.getNode()->getRotation(),
@@ -393,7 +393,7 @@ void Server::update(float delta) {
         for (auto&& b : mBullets) {
             auto p = b.second.getBound().center;
             for (auto&& mu : update.units)
-                if (p.distanceSquared(mu.second.getNode()->getTranslation())
+                if (!mu.second.isDied() && p.distanceSquared(mu.second.getNode()->getTranslation())
                     < mu.second.getKind().getFOV()) {
                     bullets.push_back({b.first,b.second.getKind(),p,b.second.getNode()->getRotation()});
                     break;

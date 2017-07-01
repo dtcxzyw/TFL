@@ -4,6 +4,7 @@
 #include "Server.h"
 #include "Client.h"
 #include "Message.h"
+#include "BuiltinAI.h"
 
 std::stack<std::unique_ptr<UI>> UI::stack;
 std::list<UI*> UI::parents;
@@ -276,6 +277,11 @@ ServerMenu::ServerMenu() :UI("Server") {
 void ServerMenu::event(Control * control, Event evt) {
     CHECKRET();
     if (evt == Event::PRESS && CMPID("run")) {
+        if (get<CheckBox>("ai")->isChecked()) {
+            bool flag = false;
+            aiFuture =std::make_unique<std::future<void>>(std::async(std::launch::async, AIMain, &flag));
+            while (!flag) localServer->waitClient();
+        }
         localServer->run();
         while (localClient->wait() != Client::WaitResult::Go)
             std::this_thread::yield();
@@ -372,6 +378,7 @@ void GameMain::update(float delta) {
 GameMain::~GameMain() {
     localClient->stop();
     if (localServer)localServer->stop();
+    aiFuture.reset();
 }
 
 ClientMenu::ClientMenu() :UI("Client") {}

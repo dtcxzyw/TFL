@@ -10,6 +10,7 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)Unit.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)UnitController.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Bullet.cpp" />
+    <ClCompile Include="$(MSBuildThisFileDirectory)BuiltinAI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)Client.h" />
@@ -21,5 +22,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)Unit.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)UnitController.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Bullet.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)BuiltinAI.h" />
   </ItemGroup>
 </Project>

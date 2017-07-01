@@ -92,7 +92,7 @@ public:
         data.Write(info.object);
         for (auto&& x : info.current)
             data.Write(x);
-        mSend(data, PacketPriority::HIGH_PRIORITY, PacketReliability::RELIABLE_ORDERED);
+        mSend(data, PacketPriority::IMMEDIATE_PRIORITY, PacketReliability::RELIABLE_ORDERED);
     }
 
     void send(uint16_t id, uint16_t weight) {
@@ -100,7 +100,7 @@ public:
         data.Write(ClientMessage::changeWeight);
         data.Write(id);
         data.Write(weight);
-        mSend(data, PacketPriority::MEDIUM_PRIORITY, PacketReliability::RELIABLE);
+        mSend(data, PacketPriority::IMMEDIATE_PRIORITY, PacketReliability::RELIABLE_ORDERED);
     }
 
     void clearTeams(){
@@ -167,7 +167,7 @@ public:
             {
                 for (auto&& x : mKeyPoint) {
                     TeamInfo team;
-                    team.size = 3;
+                    team.size = mFree.size()/mKeyPoint.size()/3+3;
                     team.object = x;
                     mTeams.emplace_back(team);
                 }
@@ -197,16 +197,20 @@ public:
                 }
             }
 
+            int32_t size = mFree.size();
             for (auto&& x : find) {
                 TeamInfo team;
                 team.size = x.second*1.5;
+                size -= team.size;
                 team.object = x.first;
                 mTeams.emplace_back(team);
             }
 
+            size = std::max(size, 0);
+
             for (auto&& x : mKeyPoint) {
                 TeamInfo team;
-                team.size = 50;
+                team.size = 50+size/mKeyPoint.size();
                 team.object = x;
                 mTeams.emplace_back(team);
             }
