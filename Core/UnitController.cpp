@@ -135,7 +135,7 @@ struct Tank final :public UnitController {
                     auto f = t->getForwardVectorWorld();
                     f.normalize();
                     localServer->newBullet(BulletInstance(bullet, t->getTranslationWorld() +
-                        offset*f, point, speed, harm, range));
+                        offset*f, point, speed, harm, range,instance.getGroup()));
                 }
                 count = 0.0f;
             }

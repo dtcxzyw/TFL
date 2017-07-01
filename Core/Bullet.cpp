@@ -33,14 +33,14 @@ uint32_t BulletInstance::askID() {
 }
 
 BulletInstance::BulletInstance(const std::string & kind, Vector3 begin, Vector3 end,
-    float time, float harm, float radius)
+    float time, float harm, float radius,uint8_t group)
 :BulletInstance(std::distance(globalBullets.begin(),globalBullets.find(kind)),
-    begin,end,time,harm,radius){}
+    begin,end,time,harm,radius,group){}
 
 BulletInstance::BulletInstance(uint16_t kind, Vector3 begin,Vector3 end,
-    float speed, float harm, float radius)
+    float speed, float harm, float radius,uint8_t group)
     :mHarm(harm),mBegin(begin),mEnd(end),mCnt(0.0f),
-    mTime(begin.distance(end)/speed),mRadius(radius),mKind(kind){
+    mTime(begin.distance(end)/speed),mRadius(radius),mKind(kind),mGroup(group){
     auto i = globalBullets.begin();
     std::advance(i, kind);
     mNode = i->second.getModel();
@@ -100,6 +100,11 @@ uint16_t BulletInstance::getKind() const {
     return mKind;
 }
 
+uint8_t BulletInstance::getGroup() const {
+    return mGroup;
+}
+
 Node * BulletInstance::getNode() const {
     return mNode.get();
 }
+

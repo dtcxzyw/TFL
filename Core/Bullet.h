@@ -20,6 +20,7 @@ private:
     uniqueRAII<Node> mNode;
     Vector3 mBegin, mEnd;
     uint16_t mKind;
+    uint8_t mGroup;
     static uint32_t cnt;
 public:
     static uint32_t askID();
@@ -27,9 +28,9 @@ public:
         throw;
     }
     BulletInstance(const std::string& kind, Vector3 begin, Vector3 end, 
-        float time, float harm, float radius);
+        float time, float harm, float radius, uint8_t group);
     BulletInstance(uint16_t kind, Vector3 begin,Vector3 end,
-        float time,float harm,float radius);
+        float time,float harm,float radius, uint8_t group);
 #ifdef ANDROID
     BulletInstance& operator=(const BulletInstance& rhs) {
         auto& r = const_cast<BulletInstance&>(rhs);
@@ -50,5 +51,6 @@ public:
     float getHarm() const;
     uint16_t getKind() const;
     Node* getNode() const;
+    uint8_t getGroup() const;
 };
 

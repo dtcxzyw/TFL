@@ -333,7 +333,7 @@ void Server::update(float delta) {
             bool boom = false;
             for (auto&& g : mGroups)
                 for (auto&& u : g.second.units)
-                    if (bb.intersects(u.second.getBound())) {
+                    if (u.second.getGroup()!=x.second.getGroup() && bb.intersects(u.second.getBound())) {
                         boom = true;
                         goto point;
                     }
@@ -345,7 +345,7 @@ void Server::update(float delta) {
                 for (auto&& g : mGroups)
                     for (auto&& u : g.second.units) {
                         auto bu = u.second.getBound();
-                        if (b.intersects(bu))
+                        if (u.second.getGroup() != x.second.getGroup() && b.intersects(bu))
                             attack(u.first, x.second.getHarm()
                                 *(1.0f-std::pow((b.center.distance(bu.center)-bu.radius)/b.radius,2.0f)));
                     }

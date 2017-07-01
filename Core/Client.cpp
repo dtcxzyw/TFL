@@ -251,7 +251,7 @@ bool Client::update(float delta) {
                 data.Read(info);
                 auto iter = old.find(info.id);
                 if (iter == old.cend()) {
-                    mBullets.insert({ info.id, BulletInstance(info.kind, {}, {}, 0.0f, 0.0f, 0.0f) });
+                    mBullets.insert({ info.id, BulletInstance(info.kind, {}, {}, 0.0f, 0.0f, 0.0f,0) });
                     mScene->addNode(mBullets[info.id].getNode());
                 }
                 else old.erase(iter);
