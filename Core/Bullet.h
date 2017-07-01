@@ -32,7 +32,7 @@ public:
     BulletInstance(uint16_t kind, Vector3 begin,Vector3 end,
         float time,float harm,float radius, uint8_t group);
 #ifdef ANDROID
-    BulletInstance& operator=(const BulletInstance& rhs) {
+    BulletInstance(const BulletInstance& rhs) {
         auto& r = const_cast<BulletInstance&>(rhs);
         mNode.swap(r.mNode);
         mHarm = rhs.mHarm;
