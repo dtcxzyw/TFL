@@ -82,5 +82,36 @@ void removeAll(const std::string & path) {
     rmdir(path.c_str());
 }
 
+void correctVector(Node * node, Vector3(Node::* sampler)() const, Vector3 dest
+    , float X, float Y, float Z) {
+    auto unit = 1.0f;
+    auto dot = [&] {
+        auto vec = (node->*sampler)();
+        return vec.dot(dest);
+    };
+    auto cd = dot();
+    float cntX=0.0f, cntY=0.0f, cntZ=0.0f;
+    for (auto unit = 1.0f; unit > 0.0001f; unit /= 2.0f) {
+#define TEST(a,b) \
+        while (std::abs(cnt##a+(b))<a) {\
+            node->rotate##a((b));\
+            auto nd = dot();\
+            if (cd < nd)cd = nd,cnt##a+=(b);\
+            else {\
+                  node->rotate##a(-(b));\
+                  break;\
+            }\
+        }\
+
+        TEST(X, unit);
+        TEST(X, -unit);
+        TEST(Y, unit);
+        TEST(Y, -unit);
+        TEST(Z, unit);
+        TEST(Z, -unit);
+#undef TEST
+    }
+}
+
 std::mt19937_64 mt(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 

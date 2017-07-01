@@ -352,7 +352,7 @@ void Client::render() {
 
 Vector3 Client::getPos(uint32_t id) {
     auto i = mUnits.find(id);
-    if (i != mUnits.cend()) 
+    if (i != mUnits.cend() && !i->second.isDied()) 
         return i->second.getNode()->getTranslation();
     return Vector3::zero();
 }

@@ -50,32 +50,7 @@ BulletInstance::BulletInstance(uint16_t kind, Vector3 begin,Vector3 end,
     auto obj = end - begin;
     obj.normalize();
 
-    auto dot = [&] {
-        auto u = mNode->getForwardVector();
-        u.normalize();
-        return u.dot(obj);
-    };
-
-    constexpr auto unit = 0.001f;
-    auto cd = dot();
-#define TEST(a,b)\
-    while (true) {\
-        mNode->rotate##a((b));\
-        auto nd = dot();\
-        if (cd < nd)cd = nd;\
-        else {\
-            mNode->rotate##a(-(b));\
-            break;\
-        }\
-    }\
-
-    TEST(X, unit);
-    TEST(X, -unit);
-    TEST(Y, unit);
-    TEST(Y, -unit);
-    TEST(Z, unit);
-    TEST(Z, -unit);
-#undef TEST
+    correctVector(mNode.get(), &Node::getForwardVector, obj, M_PI, M_PI, M_PI);
 }
 
 void BulletInstance::update(float delta) {

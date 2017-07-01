@@ -54,24 +54,8 @@ void correct(UnitInstance& instance) {
         u.normalize();
         return u.dot(mean);
     };
-    constexpr auto unit = 0.001f;
-    auto cd = dot();
-#define TEST(a,b)\
-    while (true) {\
-        node->rotate##a((b));\
-        auto nd = dot();\
-        if (cd < nd)cd = nd;\
-        else {\
-            node->rotate##a(-(b));\
-            break;\
-        }\
-    }\
 
-    TEST(X, unit);
-    TEST(X, -unit);
-    TEST(Y, unit);
-    TEST(Y, -unit);
-#undef TEST
+    correctVector(node, &Node::getUpVector, mean, M_PI_4, false, M_PI_4);
 }
 
 #define Init(name) name(info->getFloat(#name))
@@ -113,19 +97,6 @@ struct Tank final :public UnitController {
             sample = 0.0f;
         }
 
-        constexpr auto unit = 0.0001f;
-#define TEST(r,b)\
-    while (cnt<=delta*RSC) {\
-        r->rotateY((b));\
-        auto nd =  dot(r,obj);\
-        if (cd < nd)cd = nd,cnt+=unit;\
-        else {\
-            r->rotateY(-(b));\
-            break;\
-        }\
-    }\
-
-
         if (mObject && !point.isZero()) {
             auto obj = Vector2{ point.x,point.z } -np;
             obj.normalize();
@@ -140,25 +111,16 @@ struct Tank final :public UnitController {
                 count = 0.0f;
             }
             else {
-                auto cd = dot(t, obj);
-                if (cd < 0.999f) {
-                    auto cnt = 0.0f;
-                    TEST(t, unit);
-                    TEST(t, -unit);
-                }
+                auto dest = point - now;
+                dest.normalize();
+                correctVector(t, &Node::getForwardVectorWorld,dest, 0.0f, RST*delta, 0.0f);
             }
         }
         else {
             mObject = 0;
             auto f = node->getForwardVectorWorld();
-            Vector2 obj{ f.x,f.z };
-            obj.normalize();
-            auto cd = dot(t, obj);
-            if (cd < 0.999f) {
-                auto cnt = 0.0f;
-                TEST(t, unit);
-                TEST(t, -unit);
-            }
+            f.normalize();
+            correctVector(t, &Node::getForwardVectorWorld,f , 0.0f, RST*delta, 0.0f);
         }
 
         if (!mDest.isZero()) {
@@ -169,10 +131,7 @@ struct Tank final :public UnitController {
 
             auto cd = dot(c, obj);
             if (cd < 0.999f) {
-                auto cnt = 0.0f;
-                TEST(c, unit);
-                TEST(c, -unit);
-#undef TEST
+                correctVector(c, &Node::getForwardVector, { obj.x,0.0f,obj.y }, 0.0f, RSC*delta, 0.0f);
                 fac = rfac;
             }
 

@@ -238,7 +238,7 @@ void Server::update(float delta) {
             return id < rhs.id;
         }
     };
-    std::set<CheckInfo> check;
+    static std::set<CheckInfo> check;
 
     //produce unit
     auto now = Game::getAbsoluteTime();
@@ -274,7 +274,7 @@ void Server::update(float delta) {
         std::shuffle(units.begin(), units.end(), mt);
 
         for (auto&& u : units)
-            if (u.instance->update(delta))
+            if(u.instance->update(delta))
                 check.insert(u);
     }
 
@@ -324,6 +324,11 @@ void Server::update(float delta) {
             }
     }
     while (newCheck.size() && Game::getAbsoluteTime() - now < 10.0);
+
+    if (newCheck.size()) {
+        check.swap(newCheck);
+        newCheck.clear();
+    }
 
     {
         std::set<uint32_t> deferred;

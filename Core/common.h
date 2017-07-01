@@ -1,5 +1,6 @@
 #pragma once
 
+#define BT_USE_SSE_IN_API
 #include <gameplay.h>
 #include <memory>
 #include <type_traits>
@@ -88,3 +89,5 @@ static_assert(sizeof(uint64_t) == 8, "");
 #endif
 
 void removeAll(const std::string& path);
+
+void correctVector(Node* node, Vector3(Node::*sampler)() const, Vector3 dest,float x,float y,float z);
