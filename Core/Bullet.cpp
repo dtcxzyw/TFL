@@ -46,16 +46,42 @@ BulletInstance::BulletInstance(uint16_t kind, Vector3 begin,Vector3 end,
     mNode = i->second.getModel();
     mHitRadius = i->second.getRadius();
     mNode->setTranslation(begin);
-    Matrix mat;
-    Matrix::createLookAt(begin, end, Vector3::unitY(), &mat);
-    mNode->setRotation(mat);
+
+    auto obj = end - begin;
+    obj.normalize();
+
+    auto dot = [&] {
+        auto u = mNode->getForwardVector();
+        u.normalize();
+        return u.dot(obj);
+    };
+
+    constexpr auto unit = 0.001f;
+    auto cd = dot();
+#define TEST(a,b)\
+    while (true) {\
+        mNode->rotate##a((b));\
+        auto nd = dot();\
+        if (cd < nd)cd = nd;\
+        else {\
+            mNode->rotate##a(-(b));\
+            break;\
+        }\
+    }\
+
+    TEST(X, unit);
+    TEST(X, -unit);
+    TEST(Y, unit);
+    TEST(Y, -unit);
+    TEST(Z, unit);
+    TEST(Z, -unit);
+#undef TEST
 }
 
 void BulletInstance::update(float delta) {
     mCnt += delta;
     Vector3 pos=mBegin+(mEnd-mBegin)*std::min(mCnt,mTime)/mTime;
     mNode->setTranslation(pos);
-    mNode->rotateZ(delta*0.001f);
 }
 
 BoundingSphere BulletInstance::getHitBound() {

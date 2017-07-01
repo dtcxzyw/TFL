@@ -82,6 +82,7 @@ struct Tank final :public UnitController {
     Tank(const Properties* info) : Init(RST), Init(RSC), Init(v), Init(time), Init(harm), Init(dis), Init(rfac),
         Init(range) , count(0.0f), sample(0.0f),bullet(info->getString("bullet")),Init(offset),Init(speed) {
         v /= 1000.0f;
+        //speed /= 1000.0f;
     }
     auto dot(Node* node, Vector2 obj) {
         auto f = node->getForwardVectorWorld();

@@ -126,6 +126,8 @@ void Server::update(float delta) {
 
     bool updateWeight = false;
 
+    getClientInfo();
+
     for (auto packet = mPeer->Receive(); packet; mPeer->DeallocatePacket(packet), packet = mPeer->Receive()) {
         RakNet::BitStream data(packet->data, packet->length, false);
         data.IgnoreBytes(1);
@@ -344,7 +346,8 @@ void Server::update(float delta) {
                     for (auto&& u : g.second.units) {
                         auto bu = u.second.getBound();
                         if (b.intersects(bu))
-                            attack(u.first, x.second.getHarm() / b.center.distance(bu.center)*b.radius);
+                            attack(u.first, x.second.getHarm()
+                                *(1.0f-std::pow((b.center.distance(bu.center)-bu.radius)/b.radius,2.0f)));
                     }
                 deferred.insert(x.first);
             }

@@ -228,10 +228,12 @@ bool Client::update(float delta) {
                 }
                 if(u.isDied)
                     mUnits[u.id].attacked(1e10f);
-                if (u.group == mGroup)
-                    mine.insert(u.id);
-                else
-                    others.insert(u.id);
+                else {
+                    if (u.group == mGroup)
+                        mine.insert(u.id);
+                    else
+                        others.insert(u.id);
+                }
             }
             for (auto&& o : old) {
                 mScene->removeNode(mUnits[o].getNode());
