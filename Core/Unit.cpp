@@ -91,7 +91,6 @@ void UnitInstance::setAttackTarget(uint32_t id) {
 }
 
 bool UnitInstance::attacked(float harm) {
-    INFO("Unit ", mPID, " Group ", mGroup, " harm ", harm, " HP ", mHP - harm);
     return (mHP -= harm) <= 0.0f;
 }
 

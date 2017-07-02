@@ -369,7 +369,6 @@ void Server::update(float delta) {
                             auto fac = (dis - bu.radius) / b.radius;
                             fac = std::max(fac, 0.0f);
                             attack(u.first, x.second.getHarm()*(1.0f -fac*fac));
-                            if (x.second.getHarm()*(1.0f - fac*fac) > 1000.0f)throw;
                         }
                     }
                 deferred.insert(x.first);

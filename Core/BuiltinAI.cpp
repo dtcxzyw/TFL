@@ -148,7 +148,7 @@ public:
             {
                 for (auto&& x : mKeyPoint) {
                     TeamInfo team;
-                    team.size = mFree.size() / mKeyPoint.size() / 3 + 3;
+                    team.size = mFree.size() / mKeyPoint.size() / 3 + 2;
                     team.object = x;
                     mTeams.emplace_back(team);
                 }
@@ -191,7 +191,7 @@ public:
 
             for (auto&& x : mKeyPoint) {
                 TeamInfo team;
-                team.size = 50 + size / mKeyPoint.size();
+                team.size = 30 + size / mKeyPoint.size();
                 team.object = x;
                 mTeams.emplace_back(team);
             }
