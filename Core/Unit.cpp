@@ -129,7 +129,7 @@ Unit & getUnit(uint16_t id) {
     return i->second;
 }
 
-uint16_t UnitInstance::getGroup() const {
+uint8_t UnitInstance::getGroup() const {
     return mGroup;
 }
 
@@ -149,7 +149,8 @@ Vector3 UnitInstance::getRoughPos() const{
     return mPos;
 }
 
-void UnitInstance::updateSum(float delta) {
+bool UnitInstance::updateSum(float delta) {
     mDelta += delta;
-    if (mDelta > 50.0f)update(0.0f);
+    if (mDelta > 50.0f) {return update(0.0f); }
+    return false;
 }

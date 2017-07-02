@@ -8,8 +8,7 @@ enum class ClientMessage : unsigned char {
     //code
     changeWeight,
     setAttackTarget,
-    setMoveTarget,
-    hotRECT
+    setMoveTarget
 };
 
 enum class ServerMessage : unsigned char {

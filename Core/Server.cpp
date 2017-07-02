@@ -189,9 +189,6 @@ void Server::update(float delta) {
                     u->second.setMoveTarget(pos);
             }
         }
-        CheckHeader(ClientMessage::hotRECT) {
-            data.Read(mClients[packet->systemAddress].hot);
-        }
     }
 
     //check owner
@@ -285,28 +282,13 @@ void Server::update(float delta) {
         std::vector<CheckInfo> units;
 
         for (auto&& x : mGroups)
-            for (auto&& u : x.second.units) {
-                bool flag = mt() % 60 == 0;
-                if (!flag) {
-                    auto p = u.second.getRoughPos();
-                    for (auto&& x : mClients) {
-                        auto r = x.second.hot;
-                        if (r.left() < p.x && p.x < r.right() && r.top() < p.z && p.z < r.bottom()) {
-                            flag = true;
-                            break;
-                        }
-                    }
-                }
-                if (flag)
+            for (auto&& u : x.second.units)
                     units.push_back({ u.first,x.first,&u.second });
-                else
-                    u.second.updateSum(delta);
-            }
-                
+
         std::shuffle(units.begin(), units.end(), mt);
 
         for (auto&& u : units)
-            if(u.instance->update(delta))
+            if(u.instance->updateSum(delta))
                 check.insert(u);
     }
 
