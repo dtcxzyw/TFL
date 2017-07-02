@@ -34,8 +34,8 @@ bool BoundingSphere::intersects(const BoundingSphere& sphere) const
 {
     // If the distance between the spheres' centers is less than or equal
     // to the sum of their radii, then the spheres intersect.
-
-    return sphere.center.distanceSquared(center) <= std::pow(radius + sphere.radius,2.0f);
+    auto sum = radius + sphere.radius;
+    return sphere.center.distanceSquared(center) <= sum*sum;
 }
 
 bool BoundingSphere::intersects(const BoundingBox& box) const

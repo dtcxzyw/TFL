@@ -294,7 +294,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);FT2_BUILD_LIBRARY;ANDROID;LUA_COMPAT_APIINTCASTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);FT2_BUILD_LIBRARY;ANDROID;GP_USE_NEON</PreprocessorDefinitions>
       <ExceptionHandling>Enabled</ExceptionHandling>
       <StrictAliasing>true</StrictAliasing>
       <UndefinePreprocessorDefinitions>
@@ -306,7 +306,7 @@
       </UndefineAllPreprocessorDefinitions>
       <EnableNeonCodegen>true</EnableNeonCodegen>
       <FloatABI>softfp</FloatABI>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Full</Optimization>
     </ClCompile>
     <Link>
       <LibraryDependencies>%(LibraryDependencies);GLESv2;EGL;m;OpenSLES</LibraryDependencies>

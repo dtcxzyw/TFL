@@ -90,8 +90,9 @@ void correctVector(Node * node, Vector3(Node::* sampler)() const, Vector3 dest
         return vec.dot(dest);
     };
     auto cd = dot();
+    if (cd > 0.999f)return;
     float cntX=0.0f, cntY=0.0f, cntZ=0.0f;
-    for (auto unit = 1.0f; unit > 0.0001f; unit /= 2.0f) {
+    for (auto unit = std::max({ X,Y,Z }); unit > 0.0005f; unit /= 2.0f) {
 #define TEST(a,b) \
         while (std::abs(cnt##a+(b))<a) {\
             node->rotate##a((b));\

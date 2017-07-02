@@ -110,6 +110,7 @@ void Server::run() {
         }
 
     waitClient();
+    getClientInfo();
 
     for (auto&& x : mClients) {
         RakNet::BitStream data;
