@@ -82,6 +82,7 @@ public:
         RakNet::BitStream data;
         data.Write(ClientMessage::setMoveTarget);
         data.Write(info.object);
+        data.Write(static_cast<uint32_t>(info.current.size()));
         for (auto&& x : info.current)
             data.Write(x);
         mSend(data, PacketPriority::IMMEDIATE_PRIORITY, PacketReliability::RELIABLE_ORDERED);

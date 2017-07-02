@@ -91,6 +91,7 @@ void UnitInstance::setAttackTarget(uint32_t id) {
 }
 
 bool UnitInstance::attacked(float harm) {
+    INFO("Unit ", mPID, " Group ", mGroup, " harm ", harm, " HP ", mHP - harm);
     return (mHP -= harm) <= 0.0f;
 }
 
@@ -151,6 +152,6 @@ Vector3 UnitInstance::getRoughPos() const{
 
 bool UnitInstance::updateSum(float delta) {
     mDelta += delta;
-    if (mDelta > 50.0f) {return update(0.0f); }
+    if (mDelta > 30.0f) return update(0.0f);
     return false;
 }

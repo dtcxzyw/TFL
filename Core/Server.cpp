@@ -364,9 +364,13 @@ void Server::update(float delta) {
                 for (auto&& g : mGroups)
                     for (auto&& u : g.second.units) {
                         auto bu = u.second.getBound();
-                        if (u.second.getGroup() != x.second.getGroup() && b.intersects(bu))
-                            attack(u.first, x.second.getHarm()
-                                *(1.0f-std::pow((b.center.distance(bu.center)-bu.radius)/b.radius,2.0f)));
+                        if (u.second.getGroup() != x.second.getGroup() && b.intersects(bu)) {
+                            auto dis = b.center.distance(bu.center);
+                            auto fac = (dis - bu.radius) / b.radius;
+                            fac = std::max(fac, 0.0f);
+                            attack(u.first, x.second.getHarm()*(1.0f -fac*fac));
+                            if (x.second.getHarm()*(1.0f - fac*fac) > 1000.0f)throw;
+                        }
                     }
                 deferred.insert(x.first);
             }

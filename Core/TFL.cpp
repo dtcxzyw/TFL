@@ -259,7 +259,7 @@ protected:
     void render(float) override {
 #ifdef WIN32
         if (!(getWidth() && getHeight()))
-            std::this_thread::yield();
+            return;
 #endif
         clear(CLEAR_COLOR_DEPTH, Vector4::zero(), 1.0f, 0);
         if (localClient)localClient->render();
