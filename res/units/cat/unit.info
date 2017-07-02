@@ -1,6 +1,6 @@
 HP = 60
 cost = 5000
-FOV = 500
+FOV = 2000
 plane= 5,10
 offset=0,-8,0
 radius=15

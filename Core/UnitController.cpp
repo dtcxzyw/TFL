@@ -14,53 +14,60 @@ uint32_t UnitController::getAttackTarget() const {
 
 void UnitController::isServer() { mIsServer = true; }
 
-void correct(UnitInstance& instance) {
+void correct(UnitInstance& instance,float delta,float& cnt) {
     auto node = instance.getNode();
     auto kind = &instance.getKind();
     auto p = node->getTranslation();
     auto b = p + kind->getOffset();
     auto h = localClient->getHeight(b.x, b.z);
-    node->setTranslationY(h - kind->getOffset().y);
-    auto d = kind->getPlane();
+    if (b.y  < h) {
+        node->setTranslationY(h - kind->getOffset().y);
+        auto d = kind->getPlane();
 
-    std::array<Vector2, 4> base =
-    { Vector2{ b.x + d.x,b.z + d.y },
-        Vector2{ b.x + d.x,b.z - d.y } ,
-        Vector2{ b.x - d.x,b.z + d.y } ,
-        Vector2{ b.x - d.x,b.z - d.y } };
-    std::array<Vector3, 4> sample;
-    size_t idx = 0;
-    for (auto&&x : base) {
-        sample[idx] = Vector3{ x.x,localClient->getHeight(x.x,x.y),x.y };
-        ++idx;
+        std::array<Vector2, 4> base =
+        { Vector2{ b.x + d.x,b.z + d.y },
+            Vector2{ b.x + d.x,b.z - d.y } ,
+            Vector2{ b.x - d.x,b.z + d.y } ,
+            Vector2{ b.x - d.x,b.z - d.y } };
+        std::array<Vector3, 4> sample;
+        size_t idx = 0;
+        for (auto&&x : base) {
+            sample[idx] = Vector3{ x.x,localClient->getHeight(x.x,x.y),x.y };
+            ++idx;
+        }
+
+        Vector3 mean;
+        for (size_t i = 0; i < 4; ++i) {
+            auto a = sample[(i + 3) % 4] - sample[i];
+            a.normalize();
+            auto b = sample[(i + 1) % 4] - sample[i];
+            b.normalize();
+            Vector3 up;
+            Vector3::cross(a, b, &up);
+            if (up.y < 0)up.negate();
+            up.normalize();
+            mean += up / 4.0f;
+        }
+
+        mean.normalize();
+        auto dot = [&] {
+            auto u = node->getUpVectorWorld();
+            u.normalize();
+            return u.dot(mean);
+        };
+
+        correctVector(node, &Node::getUpVector, mean, M_PI_4, false, M_PI_4);
+        cnt = 0.0f;
     }
-
-    Vector3 mean;
-    for (size_t i = 0; i < 4; ++i) {
-        auto a = sample[(i + 3) % 4] - sample[i];
-        a.normalize();
-        auto b = sample[(i + 1) % 4] - sample[i];
-        b.normalize();
-        Vector3 up;
-        Vector3::cross(a, b, &up);
-        if (up.y < 0)up.negate();
-        up.normalize();
-        mean += up / 4.0f;
+    else {
+        node->translateY(-49.0f*(2.0f*cnt+delta)*delta/1e6f);
+        cnt += delta;
     }
-
-    mean.normalize();
-    auto dot = [&] {
-        auto u = node->getUpVectorWorld();
-        u.normalize();
-        return u.dot(mean);
-    };
-
-    correctVector(node, &Node::getUpVector, mean, M_PI_4, false, M_PI_4);
 }
 
 #define Init(name) name(info->getFloat(#name))
 struct Tank final :public UnitController {
-    float RST, RSC, v, time, harm, dis, count, rfac, sample,range,offset,speed;
+    float RST, RSC, v, time, harm, dis, count, rfac, sample,range,offset,speed,fcnt;
     Vector2 last;
     std::string bullet;
     Tank(const Properties* info) : Init(RST), Init(RSC), Init(v), Init(time), Init(harm), Init(dis), Init(rfac),
@@ -77,7 +84,7 @@ struct Tank final :public UnitController {
 
     bool update(UnitInstance& instance, float delta) override {
         if (instance.isDied()) {
-            correct(instance);
+            correct(instance,delta,fcnt);
             return false;
         }
         auto node = instance.getNode();
@@ -142,11 +149,11 @@ struct Tank final :public UnitController {
             if (d > 0.7f) {
                 c->translateForward(std::min(delta*v*fd*fac, np.distance(mDest)))
                     , sample += delta;
-                correct(instance);
+                correct(instance, delta, fcnt);
                 return true;
             }
         }
-        correct(instance);
+        correct(instance, delta, fcnt);
         return false;
     }
 };
