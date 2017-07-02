@@ -314,7 +314,7 @@ public:
             case Touch::TOUCH_MOVE:
             {
                 constexpr auto unit = 0.001f;
-                if ((px - x)*(px*x) + (py - y)*(py - y)>25|| flag) {
+                if ((px - x)*(px-x) + (py - y)*(py - y)>25|| flag) {
                     localClient->moveEvent((lx - x)*unit, (ly - y)*unit);
                     press = false, flag = true;
                 }

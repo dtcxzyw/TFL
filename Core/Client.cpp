@@ -352,9 +352,9 @@ void Client::render() {
 
 Vector3 Client::getPos(uint32_t id) {
     auto i = mUnits.find(id);
-    if (i != mUnits.cend() && !i->second.isDied()) 
-        return i->second.getNode()->getTranslation();
-    return Vector3::zero();
+    if (i == mUnits.cend() || i->second.isDied()) 
+        return Vector3::zero();
+    return i->second.getNode()->getTranslation();
 }
 
 float Client::getHeight(int x, int z) const {
@@ -384,12 +384,11 @@ uint16_t Client::getUnitNum() const {
 void Client::moveEvent(float x, float y) {
     if (mState) {
         auto node = mCamera->getNode();
-        x *= node->getTranslationY();
-        y *= node->getTranslationY();
         auto pos = node->getTranslation();
+        x *= pos.y,y *= pos.y;
         node->translate(x, 0.0f, y);
-        auto height = mMap->getHeight(node->getTranslationX(), node->getTranslationZ());
-        if (node->getTranslationY() < height + 100.0f)
+        auto height = mMap->getHeight(pos.x+x, pos.z+y);
+        if (pos.y < height + 100.0f)
             node->setTranslationY(height + 100.0f);
 
         auto game = Game::getInstance();
@@ -401,8 +400,9 @@ void Client::moveEvent(float x, float y) {
 void Client::scaleEvent(float x) {
     if (mState) {
         auto node = mCamera->getNode();
-        auto height = mMap->getHeight(node->getTranslationX(), node->getTranslationZ());
-        if (node->getTranslationY() > 200.0f && node->getTranslationY() - 100.0f > height) {
+        auto pos = node->getTranslation();
+        auto height = mMap->getHeight(pos.x, pos.z);
+        if (pos.y > 200.0f && pos.y - 100.0f > height) {
             node->translateY(x);
             if (checkCamera())
                 node->translateY(-x);
