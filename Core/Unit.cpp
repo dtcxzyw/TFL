@@ -77,7 +77,9 @@ bool UnitInstance::update(float delta) {
     if (mPos.x > 5000.0f)mNode->setTranslationX(5000.0f);
     if (mPos.z < -5000.0f)mNode->setTranslationZ(-5000.0f);
     if (mPos.z > 5000.0f)mNode->setTranslationZ(5000.0f);
-    return mController->update(*this, delta);
+    delta += mDelta;
+    mDelta = 0.0f;
+    return mController->update(*this, delta );
 }
 
 BoundingSphere UnitInstance::getBound() const {
@@ -102,7 +104,7 @@ const Unit & UnitInstance::getKind() const {
 
 UnitInstance::UnitInstance(const Unit & unit, uint8_t group, uint32_t id,
     Scene* add, bool isServer, Vector3 pos)
-    :mGroup(group), mHP(unit.getHP()), mNode(nullptr), mPID(id), mKind(&unit) {
+    :mGroup(group), mHP(unit.getHP()), mNode(nullptr), mPID(id), mKind(&unit),mDelta(0.0f) {
     mNode = unit.getModel();
     add->addNode(mNode.get());
     mNode->setTranslation(pos);
@@ -145,4 +147,9 @@ bool UnitInstance::isDied() const {
 
 Vector3 UnitInstance::getRoughPos() const{
     return mPos;
+}
+
+void UnitInstance::updateSum(float delta) {
+    mDelta += delta;
+    if (mDelta > 50.0f)update(0.0f);
 }

@@ -16,7 +16,7 @@ Map::Map(const std::string & name, bool isServer) :mIsServer(isServer) {
     const char* id;
     Vector2 tmp;
     while ((id = info->getNextProperty()) && info->getVector2(id, &tmp)) {
-        mKeyPoint.emplace_back(tmp / 512.0f* 3000.0f - Vector2{ 1500.0f, 1500.0f });
+        mKeyPoint.emplace_back(tmp / 512.0f* mapSizeF - Vector2{ mapSizeHF, mapSizeHF });
         mTerrain->setLayer(2, "res/common/key.png", { 16.0f,16.0f },
             "res/common/cover.png", 0, tmp.y / 32, tmp.x / 32);
     }

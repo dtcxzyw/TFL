@@ -91,3 +91,7 @@ static_assert(sizeof(uint64_t) == 8, "");
 void removeAll(const std::string& path);
 
 void correctVector(Node* node, Vector3(Node::*sampler)() const, Vector3 dest,float x,float y,float z);
+
+constexpr auto mapSize = 6000;
+constexpr auto mapSizeF = static_cast<float>(mapSize);
+constexpr auto mapSizeHF = mapSizeF/2.0f;

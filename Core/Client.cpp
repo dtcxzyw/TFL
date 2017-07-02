@@ -47,7 +47,7 @@ bool Client::checkCamera() {
     auto test = [this, rect](float x, float y) {
         Ray r;
         mCamera->pickRay(rect, x, y, &r);
-        BoundingBox b(-5000.0f, 0.0f, -5000.0f, 5000.0f, 1.0f, 5000.0f);
+        BoundingBox b(-mapSizeHF, 0.0f, -mapSizeHF, mapSizeHF, 1.0f, mapSizeHF);
         return b.intersects(r) == Ray::INTERSECTS_NONE;
     };
     return test(0, 0) || test(0, rect.height) || test(rect.width, 0) || test(rect.width, rect.height);
@@ -140,7 +140,7 @@ Client::WaitResult Client::wait() {
             c->rotateX(-M_PI_2);
             Vector2 p;
             data.Read(p);
-            c->setTranslation(p.x, mMap->getHeight(p.x, p.y) + 500.0f, p.y);
+            c->setTranslation(p.x, mMap->getHeight(p.x, p.y) + 200.0f, p.y);
             mX = mY = mBX = mBY = 0;
             mState = true;
             mPeer->DeallocatePacket(packet);

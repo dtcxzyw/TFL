@@ -40,6 +40,7 @@ private:
     const Unit* mKind;
     Vector3 mPos;
     std::unique_ptr<UnitController> mController;
+    float mDelta;
 public:
     UnitInstance() {
         throw;
@@ -69,6 +70,7 @@ public:
     uint32_t getAttackTarget() const;
     bool isDied() const;
     Vector3 getRoughPos() const;
+    void updateSum(float delta);
     //Client
     UnitInstance(const Unit& unit, uint8_t group, uint32_t id, Scene* add, bool isServer,Vector3 pos);
     uint16_t getGroup() const;

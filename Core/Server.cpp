@@ -291,14 +291,16 @@ void Server::update(float delta) {
                     auto p = u.second.getRoughPos();
                     for (auto&& x : mClients) {
                         auto r = x.second.hot;
-                        if (r.left() < p.x && p.x < r.right() && r.top() < p.y && p.y < r.bottom()) {
+                        if (r.left() < p.x && p.x < r.right() && r.top() < p.z && p.z < r.bottom()) {
                             flag = true;
                             break;
                         }
                     }
                 }
-                if(flag)
+                if (flag)
                     units.push_back({ u.first,x.first,&u.second });
+                else
+                    u.second.updateSum(delta);
             }
                 
         std::shuffle(units.begin(), units.end(), mt);

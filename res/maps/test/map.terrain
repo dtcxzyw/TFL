@@ -4,7 +4,7 @@ terrain
 	
 	heightmap = res/maps/test/height.png 
 
-	size = 3000, 500, 3000
+	size = 6000, 300, 6000
 	patchSize = 32
 	
 	layer rock
