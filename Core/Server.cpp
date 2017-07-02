@@ -78,6 +78,19 @@ const std::map<RakNet::SystemAddress, ClientInfo>& Server::getClientInfo() {
         INFO("A client has disconnected this server.", "(IP=", x.ToString(), ")");
         mClients.erase(x);
     }
+    std::vector<uint8_t> list;
+    for (auto&& x : mGroups) {
+        bool flag = true;
+        for(auto&& y:mClients)
+            if (y.second.group == x.first) {
+                flag = false;
+                break;
+            }
+        if (flag) 
+            list.emplace_back(x.first);
+    }
+    for (auto&& x : list)
+        mGroups.erase(x);
     return mClients;
 }
 
@@ -130,6 +143,7 @@ void Server::update(float delta) {
     getClientInfo();
 
     for (auto packet = mPeer->Receive(); packet; mPeer->DeallocatePacket(packet), packet = mPeer->Receive()) {
+        if (mClients.find(packet->systemAddress) == mClients.cend())continue;
         RakNet::BitStream data(packet->data, packet->length, false);
         data.IgnoreBytes(1);
         CheckBegin;
@@ -174,6 +188,9 @@ void Server::update(float delta) {
                 if (u != units.cend())
                     u->second.setMoveTarget(pos);
             }
+        }
+        CheckHeader(ClientMessage::hotRECT) {
+            data.Read(mClients[packet->systemAddress].hot);
         }
     }
 
@@ -249,8 +266,7 @@ void Server::update(float delta) {
         for (auto&& k : mKey) {
             if (k.owner != KeyInfo::nil && Game::getAbsoluteTime() > k.time) {
                 auto pos = Vector2{ k.pos.x,k.pos.y }+
-                    Vector2{ 100.0f / 16.0f*(mt() % 100),  100.0f / 16.0f*(mt() % 100) }
-                -Vector2{ 5000.0f,5000.0f } / 16.0f;
+                    Vector2{ mt() % 200-100.0f,  mt()%200-100.0f};
                 Vector3 p(pos.x, mMap.getHeight(pos.x, pos.y) + 10.0f, pos.y);
                 auto id = UnitInstance::askID();
                 mGroups[k.owner].units.
@@ -269,9 +285,22 @@ void Server::update(float delta) {
         std::vector<CheckInfo> units;
 
         for (auto&& x : mGroups)
-            for (auto&& u : x.second.units)
-                units.push_back({ u.first,x.first,&u.second });
-
+            for (auto&& u : x.second.units) {
+                bool flag = mt() % 60 == 0;
+                if (!flag) {
+                    auto p = u.second.getRoughPos();
+                    for (auto&& x : mClients) {
+                        auto r = x.second.hot;
+                        if (r.left() < p.x && p.x < r.right() && r.top() < p.y && p.y < r.bottom()) {
+                            flag = true;
+                            break;
+                        }
+                    }
+                }
+                if(flag)
+                    units.push_back({ u.first,x.first,&u.second });
+            }
+                
         std::shuffle(units.begin(), units.end(), mt);
 
         for (auto&& u : units)

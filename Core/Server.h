@@ -7,6 +7,7 @@
 
 struct ClientInfo final {
     uint8_t group=1;
+    gameplay::Rectangle hot;
 };
 
 struct GroupInfo final {

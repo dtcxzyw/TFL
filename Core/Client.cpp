@@ -306,15 +306,29 @@ bool Client::update(float delta) {
         mCnt = 0.0f;
     }
 
+    {
+        constexpr auto scale = 1.2f;
+        auto b = getPoint(0, 0)*scale;
+        auto e = getPoint(mRect.width, mRect.height)*scale;
+        auto x1 = b.x, x2 = e.x, y1 = b.y, y2 = e.y;
+        if (x1 > x2)std::swap(x1, x2);
+        if (y1 > y2)std::swap(y1, y2);
+        gameplay::Rectangle rect{ x1,y1,x2-x1,y2-y1 };
+        RakNet::BitStream data;
+        data.Write(ClientMessage::hotRECT);
+        data.Write(rect);
+        mPeer->Send(&data, PacketPriority::HIGH_PRIORITY,
+            PacketReliability::RELIABLE_ORDERED, 0, mServer, false);
+    }
     return true;
 }
 
 void Client::render() {
     if (mState) {
         auto game = Game::getInstance();
-        auto rect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
-        game->setViewport(rect);
-        mCamera->setAspectRatio(rect.width / rect.height);
+        mRect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
+        game->setViewport(mRect);
+        mCamera->setAspectRatio(mRect.width / mRect.height);
 
         mScene->setAmbientColor(-0.8f, -0.8f, -0.8f);
         for (auto&& x : mUnits) 

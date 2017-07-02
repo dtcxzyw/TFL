@@ -69,14 +69,14 @@ void UnitInstance::setMoveTarget(Vector2 pos) {
 }
 
 bool UnitInstance::update(float delta) {
-    auto p = mNode->getTranslation();
+    mPos = mNode->getTranslation();
     if (localClient->getPos(mController->getAttackTarget()).
-        distanceSquared(p) > mKind->getFOV())
+        distanceSquared(mPos) > mKind->getFOV())
         mController->setAttackTarget(0);
-    if (p.x < -5000.0f)mNode->setTranslationX(-5000.0f);
-    if (p.x > 5000.0f)mNode->setTranslationX(5000.0f);
-    if (p.z < -5000.0f)mNode->setTranslationZ(-5000.0f);
-    if (p.z > 5000.0f)mNode->setTranslationZ(5000.0f);
+    if (mPos.x < -5000.0f)mNode->setTranslationX(-5000.0f);
+    if (mPos.x > 5000.0f)mNode->setTranslationX(5000.0f);
+    if (mPos.z < -5000.0f)mNode->setTranslationZ(-5000.0f);
+    if (mPos.z > 5000.0f)mNode->setTranslationZ(5000.0f);
     return mController->update(*this, delta);
 }
 
@@ -141,4 +141,8 @@ uint32_t UnitInstance::getAttackTarget() const {
 
 bool UnitInstance::isDied() const {
     return mHP<=0.0f;
+}
+
+Vector3 UnitInstance::getRoughPos() const{
+    return mPos;
 }

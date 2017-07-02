@@ -9,12 +9,11 @@ enum class ClientMessage : unsigned char {
     changeWeight,
     setAttackTarget,
     setMoveTarget,
-    //
-    end
+    hotRECT
 };
 
 enum class ServerMessage : unsigned char {
-    begin = static_cast<unsigned char>(ClientMessage::end),
+    begin = ID_USER_PACKET_ENUM,
     info,
     go,
     updateUnit,
@@ -22,8 +21,7 @@ enum class ServerMessage : unsigned char {
     updateBullet,
     win,
     out,
-    stop,
-    end
+    stop
 };
 
 #define CheckBegin if(false)

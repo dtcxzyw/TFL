@@ -81,8 +81,9 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>Clang_3_8</PlatformToolset>
-    <AndroidAPILevel>android-19</AndroidAPILevel>
+    <AndroidAPILevel>android-21</AndroidAPILevel>
     <UseOfStl>gnustl_static</UseOfStl>
+    <ThumbMode>Thumb</ThumbMode>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -228,7 +229,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);FT2_BUILD_LIBRARY;ANDROID;LUA_COMPAT_APIINTCASTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);FT2_BUILD_LIBRARY;ANDROID</PreprocessorDefinitions>
       <ExceptionHandling>Enabled</ExceptionHandling>
       <StrictAliasing>true</StrictAliasing>
       <UndefinePreprocessorDefinitions>
@@ -239,6 +240,7 @@
       <UndefineAllPreprocessorDefinitions>
       </UndefineAllPreprocessorDefinitions>
       <FloatABI>softfp</FloatABI>
+      <EnableNeonCodegen>true</EnableNeonCodegen>
     </ClCompile>
     <Link>
       <LibraryDependencies>%(LibraryDependencies);GLESv2;EGL;m;OpenSLES</LibraryDependencies>
@@ -294,7 +296,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
-      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);FT2_BUILD_LIBRARY;ANDROID;GP_USE_NEON</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);FT2_BUILD_LIBRARY;ANDROID;ANDROIDx86</PreprocessorDefinitions>
       <ExceptionHandling>Enabled</ExceptionHandling>
       <StrictAliasing>true</StrictAliasing>
       <UndefinePreprocessorDefinitions>

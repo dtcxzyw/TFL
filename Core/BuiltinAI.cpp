@@ -49,7 +49,7 @@ public:
         const char* id;
         Vector2 tmp;
         while ((id = info->getNextProperty()) && info->getVector2(id, &tmp))
-            mKeyPoint.emplace_back(tmp / 512.0f* 10000.0f - Vector2{ 5000.0f, 5000.0f });
+            mKeyPoint.emplace_back(tmp / 512.0f* 3000.0f - Vector2{ 1500.0f, 1500.0f });
         mGroup = group;
     }
 
@@ -202,7 +202,7 @@ public:
         if (mStep == Type::discover && mFree.size() > 5) {
             TeamInfo team;
             team.size = 3;
-            team.object = { mt() % 10000 - 5000.0f,mt() % 10000 - 5000.0f };
+            team.object = { mt() % 3000 - 1500.0f,mt() % 3000 -1500.0f };
             mTeams.emplace_back(team);
         }
 
