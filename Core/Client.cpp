@@ -312,9 +312,9 @@ bool Client::update(float delta) {
 void Client::render() {
     if (mState) {
         auto game = Game::getInstance();
-        mRect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
-        game->setViewport(mRect);
-        mCamera->setAspectRatio(mRect.width / mRect.height);
+        auto rect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
+        game->setViewport(rect);
+        mCamera->setAspectRatio(rect.width / rect.height);
 
         mScene->setAmbientColor(-0.8f, -0.8f, -0.8f);
         for (auto&& x : mUnits) 
