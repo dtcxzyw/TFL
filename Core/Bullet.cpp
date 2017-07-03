@@ -9,6 +9,12 @@ void loadAllBullets() {
         globalBullets[p] = p;
 }
 
+Bullet & getBullet(uint16_t id) {
+    auto i = globalBullets.begin();
+    std::advance(i, id);
+    return i->second;
+}
+
 void Bullet::operator=(const std::string & name) {
     INFO("Load bullet ", name);
     std::string full = "/res/bullets/" + name + "/";
@@ -16,6 +22,10 @@ void Bullet::operator=(const std::string & name) {
     mModel = scene->findNode("root")->clone();
     uniqueRAII<Properties> info = Properties::create((full + "bullet.info").c_str());
     mHitRadius = info->getFloat("radius");
+    mBoomTime = info->getFloat("boom");
+    auto p = ParticleEmitter::create((full+"bullet.info#boom").c_str());
+    mDuang = Node::create();
+    mDuang->setDrawable(p);
 }
 
 Node* Bullet::getModel() const {
@@ -24,6 +34,14 @@ Node* Bullet::getModel() const {
 
 float Bullet::getRadius() const {
     return mHitRadius;
+}
+
+Node * Bullet::boom() {
+    return mDuang->clone();
+}
+
+float Bullet::getBoomTime() const {
+    return mBoomTime;
 }
 
 uint32_t BulletInstance::cnt = 0;

@@ -256,11 +256,12 @@ protected:
         label->update(delta);
     }
 
-    void render(float) override {
+    void render(float delta) override {
 #ifdef WIN32
         if (!(getWidth() && getHeight()))
             return;
 #endif
+
         clear(CLEAR_COLOR_DEPTH, Vector4::zero(), 1.0f, 0);
         if (localClient)localClient->render();
         else setViewport(gameplay::Rectangle(getWidth(), getHeight()));

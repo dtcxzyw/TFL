@@ -151,6 +151,6 @@ Vector3 UnitInstance::getRoughPos() const{
 
 bool UnitInstance::updateSum(float delta) {
     mDelta += delta;
-    if (mDelta > 30.0f) return update(0.0f);
+    if (mDelta > 20.0f) return update(0.0f);
     return false;
 }

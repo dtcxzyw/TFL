@@ -4,6 +4,14 @@
 #include "Map.h"
 #include "Unit.h"
 
+struct DuangInfo final {
+    uniqueRAII<Node> emitter;
+    float end;
+    bool operator<(const DuangInfo& rhs) const {
+        return emitter.get() < rhs.emitter.get();
+    }
+};
+
 class Client final {
 private:
     RakNet::RakPeerInterface* mPeer;
@@ -17,6 +25,7 @@ private:
     std::vector<uint16_t> mWeight;
     std::map<uint32_t, UnitInstance> mUnits;
     std::map<uint32_t, BulletInstance> mBullets;
+    std::set<DuangInfo> mDuang;
     uint32_t mGroup;
     void drawNode(Node* node);
     Vector2 getPoint(int x, int y) const;

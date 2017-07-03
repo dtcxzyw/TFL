@@ -66,7 +66,7 @@ public:
 
     void newUnit(const UnitSyncInfo& info) {
         updateUnit(info);
-        mValue += (info.group == mGroup) ? 0.5f : -1.0f;
+        mValue += (info.group == mGroup) ? 1.0f : -1.0f;
         if (info.group == mGroup)
             mFree.emplace_back(info.id);
     }
@@ -75,7 +75,7 @@ public:
         if (mMine.find(id) != mMine.cend())
             mMine.erase(id), --mValue;
         else
-            mArmies.erase(id), mValue += 0.5f;
+            mArmies.erase(id), ++mValue;
     }
 
     void send(const TeamInfo& info) {
@@ -113,7 +113,7 @@ public:
         if (mValue > 20.0f || (mArmies.size() &&
             mArmies.size() * 5 < mMine.size())) mStep = Type::attack;
         //defense
-        if (mValue<-10.0f || mArmies.size()>0.2*mMine.size())mStep = Type::defense;
+        if (mArmies.size()>0.2*mMine.size())mStep = Type::defense;
 
         if (old != mStep) {
             uint16_t id = 0;
@@ -207,7 +207,7 @@ public:
             mTeams.emplace_back(team);
         }
 
-        std::shuffle(mTeams.begin(), mTeams.end(), mt);
+       // std::shuffle(mTeams.begin(), mTeams.end(), mt);
 
         for (auto&& x : mTeams) {
             if (mFree.empty())continue;
@@ -364,7 +364,7 @@ p2:
 
         builtinAI.update();
 
-        std::this_thread::sleep_for(1s);
+        std::this_thread::sleep_for(500ms);
     }
     peer.Shutdown(500, 0, IMMEDIATE_PRIORITY);
 }

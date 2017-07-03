@@ -3,16 +3,19 @@
 
 class Bullet final {
 private:
-    uniqueRAII<Node> mModel;
-    float mHitRadius;
+    uniqueRAII<Node> mModel,mDuang;
+    float mHitRadius,mBoomTime;
 public:
     void operator=(const std::string& name);
     Node* getModel() const;
     float getRadius() const;
+    Node* boom();
+    float getBoomTime() const;
 };
 
 extern std::map<std::string, Bullet> globalBullets;
 void loadAllBullets();
+Bullet& getBullet(uint16_t id);
 
 class BulletInstance final {
 private:

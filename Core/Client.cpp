@@ -268,6 +268,21 @@ bool Client::update(float delta) {
             for (auto& x : mWeight)
                 data.Read(x);
         }
+        CheckHeader(ServerMessage::duang) {
+            uint16_t size;
+            data.Read(size);
+            float now = Game::getAbsoluteTime();
+            for (uint16_t i = 0; i < size; ++i) {
+                DuangSyncInfo info;
+                data.Read(info);
+                auto& bullet = getBullet(info.kind);
+                auto iter=mDuang.insert({ bullet.boom(),now + bullet.getBoomTime() }).first;
+                mScene->addNode(iter->emitter.get());
+                auto p=dynamic_cast<ParticleEmitter*>(iter->emitter->getDrawable());
+                p->setPosition(info.pos, Vector3::one());
+                p->start();
+            }
+        }
     }
 
     if (isStop) {
@@ -277,6 +292,20 @@ bool Client::update(float delta) {
 
     for (auto&& x : mUnits)
         x.second.update(delta);
+
+    {
+        std::vector<decltype(mDuang)::iterator> deferred;
+        auto end = Game::getAbsoluteTime();
+        for (auto i = mDuang.cbegin(); i != mDuang.cend(); ++i)
+            if (i->end < end)
+                deferred.emplace_back(i);
+            else
+                dynamic_cast<ParticleEmitter*>(i->emitter->getDrawable())->update(delta);
+        for (auto&& x : deferred) {
+            mScene->removeNode(x->emitter.get());
+            mDuang.erase(x);
+        }
+    }
 
     //control
     mCnt += delta;
@@ -334,6 +363,8 @@ void Client::render() {
             if (!x.second.isDied() && x.second.getGroup()!=mGroup)
                 drawNode(x.second.getNode());
         mScene->setAmbientColor(0.0f, 0.0f, 0.0f);
+        for (auto&& x : mDuang)
+            drawNode(x.emitter.get());
         for (auto&& x : mBullets)
             drawNode(x.second.getNode());
         mScene->findNode("terrain")->getDrawable()->draw();

@@ -345,6 +345,8 @@ void Server::update(float delta) {
     }
 
     {
+        std::map<uint8_t,std::set<uint32_t>> duang;
+        std::map<uint32_t,DuangSyncInfo> info;
         std::set<uint32_t> deferred;
         for (auto&& x : mBullets) {
             x.second.update(delta);
@@ -370,10 +372,23 @@ void Server::update(float delta) {
                             fac = std::max(fac, 0.0f);
                             attack(u.first, x.second.getHarm()*(1.0f -fac*fac));
                         }
+                        if (b.center.distanceSquared(bu.center) < u.second.getKind().getFOV())
+                            duang[g.first].insert(x.first);
                     }
                 deferred.insert(x.first);
+                info[x.first] = { x.second.getKind(), b.center };
             }
         }
+
+        for (auto&& x : duang) {
+            RakNet::BitStream data;
+            data.Write(ServerMessage::duang);
+            data.Write(static_cast<uint16_t>(x.second.size()));
+            for (auto&& y : x.second) 
+                data.Write(info[y]);
+            send(x.first, data, PacketPriority::MEDIUM_PRIORITY);
+        }
+
         for (auto&& x : deferred) {
             mScene->removeNode(mBullets[x].getNode());
             mBullets.erase(x);

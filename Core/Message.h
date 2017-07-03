@@ -18,6 +18,7 @@ enum class ServerMessage : unsigned char {
     updateUnit,
     updateWeight,
     updateBullet,
+    duang,
     win,
     out,
     stop
@@ -41,6 +42,11 @@ struct BulletSyncInfo final {
     uint16_t kind;
     Vector3 pos;
     Quaternion rotation;
+};
+
+struct DuangSyncInfo final {
+    uint16_t kind;
+    Vector3 pos;
 };
 
 extern uint64_t pakKey;
