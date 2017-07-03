@@ -86,7 +86,18 @@
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="Shared" />
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <AntPackage>
       <AndroidAppLibName>TFL</AndroidAppLibName>
@@ -97,7 +108,7 @@
     <AntPackage>
       <AndroidAppLibName>TFL</AndroidAppLibName>
       <ApplicationName>TFL</ApplicationName>
-      <AntTarget>debug</AntTarget>
+      <AntTarget>release</AntTarget>
     </AntPackage>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
@@ -110,7 +121,7 @@
     <AntPackage>
       <AndroidAppLibName>TFL</AndroidAppLibName>
       <ApplicationName>TFL</ApplicationName>
-      <AntTarget>debug</AntTarget>
+      <AntTarget>release</AntTarget>
     </AntPackage>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -123,7 +134,7 @@
     <AntPackage>
       <AndroidAppLibName>TFL</AndroidAppLibName>
       <ApplicationName>TFL</ApplicationName>
-      <AntTarget>debug</AntTarget>
+      <AntTarget>release</AntTarget>
     </AntPackage>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
@@ -136,15 +147,19 @@
     <AntPackage>
       <AndroidAppLibName>TFL</AndroidAppLibName>
       <ApplicationName>TFL</ApplicationName>
-      <AntTarget>debug</AntTarget>
+      <AntTarget>release</AntTarget>
     </AntPackage>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Content Include="assets\Core.pak" />
     <Content Include="assets\game.config" />
+    <Content Include="dtcxzyw.keystore">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="res\values\strings.xml" />
     <AntBuildXml Include="build.xml" />
     <AndroidManifest Include="AndroidManifest.xml" />
+    <AntProjectPropertiesFile Include="ant.properties" />
     <AntProjectPropertiesFile Include="project.properties" />
   </ItemGroup>
   <ItemGroup>
