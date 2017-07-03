@@ -108,9 +108,9 @@ public:
 
         auto old = mStep;
         //discover
-        if (mValue > -20.0f || mArmies.empty())mStep = Type::discover;
+        if (mValue > -5.0f || mArmies.empty())mStep = Type::discover;
         //attack
-        if (mValue > 100.0f || (mArmies.size() &&
+        if (mValue > 20.0f || (mArmies.size() &&
             mArmies.size() * 5 < mMine.size())) mStep = Type::attack;
         //defense
         if (mValue<-10.0f || mArmies.size()>0.2*mMine.size())mStep = Type::defense;
@@ -206,6 +206,8 @@ public:
             team.object = { mt() % mapSize - mapSizeHF,mt() % mapSize -mapSizeHF };
             mTeams.emplace_back(team);
         }
+
+        std::shuffle(mTeams.begin(), mTeams.end(), mt);
 
         for (auto&& x : mTeams) {
             if (mFree.empty())continue;

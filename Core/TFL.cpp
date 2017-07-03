@@ -232,9 +232,9 @@ protected:
 
         UnitController::initAllController();
 
-        //input
         setMultiTouch(false);
-        setVsync(false);
+        setVsync(true);
+        setMultiSampling(true);
 
         INFO("Loading resources...");
         br = std::make_unique<BindingResolver>();

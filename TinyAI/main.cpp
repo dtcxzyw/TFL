@@ -90,6 +90,7 @@ public:
         RakNet::BitStream data;
         data.Write(ClientMessage::setMoveTarget);
         data.Write(info.object);
+        data.Write(static_cast<uint32_t>(info.current.size()));
         for (auto&& x : info.current)
             data.Write(x);
         mSend(data, PacketPriority::IMMEDIATE_PRIORITY, PacketReliability::RELIABLE_ORDERED);
@@ -115,9 +116,9 @@ public:
 
         auto old = mStep;
         //discover
-        if (mValue > -20.0f || mArmies.empty())mStep = Type::discover;
+        if (mValue > -5.0f || mArmies.empty())mStep = Type::discover;
         //attack
-        if (mValue > 100.0f || (mArmies.size() && 
+        if (mValue > 20.0f || (mArmies.size() && 
             mArmies.size() * 5 < mMine.size())) mStep = Type::attack;
         //defense
         if (mValue<-10.0f || mArmies.size()>0.2*mMine.size())mStep = Type::defense;
@@ -167,7 +168,7 @@ public:
             {
                 for (auto&& x : mKeyPoint) {
                     TeamInfo team;
-                    team.size = mFree.size()/mKeyPoint.size()/3+3;
+                    team.size = mFree.size()/mKeyPoint.size()/3+2;
                     team.object = x;
                     mTeams.emplace_back(team);
                 }
@@ -210,7 +211,7 @@ public:
 
             for (auto&& x : mKeyPoint) {
                 TeamInfo team;
-                team.size = 50+size/mKeyPoint.size();
+                team.size = 20+size/mKeyPoint.size();
                 team.object = x;
                 mTeams.emplace_back(team);
             }

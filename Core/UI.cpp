@@ -240,11 +240,7 @@ SettingsMenu::~SettingsMenu() {
     {
         std::stringstream out;
         out << std::boolalpha <<
-            R"(graphics
-{
-    defaultMaterial = none
-}
-
+            R"(
 ui
 {
     theme = res/default.theme
@@ -254,12 +250,13 @@ window
 {
     title = The First Law
     resizable = true
+    samples = 8
     width = )" << get<Slider>("width")->getValue() <<
             "\n    height = " << get<Slider>("height")->getValue() <<
             "\n    fullscreen = " << get<CheckBox>("fullscreen")->isChecked() <<
             "\n}\n";
         auto str = out.str();
-        uniqueRAII<Stream> file = FileSystem::open("/game.config", FileSystem::StreamMode::WRITE);
+        uniqueRAII<Stream> file = FileSystem::open("game.config", FileSystem::StreamMode::WRITE);
         file->write(str.c_str(), sizeof(char), str.size());
     }
 
