@@ -207,7 +207,7 @@ void Server::update(float delta) {
             auto min = std::min_element(dis.cbegin(), dis.cend(),
                 [](auto p1, auto p2) {return p1.second < p2.second; });
 
-            if (min->second < 100000.0f) {
+            if (min->second < 4000000.0f) {
                 if (k.owner != KeyInfo::nil) {
                     if (k.owner != min->first) {
                         auto& old = mGroups[k.owner].key;

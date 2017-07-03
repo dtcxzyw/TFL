@@ -158,6 +158,7 @@ void Client::stop() {
     mScene.reset();
     mCamera.reset();
     mUnits.clear();
+    mDuang.clear();
     mChoosed.clear();
     RakNet::BitStream stream;
     stream.Write(ClientMessage::exit);
@@ -278,8 +279,9 @@ bool Client::update(float delta) {
                 auto& bullet = getBullet(info.kind);
                 auto iter=mDuang.insert({ bullet.boom(),now + bullet.getBoomTime() }).first;
                 mScene->addNode(iter->emitter.get());
+                iter->emitter->setTranslation(info.pos);
                 auto p=dynamic_cast<ParticleEmitter*>(iter->emitter->getDrawable());
-                p->setPosition(info.pos, Vector3::one());
+                p->setPosition(Vector3::zero(), Vector3::one());
                 p->start();
             }
         }
@@ -294,7 +296,7 @@ bool Client::update(float delta) {
         x.second.update(delta);
 
     {
-        std::vector<decltype(mDuang)::iterator> deferred;
+        std::vector<decltype(mDuang)::const_iterator> deferred;
         auto end = Game::getAbsoluteTime();
         for (auto i = mDuang.cbegin(); i != mDuang.cend(); ++i)
             if (i->end < end)

@@ -22,7 +22,7 @@ void Bullet::operator=(const std::string & name) {
     mModel = scene->findNode("root")->clone();
     uniqueRAII<Properties> info = Properties::create((full + "bullet.info").c_str());
     mHitRadius = info->getFloat("radius");
-    mBoomTime = info->getFloat("boom");
+    mBoomTime = info->getFloat("time");
     auto p = ParticleEmitter::create((full+"bullet.info#boom").c_str());
     mDuang = Node::create();
     mDuang->setDrawable(p);
