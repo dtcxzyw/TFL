@@ -324,10 +324,16 @@ void Client::render() {
         for (auto&& x : mUnits)
             if (!x.second.isDied() && mChoosed.find(x.first)!=mChoosed.cend())
                 drawNode(x.second.getNode());
-        mScene->setAmbientColor(0.0f, 0.0f, 0.0f);
+        mScene->setAmbientColor(0.3f, 0.0f, 0.0f);
         for (auto&& x : mUnits)
-            if (!x.second.isDied() && mChoosed.find(x.first) == mChoosed.cend())
+            if (!x.second.isDied() && mChoosed.find(x.first) == mChoosed.cend() 
+                && x.second.getGroup()==mGroup)
                 drawNode(x.second.getNode());
+        mScene->setAmbientColor(0.0f, 0.0f, 0.3f);
+        for (auto&& x : mUnits)
+            if (!x.second.isDied() && x.second.getGroup()!=mGroup)
+                drawNode(x.second.getNode());
+        mScene->setAmbientColor(0.0f, 0.0f, 0.0f);
         for (auto&& x : mBullets)
             drawNode(x.second.getNode());
         mScene->findNode("terrain")->getDrawable()->draw();
