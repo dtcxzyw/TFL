@@ -9,12 +9,12 @@
 #include <random>
 #include <algorithm>
 #undef REGISTERED
+#undef max
+#undef min
 #include "../Core/common.cpp"
 using namespace gameplay;
 #include "../Core/Message.h"
 using namespace std::literals;
-#undef max
-#undef min
 
 class AI final {
 private:
