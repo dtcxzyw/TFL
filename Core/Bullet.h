@@ -3,8 +3,10 @@
 
 class Bullet final {
 private:
-    uniqueRAII<Node> mModel,mDuang;
+    mutable uniqueRAII<Node> mModel;
+    uniqueRAII<Node> mDuang;
     float mHitRadius,mBoomTime;
+    std::string mModelPath;
 public:
     void operator=(const std::string& name);
     Node* getModel() const;

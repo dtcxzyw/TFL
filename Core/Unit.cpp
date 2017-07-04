@@ -9,7 +9,6 @@ void Unit::operator=(const std::string& name) {
     mName = name;
     INFO("Load unit ", name);
     std::string full = "/res/units/" + name + "/";
-    mModel =Scene::load((full + "model.scene").c_str());
     mInfo = Properties::create((full + "unit.info").c_str());
     mHP = mInfo->getFloat("HP");
     mTime = mInfo->getFloat("cost");
@@ -26,6 +25,8 @@ std::string Unit::getName() const {
 }
 
 Node* Unit::getModel() const {
+    if (!mModel)
+        mModel = Scene::load(("/res/units/" + mName + "/model.scene").c_str());
     return mModel->findNode("root")->clone();
 }
 

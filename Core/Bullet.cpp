@@ -18,9 +18,8 @@ Bullet & getBullet(uint16_t id) {
 void Bullet::operator=(const std::string & name) {
     INFO("Load bullet ", name);
     std::string full = "/res/bullets/" + name + "/";
-    uniqueRAII<Scene> scene= Scene::load((full + "model.scene").c_str());
-    mModel = scene->findNode("root")->clone();
     uniqueRAII<Properties> info = Properties::create((full + "bullet.info").c_str());
+    mModelPath = full + "model.scene";
     mHitRadius = info->getFloat("radius");
     mBoomTime = info->getFloat("time");
     auto p = ParticleEmitter::create((full+"bullet.info#boom").c_str());
@@ -29,6 +28,10 @@ void Bullet::operator=(const std::string & name) {
 }
 
 Node* Bullet::getModel() const {
+    if (!mModel) {
+        uniqueRAII<Scene> scene = Scene::load(mModelPath.c_str());
+        mModel = scene->findNode("root")->clone();
+    }
     return mModel->clone();
 }
 

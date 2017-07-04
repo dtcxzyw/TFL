@@ -5,7 +5,7 @@
 class Unit final {
 private:
     float mHP,mTime,mFOV;
-    uniqueRAII<Scene> mModel;
+    mutable uniqueRAII<Scene> mModel;
     std::string mName;
     uniqueRAII<Properties> mInfo;
     Vector2 mPlane;
