@@ -200,6 +200,7 @@ form Server
 	checkBox ai
 	{
 		text = Builtin AI
+		checked = true
 	}
 	
 	button run

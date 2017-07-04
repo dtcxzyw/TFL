@@ -281,7 +281,6 @@ bool Client::update(float delta) {
                 mScene->addNode(iter->emitter.get());
                 iter->emitter->setTranslation(info.pos);
                 auto p=dynamic_cast<ParticleEmitter*>(iter->emitter->getDrawable());
-                p->setPosition(Vector3::zero(), Vector3::one());
                 p->start();
             }
         }
