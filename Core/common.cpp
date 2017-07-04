@@ -116,3 +116,5 @@ void correctVector(Node * node, Vector3(Node::* sampler)() const, Vector3 dest
 
 std::mt19937_64 mt(std::chrono::high_resolution_clock::now().time_since_epoch().count());
 
+uint16_t shadowSize=1024;
+

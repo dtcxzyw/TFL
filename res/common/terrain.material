@@ -1,23 +1,47 @@
 material terrain
 {
-    u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
 
-    u_normalMatrix = INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX
-    
-    u_surfaceLayerMaps = TERRAIN_LAYER_MAPS
-
-    u_ambientColor = SCENE_AMBIENT_COLOR
-	u_directionalLightDirection[0] = LIGHT_DIRECTION
-    u_directionalLightColor[0] = LIGHT_COLOR
-
-    renderState
+	technique
     {
-        cullFace = true
-        depthTest = true
-    }
+	
+		u_matrix = LIGHT_MATRIX
+		u_model= WORLD_MATRIX 
 
+		renderState
+		{
+			cullFace = true
+			depthTest = true
+			cullFaceSide = FRONT
+		}
+		
+        pass
+        {
+            vertexShader = res/shaders/depth.vert
+            fragmentShader = res/shaders/depth.frag
+        }
+    }
+	
     technique
     {
+	    u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
+
+		u_normalMatrix = INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX
+		
+		u_surfaceLayerMaps = TERRAIN_LAYER_MAPS
+
+		u_ambientColor = SCENE_AMBIENT_COLOR
+		u_directionalLightDirection[0] = LIGHT_DIRECTION
+		u_directionalLightColor[0] = LIGHT_COLOR
+		
+		u_shadowMap=SHADOW_MAP
+		u_matrix = LIGHT_MATRIX
+		u_model= WORLD_MATRIX 
+
+		renderState
+		{
+			cullFace = true
+			depthTest = true
+		}
         pass
         {
             vertexShader = res/shaders/terrain.vert

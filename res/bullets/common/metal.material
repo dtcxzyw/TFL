@@ -15,6 +15,10 @@ material metal
 			u_directionalLightDirection[0] = LIGHT_DIRECTION
 			u_directionalLightColor[0] = LIGHT_COLOR
 			u_ambientColor = SCENE_AMBIENT_COLOR
+			
+			u_shadowMap=SHADOW_MAP
+			u_matrix = LIGHT_MATRIX
+			u_model= WORLD_MATRIX 
 
 			
             vertexShader = res/shaders/textured.vert

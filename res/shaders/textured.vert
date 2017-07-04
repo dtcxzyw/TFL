@@ -39,6 +39,9 @@ attribute vec3 a_binormal;
 ///////////////////////////////////////////////////////////
 // Uniforms
 uniform mat4 u_worldViewProjectionMatrix;
+uniform mat4 u_matrix;
+uniform mat4 u_model;
+
 #if defined(SKINNING)
 uniform vec4 u_matrixPalette[SKINNING_JOINT_COUNT * 3];
 #endif
@@ -87,6 +90,7 @@ uniform vec4 u_clipPlane;
 ///////////////////////////////////////////////////////////
 // Varyings
 varying vec2 v_texCoord;
+varying vec4 v_pos;
 
 #if defined(LIGHTMAP)
 varying vec2 v_texCoord1;
@@ -135,7 +139,8 @@ void main()
 {
     vec4 position = getPosition();
     gl_Position = u_worldViewProjectionMatrix * position;
-
+	v_pos = u_matrix * u_model *a_position;
+	
     #if defined(LIGHTING)
     vec3 normal = getNormal();
     // Transform the normal, tangent and binormals to view space.

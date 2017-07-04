@@ -17,6 +17,10 @@ material green
 			u_ambientColor = SCENE_AMBIENT_COLOR
 			u_specularExponent = 32
 			
+			u_shadowMap=SHADOW_MAP
+			u_matrix = LIGHT_MATRIX
+			u_model= WORLD_MATRIX 
+			
             vertexShader = res/shaders/textured.vert
             fragmentShader = res/shaders/textured.frag
             defines = DIRECTIONAL_LIGHT_COUNT 1;SPECULAR

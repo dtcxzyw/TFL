@@ -22,6 +22,9 @@ attribute vec2 a_texCoord0;
 ///////////////////////////////////////////////////////////
 // Uniforms
 uniform mat4 u_worldViewProjectionMatrix;
+uniform mat4 u_matrix;
+uniform mat4 u_model;
+
 #if !defined(NORMAL_MAP) && defined(LIGHTING)
 uniform mat4 u_normalMatrix;
 #endif
@@ -51,6 +54,8 @@ uniform vec3 u_spotLightDirection[SPOT_LIGHT_COUNT];
 
 ///////////////////////////////////////////////////////////
 // Varyings
+
+varying vec4 v_pos;
 
 #if defined(LIGHTING)
 varying vec3 v_normalVector;
@@ -87,7 +92,8 @@ void main()
 {
     // Transform position to clip space.
     gl_Position = u_worldViewProjectionMatrix * a_position;
-
+	v_pos = u_matrix * u_model * a_position;
+	
     #if defined(LIGHTING)
 
     #if !defined(NORMAL_MAP) 

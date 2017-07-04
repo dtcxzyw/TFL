@@ -79,6 +79,7 @@ vec4 _baseColor;
 ///////////////////////////////////////////////////////////
 // Varyings
 varying vec2 v_texCoord;
+varying vec4 v_pos;
 
 #if defined(LIGHTMAP)
 varying vec2 v_texCoord1;
@@ -117,6 +118,8 @@ varying vec3 v_cameraDirection;
 varying float v_clipDistance;
 #endif
 
+uniform sampler2D u_shadowMap;
+#include "shadow.frag"
 
 void main()
 {
@@ -152,4 +155,6 @@ void main()
     #if defined(MODULATE_ALPHA)
     gl_FragColor.a *= u_modulateAlpha;
     #endif
+	
+	gl_FragColor.rgb*=getShadow();
 }

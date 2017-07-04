@@ -7,9 +7,42 @@ using namespace std::literals;
 
 std::unique_ptr<Client> localClient;
 
-void Client::drawNode(Node * node) {
-    if (node->getDrawable() && node->getBoundingSphere().intersects(mCamera->getFrustum()))
+bool Client::resolveAutoBinding(const char * autoBinding, Node * node, MaterialParameter * parameter) {
+#define CMP(x) (strcmp(autoBinding,x)==0)
+    if (CMP("LIGHT_MATRIX"))
+        parameter->setMatrix(mLightSpace);
+    else if (CMP("SHADOW_MAP"))
+        parameter->setSampler(mShadowMap.get());
+    else return false;
+#undef CMP
+    return true;
+}
+
+void Client::drawNode(Node * node,bool shadow) {
+    if (node->getDrawable() && node->getBoundingSphere().intersects(mCamera->getFrustum())) {
+        auto m = dynamic_cast<Model*>(node->getDrawable());
+        auto t = dynamic_cast<Terrain*>(node->getDrawable());
+        uniqueRAII<Material> old;
+        if (shadow) {
+            if (m) {
+                old=m->getMaterial();
+                old->addRef();
+                m->setMaterial(mDepthMat.get());
+            }
+            else if (t) {
+                for (unsigned int i = 0; i < t->getPatchCount(); ++i) 
+                    t->getPatch(i)->getMaterial()->setTechnique("depth");
+            }
+        }
         node->getDrawable()->draw();
+        if (shadow) {
+            if (m) m->setMaterial(old.get());
+            else if (t) {
+                for (unsigned int i = 0; i < t->getPatchCount(); ++i)
+                    t->getPatch(i)->getMaterial()->setTechnique("shadow");
+            }
+        }
+    }
     for (auto i = node->getFirstChild(); i; i = i->getNextSibling())
         drawNode(i);
 }
@@ -26,9 +59,9 @@ Vector2 Client::getPoint(int x, int y) const {
     auto reslover = [ray](float x) {return ray.getOrigin() -
         ray.getDirection()*(ray.getOrigin().y*x / ray.getDirection().y); };
     constexpr auto num = 16.0f;
-    for (uint8_t i = 0; i <num ; ++i) {
-        auto x = i/num;
-        auto p=reslover(x);
+    for (uint8_t i = 0; i < num; ++i) {
+        auto x = i / num;
+        auto p = reslover(x);
         auto error = std::abs(p.y - mMap->getHeight(p.x, p.z));
         if (error < minError)
             minError = error, maxwell = p;
@@ -66,9 +99,9 @@ void Client::move(int x, int y) {
     }
 }
 
-Client::Client(const std::string & server,bool& res) :
+Client::Client(const std::string & server, bool& res) :
     mPeer(RakNet::RakPeerInterface::GetInstance()), mServer(server.c_str(), 23333),
-    mState(false), mWeight(globalUnits.size(), 1),mCnt(0.0f) {
+    mState(false), mWeight(globalUnits.size(), 1), mCnt(0.0f) {
 
     RakNet::SocketDescriptor SD;
     mPeer->Startup(1, &SD, 1);
@@ -87,7 +120,18 @@ Client::Client(const std::string & server,bool& res) :
         INFO("Failed to connect to the server.");
 
     mRECT = SpriteBatch::create("res/common/rect.png");
-    res=mPeer->NumberOfConnections();
+    res = mPeer->NumberOfConnections();
+    mDepth = FrameBuffer::create("depth", shadowSize, shadowSize, Texture::Format::DEPTH);
+    mDepth->setDepthStencilTarget(DepthStencilTarget::create("shadow",
+        DepthStencilTarget::DEPTH, shadowSize, shadowSize));
+    mDepthMat = Material::create("res/common/depth.material");
+    Matrix projection, view;
+    Matrix::createOrthographic(mapSize, mapSize, 0.0f, 1e10f, &projection);
+    Matrix::createLookAt(Vector3::one(), Vector3::zero(), Vector3::unitY(), &view);
+    mLightSpace = projection*view;
+    mShadowMap = Texture::Sampler::create(mDepth->getRenderTarget()->getTexture());
+    mShadowMap->setFilterMode(Texture::NEAREST,Texture::NEAREST);
+    mShadowMap->setWrapMode(Texture::REPEAT, Texture::REPEAT);
 }
 
 Client::~Client() {
@@ -222,12 +266,12 @@ bool Client::update(float delta) {
                 }
                 else {
                     auto i = mUnits.insert({ u.id,
-                        std::move(UnitInstance{ getUnit(u.kind), u.group, u.id, mScene.get(), false, u.pos })});
+                        std::move(UnitInstance{ getUnit(u.kind), u.group, u.id, mScene.get(), false, u.pos }) });
                     i.first->second.getNode()->setRotation(u.rotation);
                     i.first->second.update(0);
                     i.first->second.setAttackTarget(u.at);
                 }
-                if(u.isDied)
+                if (u.isDied)
                     mUnits[u.id].attacked(1e10f);
                 else {
                     if (u.group == mGroup)
@@ -277,10 +321,10 @@ bool Client::update(float delta) {
                 DuangSyncInfo info;
                 data.Read(info);
                 auto& bullet = getBullet(info.kind);
-                auto iter=mDuang.insert({ bullet.boom(),now + bullet.getBoomTime() }).first;
+                auto iter = mDuang.insert({ bullet.boom(),now + bullet.getBoomTime() }).first;
                 mScene->addNode(iter->emitter.get());
                 iter->emitter->setTranslation(info.pos);
-                auto p=dynamic_cast<ParticleEmitter*>(iter->emitter->getDrawable());
+                auto p = dynamic_cast<ParticleEmitter*>(iter->emitter->getDrawable());
                 p->start();
             }
         }
@@ -310,19 +354,19 @@ bool Client::update(float delta) {
 
     //control
     mCnt += delta;
-    if (mCnt>500.0f) {
+    if (mCnt > 500.0f) {
 
         RakNet::BitStream data;
         data.Write(ClientMessage::setAttackTarget);
-        
+
         for (auto&& x : mine) {
             float md = std::numeric_limits<float>::max();
-            uint32_t maxwell=0;
+            uint32_t maxwell = 0;
             for (auto&& y : others) {
-              auto dis= mUnits[x].getNode()->getTranslation().
+                auto dis = mUnits[x].getNode()->getTranslation().
                     distanceSquared(mUnits[y].getNode()->getTranslation());
-              if (dis < md)
-                  md = dis, maxwell = y;
+                if (dis < md)
+                    md = dis, maxwell = y;
             }
             if (md < mUnits[x].getKind().getFOV()) {
                 data.Write(x);
@@ -342,26 +386,37 @@ bool Client::update(float delta) {
 void Client::render() {
     if (mState) {
         auto game = Game::getInstance();
+
+        mDepth->bind();
+        glViewport(0, 0, shadowSize, shadowSize);
+        glClearDepth(1.0f);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        if (shadowSize > 1) {
+            for (auto node = mScene->getFirstNode(); node; node = node->getNextSibling())
+                drawNode(node, true);
+        }
+        
+        FrameBuffer::bindDefault();
+
         auto rect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
         game->setViewport(rect);
         mCamera->setAspectRatio(rect.width / rect.height);
-
         mScene->setAmbientColor(-0.8f, -0.8f, -0.8f);
-        for (auto&& x : mUnits) 
+        for (auto&& x : mUnits)
             if (x.second.isDied())
                 drawNode(x.second.getNode());
         mScene->setAmbientColor(0.0f, 0.3f, 0.0f);
         for (auto&& x : mUnits)
-            if (!x.second.isDied() && mChoosed.find(x.first)!=mChoosed.cend())
+            if (!x.second.isDied() && mChoosed.find(x.first) != mChoosed.cend())
                 drawNode(x.second.getNode());
         mScene->setAmbientColor(0.3f, 0.0f, 0.0f);
         for (auto&& x : mUnits)
-            if (!x.second.isDied() && mChoosed.find(x.first) == mChoosed.cend() 
-                && x.second.getGroup()==mGroup)
+            if (!x.second.isDied() && mChoosed.find(x.first) == mChoosed.cend()
+                && x.second.getGroup() == mGroup)
                 drawNode(x.second.getNode());
         mScene->setAmbientColor(0.0f, 0.0f, 0.3f);
         for (auto&& x : mUnits)
-            if (!x.second.isDied() && x.second.getGroup()!=mGroup)
+            if (!x.second.isDied() && x.second.getGroup() != mGroup)
                 drawNode(x.second.getNode());
         mScene->setAmbientColor(0.0f, 0.0f, 0.0f);
         for (auto&& x : mDuang)
@@ -390,7 +445,7 @@ void Client::render() {
 
 Vector3 Client::getPos(uint32_t id) {
     auto i = mUnits.find(id);
-    if (i == mUnits.cend() || i->second.isDied()) 
+    if (i == mUnits.cend() || i->second.isDied())
         return Vector3::zero();
     return i->second.getNode()->getTranslation();
 }
@@ -423,9 +478,9 @@ void Client::moveEvent(float x, float y) {
     if (mState) {
         auto node = mCamera->getNode();
         auto pos = node->getTranslation();
-        x *= pos.y,y *= pos.y;
+        x *= pos.y, y *= pos.y;
         node->translate(x, 0.0f, y);
-        auto height = mMap->getHeight(pos.x+x, pos.z+y);
+        auto height = mMap->getHeight(pos.x + x, pos.z + y);
         if (pos.y < height + 100.0f)
             node->setTranslationY(height + 100.0f);
 
@@ -440,7 +495,7 @@ void Client::scaleEvent(float x) {
         auto node = mCamera->getNode();
         auto pos = node->getTranslation();
         auto height = mMap->getHeight(pos.x, pos.z);
-        if (pos.y > 200.0f && pos.y - 100.0f > height) {
+        if (pos.y > 10.0f && pos.y - 100.0f > height) {
             node->translateY(x);
             if (checkCamera())
                 node->translateY(-x);
@@ -461,7 +516,7 @@ void Client::beginPoint(int x, int y) {
 
 void Client::endPoint(int x, int y) {
     if (mState) {
-        if ((mBX-x)*(mBX-x)+(mBY-y)*(mBY-y)>256) {
+        if ((mBX - x)*(mBX - x) + (mBY - y)*(mBY - y) > 256) {
             Vector2 b = getPoint(mBX, mBY), e = getPoint(x, y);
             auto x1 = b.x, y1 = b.y, x2 = e.x, y2 = e.y;
             if (x1 > x2)std::swap(x1, x2);

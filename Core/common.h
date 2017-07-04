@@ -76,7 +76,7 @@ struct BindingResolver final :private RenderState::AutoBindingResolver {
         if (CMP("LIGHT_COLOR"))
             parameter->setValue(Vector3::one()*1.5f);
         else if (CMP("LIGHT_DIRECTION"))
-            parameter->setValue({ -1.0f,-1.0f,-1.0f });
+            parameter->setValue(-Vector3::one());
         else return false;
 #undef CMP
         return true;
@@ -95,3 +95,5 @@ void correctVector(Node* node, Vector3(Node::*sampler)() const, Vector3 dest,flo
 constexpr auto mapSize = 6000;
 constexpr auto mapSizeF = static_cast<float>(mapSize);
 constexpr auto mapSizeHF = mapSizeF/2.0f;
+
+extern uint16_t shadowSize;

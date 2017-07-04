@@ -12,7 +12,7 @@ struct DuangInfo final {
     }
 };
 
-class Client final {
+class Client final:RenderState::AutoBindingResolver {
 private:
     RakNet::RakPeerInterface* mPeer;
     RakNet::SystemAddress mServer;
@@ -25,9 +25,19 @@ private:
     std::vector<uint16_t> mWeight;
     std::map<uint32_t, UnitInstance> mUnits;
     std::map<uint32_t, BulletInstance> mBullets;
-    std::set<DuangInfo> mDuang;
     uint32_t mGroup;
-    void drawNode(Node* node);
+
+    //Effects
+    std::set<DuangInfo> mDuang;
+    uniqueRAII<FrameBuffer> mDepth;
+    uniqueRAII<Material> mDepthMat;
+    Matrix mLightSpace;
+    uniqueRAII<Texture::Sampler> mShadowMap;
+    bool resolveAutoBinding(const char* autoBinding, Node* node,
+        MaterialParameter* parameter) override;
+
+
+    void drawNode(Node* node, bool shadow = false);
     Vector2 getPoint(int x, int y) const;
     float mCnt;
     //control
@@ -35,6 +45,7 @@ private:
     bool checkCamera();
     std::set<uint32_t> mChoosed;
     void move(int x, int y);
+
 public:
     Client(const std::string& server,bool& res);
     ~Client();

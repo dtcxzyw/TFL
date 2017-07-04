@@ -88,6 +88,7 @@ varying vec3 v_vertexToSpotLightDirection[SPOT_LIGHT_COUNT];
 #endif
 
 varying vec2 v_texCoord0;
+varying vec4 v_pos;
 
 #if (LAYER_COUNT > 0)
 varying vec2 v_texCoordLayer0;
@@ -110,6 +111,8 @@ void blendLayer(sampler2D textureMap, vec2 texCoord, float alphaBlend)
 #include "lighting.frag"
 #endif
 
+uniform sampler2D u_shadowMap;
+#include "shadow.frag"
 
 void main()
 {
@@ -142,11 +145,12 @@ void main()
     #endif
 
     gl_FragColor.a = _baseColor.a;
-    gl_FragColor.rgb = getLitPixel();
+    gl_FragColor.rgb = getLitPixel()*getShadow();
 
     #else
 
     gl_FragColor.rgb = _baseColor.rgb;
 
     #endif
+	
 }
