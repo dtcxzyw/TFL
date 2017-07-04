@@ -7,7 +7,7 @@ material depth
     {
         cullFace = true
         depthTest = true
-		cullFaceSide = FRONT
+		//cullFaceSide = FRONT
     }
 
     technique

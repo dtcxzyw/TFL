@@ -1,7 +1,7 @@
 material terrain
 {
 
-	technique
+	technique depth
     {
 	
 		u_matrix = LIGHT_MATRIX
@@ -11,7 +11,7 @@ material terrain
 		{
 			cullFace = true
 			depthTest = true
-			cullFaceSide = FRONT
+			//cullFaceSide = FRONT
 		}
 		
         pass
@@ -21,7 +21,7 @@ material terrain
         }
     }
 	
-    technique
+    technique shadow
     {
 	    u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
 

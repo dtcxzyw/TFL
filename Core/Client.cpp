@@ -19,7 +19,9 @@ bool Client::resolveAutoBinding(const char * autoBinding, Node * node, MaterialP
 }
 
 void Client::drawNode(Node * node,bool shadow) {
-    if (node->getDrawable() && node->getBoundingSphere().intersects(mCamera->getFrustum())) {
+    if (node->getDrawable() 
+        //&& node->getBoundingSphere().intersects(mCamera->getFrustum())
+        ) {
         auto m = dynamic_cast<Model*>(node->getDrawable());
         auto t = dynamic_cast<Terrain*>(node->getDrawable());
         uniqueRAII<Material> old;
@@ -126,8 +128,8 @@ Client::Client(const std::string & server, bool& res) :
         DepthStencilTarget::DEPTH, shadowSize, shadowSize));
     mDepthMat = Material::create("res/common/depth.material");
     Matrix projection, view;
-    Matrix::createOrthographic(mapSize, mapSize, 0.0f, 1e10f, &projection);
-    Matrix::createLookAt(Vector3::one(), Vector3::zero(), Vector3::unitY(), &view);
+    Matrix::createOrthographic(mapSize, mapSize, 0.0f, 1e6f, &projection);
+    Matrix::createLookAt(-Vector3::one()*1e6f, Vector3::zero(), Vector3::unitY(), &view);
     mLightSpace = projection*view;
     mShadowMap = Texture::Sampler::create(mDepth->getRenderTarget()->getTexture());
     mShadowMap->setFilterMode(Texture::NEAREST,Texture::NEAREST);
@@ -388,14 +390,19 @@ void Client::render() {
         auto game = Game::getInstance();
 
         mDepth->bind();
+
         glViewport(0, 0, shadowSize, shadowSize);
         glClearDepth(1.0f);
         glClear(GL_DEPTH_BUFFER_BIT);
+
         if (shadowSize > 1) {
-            for (auto node = mScene->getFirstNode(); node; node = node->getNextSibling())
-                drawNode(node, true);
+            for (auto&& x : mUnits)
+                drawNode(x.second.getNode(), true);
+            for (auto&& x : mBullets)
+                drawNode(x.second.getNode(), true);
+            drawNode(mScene->findNode("terrain"), true);
         }
-        
+
         FrameBuffer::bindDefault();
 
         auto rect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
