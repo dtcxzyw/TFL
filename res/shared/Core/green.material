@@ -1,6 +1,26 @@
 material green
 { 		
-    technique
+	technique depth
+    {
+	
+		u_matrix = LIGHT_MATRIX
+		u_model= WORLD_MATRIX 
+
+		renderState
+		{
+			cullFace = true
+			depthTest = true
+			cullFaceSide = FRONT
+		}
+		
+        pass
+        {
+            vertexShader = res/shaders/depth.vert
+            fragmentShader = res/shaders/depth.frag
+        }
+    }
+
+    technique shadow
     { 
 		renderState
 		{

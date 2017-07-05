@@ -11,7 +11,7 @@ material terrain
 		{
 			cullFace = true
 			depthTest = true
-			//cullFaceSide = FRONT
+			cullFaceSide = FRONT
 		}
 		
         pass

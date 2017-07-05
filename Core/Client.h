@@ -30,7 +30,6 @@ private:
     //Effects
     std::set<DuangInfo> mDuang;
     uniqueRAII<FrameBuffer> mDepth;
-    uniqueRAII<Material> mDepthMat;
     Matrix mLightSpace;
     uniqueRAII<Texture::Sampler> mShadowMap;
     bool resolveAutoBinding(const char* autoBinding, Node* node,

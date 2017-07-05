@@ -20,33 +20,31 @@ bool Client::resolveAutoBinding(const char * autoBinding, Node * node, MaterialP
 
 void Client::drawNode(Node * node,bool shadow) {
     if (node->getDrawable() 
-        //&& node->getBoundingSphere().intersects(mCamera->getFrustum())
+        //&& (shadow || node->getBoundingSphere().intersects(mCamera->getFrustum()))
         ) {
         auto m = dynamic_cast<Model*>(node->getDrawable());
         auto t = dynamic_cast<Terrain*>(node->getDrawable());
-        uniqueRAII<Material> old;
         if (shadow) {
-            if (m) {
-                old=m->getMaterial();
-                old->addRef();
-                m->setMaterial(mDepthMat.get());
-            }
+            if (m) m->getMaterial()->setTechnique("depth");
             else if (t) {
                 for (unsigned int i = 0; i < t->getPatchCount(); ++i) 
                     t->getPatch(i)->getMaterial()->setTechnique("depth");
+                t->setFlag(Terrain::FRUSTUM_CULLING, false);
             }
         }
-        node->getDrawable()->draw();
-        if (shadow) {
-            if (m) m->setMaterial(old.get());
+        else {
+            if (m) m->getMaterial()->setTechnique("shadow");
             else if (t) {
                 for (unsigned int i = 0; i < t->getPatchCount(); ++i)
                     t->getPatch(i)->getMaterial()->setTechnique("shadow");
+                t->setFlag(Terrain::FRUSTUM_CULLING, true);
             }
         }
+        node->getDrawable()->draw();
     }
+
     for (auto i = node->getFirstChild(); i; i = i->getNextSibling())
-        drawNode(i);
+        drawNode(i,shadow);
 }
 
 Vector2 Client::getPoint(int x, int y) const {
@@ -123,17 +121,19 @@ Client::Client(const std::string & server, bool& res) :
 
     mRECT = SpriteBatch::create("res/common/rect.png");
     res = mPeer->NumberOfConnections();
-    mDepth = FrameBuffer::create("depth", shadowSize, shadowSize, Texture::Format::DEPTH);
+    mDepth = FrameBuffer::create("depth", shadowSize, shadowSize, Texture::Format::RGBA);
     mDepth->setDepthStencilTarget(DepthStencilTarget::create("shadow",
         DepthStencilTarget::DEPTH, shadowSize, shadowSize));
-    mDepthMat = Material::create("res/common/depth.material");
     Matrix projection, view;
-    Matrix::createOrthographic(mapSize, mapSize, 0.0f, 1e6f, &projection);
-    Matrix::createLookAt(-Vector3::one()*1e6f, Vector3::zero(), Vector3::unitY(), &view);
+    Plane p(-1.0f*Vector3::one(), (Vector3::one()*100.0f).length());
+    auto f = p.intersects(Ray(-mapSizeHF*Vector3::one(),Vector3::one()));
+    Matrix::createOrthographic(mapSize*1.4f, mapSize*1.4f, 
+        0.0f,f, &projection);
+    Matrix::createLookAt(Vector3::one()*100.0f, Vector3::zero(), Vector3::unitY(), &view);
     mLightSpace = projection*view;
     mShadowMap = Texture::Sampler::create(mDepth->getRenderTarget()->getTexture());
-    mShadowMap->setFilterMode(Texture::NEAREST,Texture::NEAREST);
-    mShadowMap->setWrapMode(Texture::REPEAT, Texture::REPEAT);
+    mShadowMap->setFilterMode(Texture::LINEAR,Texture::LINEAR);
+    mShadowMap->setWrapMode(Texture::CLAMP, Texture::CLAMP);
 }
 
 Client::~Client() {
@@ -391,9 +391,8 @@ void Client::render() {
 
         mDepth->bind();
 
-        glViewport(0, 0, shadowSize, shadowSize);
-        glClearDepth(1.0f);
-        glClear(GL_DEPTH_BUFFER_BIT);
+        game->setViewport(gameplay::Rectangle(shadowSize, shadowSize));
+        game->clear(Game::CLEAR_COLOR_DEPTH, Vector4::one(), 1.0f, 1.0f);
 
         if (shadowSize > 1) {
             for (auto&& x : mUnits)
@@ -430,7 +429,7 @@ void Client::render() {
             drawNode(x.emitter.get());
         for (auto&& x : mBullets)
             drawNode(x.second.getNode());
-        mScene->findNode("terrain")->getDrawable()->draw();
+        drawNode(mScene->findNode("terrain"));
 
         auto rect2 = gameplay::Rectangle(game->getWidth(), game->getHeight());
         game->setViewport(rect2);
@@ -502,7 +501,7 @@ void Client::scaleEvent(float x) {
         auto node = mCamera->getNode();
         auto pos = node->getTranslation();
         auto height = mMap->getHeight(pos.x, pos.z);
-        if (pos.y > 10.0f && pos.y - 100.0f > height) {
+        if (pos.y+x > 10.0f && pos.y+x - 100.0f > height) {
             node->translateY(x);
             if (checkCamera())
                 node->translateY(-x);
