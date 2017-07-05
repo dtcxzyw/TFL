@@ -184,7 +184,7 @@ form Settings
 	
 	checkBox particle
 	{
-		text = Particle
+		text = Particle Effect
 		checked = false
 	}
 	

@@ -275,10 +275,10 @@ window
     p->setString("fullscreen", get<CheckBox>("fullscreen")->isChecked() ? "true" : "false");
     p->setString("width", to_string<size_t>(get<Slider>("width")->getValue()).c_str());
     p->setString("height", to_string<size_t>(get<Slider>("height")->getValue()).c_str());
-    writeSettings();
     enableParticle = get<CheckBox>("particle")->isChecked();
     shadowSize = get<Slider>("shadow")->getValue();
     if (!shadowSize)shadowSize = 1;
+    writeSettings();
 }
 
 ServerMenu::ServerMenu() :UI("Server") {
