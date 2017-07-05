@@ -177,6 +177,29 @@ form Settings
 		text = Reload
 	}
 	
+	label effect
+	{
+		text = Effects
+	}
+	
+	checkBox particle
+	{
+		text = Particle
+		checked = false
+	}
+	
+	slider shadow
+	{
+		text = ShadowMap Size
+		width = 50%
+		min =  0
+		max =  16384
+		value = 0
+		step = 512
+		valueTextVisible = true 
+		valueTextPrecision = 0 
+	}
+	
 	button return
 	{
 		alignment = ALIGN_BOTTOM

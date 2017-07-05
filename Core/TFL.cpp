@@ -167,6 +167,15 @@ void unpackAllPacks() {
     keyCache->write(&key, sizeof(key), 1);
 }
 
+void readSettings() {
+    uniqueRAII<Properties> info = Properties::create("game.settings");
+    if (info) {
+        shadowSize = info->getFloat("shadowSize");
+        if (!shadowSize)shadowSize = 1;
+        enableParticle = info->getBool("enableParticle");
+    }
+}
+
 class TFL final : public Game {
 private:
     void initResource() {
@@ -235,6 +244,7 @@ protected:
         setMultiTouch(false);
         setVsync(true);
         setMultiSampling(true);
+        readSettings();
 
         INFO("Loading resources...");
         br = std::make_unique<BindingResolver>();

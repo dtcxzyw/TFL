@@ -100,3 +100,4 @@ constexpr auto mapSizeF = static_cast<float>(mapSize);
 constexpr auto mapSizeHF = mapSizeF/2.0f;
 
 extern uint16_t shadowSize;
+extern bool enableParticle;

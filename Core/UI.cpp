@@ -229,11 +229,22 @@ void SettingsMenu::event(Control * control, Event evt) {
     }
 }
 
+void writeSettings() {
+    std::stringstream ss;
+    ss << "shadowSize=" << shadowSize << std::endl
+        << "enableParticle=" << std::boolalpha << enableParticle << std::endl;
+    auto str = ss.str();
+    uniqueRAII<Stream> file = FileSystem::open("game.info", FileSystem::WRITE);
+    file->write(str.data(), str.size(), 1);
+}
+
 void SettingsMenu::read() {
     auto p = Game::getInstance()->getConfig()->getNamespace("window", true);
     get<CheckBox>("fullscreen")->setChecked(p->getBool("fullscreen", false));
     get<Slider>("width")->setValue(p->getInt("width"));
     get<Slider>("height")->setValue(p->getInt("height"));
+    get<CheckBox>("particle")->setChecked(enableParticle);
+    get<Slider>("shadow")->setValue(shadowSize-shadowSize%512);
 }
 
 SettingsMenu::~SettingsMenu() {
@@ -264,6 +275,10 @@ window
     p->setString("fullscreen", get<CheckBox>("fullscreen")->isChecked() ? "true" : "false");
     p->setString("width", to_string<size_t>(get<Slider>("width")->getValue()).c_str());
     p->setString("height", to_string<size_t>(get<Slider>("height")->getValue()).c_str());
+    writeSettings();
+    enableParticle = get<CheckBox>("particle")->isChecked();
+    shadowSize = get<Slider>("shadow")->getValue();
+    if (!shadowSize)shadowSize = 1;
 }
 
 ServerMenu::ServerMenu() :UI("Server") {
