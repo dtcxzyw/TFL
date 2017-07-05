@@ -25,13 +25,16 @@ Matrix Client::getMat() const {
 }
 
 bool Client::checkShadow(Node * node) const {
+    /*
     auto bs = node->getBoundingSphere();
     auto NDC =mLightSpace * Vector4(bs.center.x, bs.center.y, bs.center.z, 1.0f);
     auto cmp = mLightSpace * Vector4(bs.center.x + bs.radius, bs.center.y, bs.center.z, 1.0f);
-    auto r = Vector2(NDC.x, NDC.y).distance({ cmp.x,cmp.y })*1.5;
+    auto r = Vector2(NDC.x, NDC.y).distance({ cmp.x,cmp.y })*1.5f;
     NDC = NDC*0.5f + Vector4::one()*0.5f;
     return NDC.x + r > 0.0f&&NDC.x - r<1.0f
         &&NDC.y +r>0.0f&&NDC.y - r < 1.0f;
+        */
+    return true;
 }
 
 void Client::drawNode(Node * node,bool shadow) {
@@ -133,7 +136,7 @@ Client::Client(const std::string & server, bool& res) :
 
     mRECT = SpriteBatch::create("res/common/rect.png");
     res = mPeer->NumberOfConnections();
-    mDepth = FrameBuffer::create("depth", shadowSize, shadowSize, Texture::Format::RGBA);
+    mDepth = FrameBuffer::create("depth", shadowSize, shadowSize, Texture::Format::ALPHA);
     mDepth->setDepthStencilTarget(DepthStencilTarget::create("shadow",
         DepthStencilTarget::DEPTH, shadowSize, shadowSize));
     mShadowMap = Texture::Sampler::create(mDepth->getRenderTarget()->getTexture());
@@ -405,7 +408,7 @@ void Client::render() {
             Matrix projection, view;
             auto p = getPoint(rect.width / 2, rect.height / 2);
             auto fn = (Vector3::one()*100.0f).length();
-            Matrix::createOrthographic(y*2.0f, y*2.0f,0.0f, fn*(y/500.0f+5.0f), &projection);
+            Matrix::createOrthographic(y*2.0f, y*2.0f,0.0f, fn*(y/500.0f+6.0f), &projection);
             Matrix::createLookAt(p+Vector3::one()*100.0f,p , Vector3::unitY(), &view);
             mLightSpace = projection*view;
 

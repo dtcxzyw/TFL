@@ -14,7 +14,7 @@ float getShadow()
 	{
 		for(int y = -1; y <= 1; ++y)
 		{
-			float pcfDepth = texture(u_shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+			float pcfDepth = texture(u_shadowMap, projCoords.xy + vec2(x, y) * texelSize).a; 
 			shadow += currentDepth-0.0025 > pcfDepth ? 0.2 : 1.0;        
 		}    
 	}
