@@ -324,6 +324,7 @@ bool Client::update(float delta) {
                 data.Read(x);
         }
         CheckHeader(ServerMessage::duang) {
+            if (!enableParticle)continue;
             uint16_t size;
             data.Read(size);
             float now = Game::getAbsoluteTime();
@@ -348,6 +349,7 @@ bool Client::update(float delta) {
     for (auto&& x : mUnits)
         x.second.update(delta);
 
+    if (enableParticle)
     {
         std::vector<decltype(mDuang)::const_iterator> deferred;
         auto end = Game::getAbsoluteTime();
@@ -441,8 +443,9 @@ void Client::render() {
             if (!x.second.isDied() && x.second.getGroup() != mGroup)
                 drawNode(x.second.getNode());
         mScene->setAmbientColor(0.0f, 0.0f, 0.0f);
-        for (auto&& x : mDuang)
-            drawNode(x.emitter.get());
+        if (enableParticle)
+            for (auto&& x : mDuang)
+                drawNode(x.emitter.get());
         for (auto&& x : mBullets)
             drawNode(x.second.getNode());
         drawNode(mScene->findNode("terrain"));
