@@ -10,9 +10,11 @@ std::unique_ptr<Client> localClient;
 bool Client::resolveAutoBinding(const char * autoBinding, Node * node, MaterialParameter * parameter) {
 #define CMP(x) (strcmp(autoBinding,x)==0)
     if (CMP("LIGHT_MATRIX"))
-        parameter->bindValue(this,&Client::getMat);
+        parameter->bindValue(this, &Client::getMat);
     else if (CMP("SHADOW_MAP"))
         parameter->setSampler(mShadowMap.get());
+    else if (CMP("MAP_SIZE"))
+        parameter->setInt(shadowSize);
     else return false;
 #undef CMP
     return true;
@@ -22,9 +24,20 @@ Matrix Client::getMat() const {
     return mLightSpace;
 }
 
+bool Client::checkShadow(Node * node) const {
+    auto bs = node->getBoundingSphere();
+    auto NDC =mLightSpace * Vector4(bs.center.x, bs.center.y, bs.center.z, 1.0f);
+    auto cmp = mLightSpace * Vector4(bs.center.x + bs.radius, bs.center.y, bs.center.z, 1.0f);
+    auto r = Vector2(NDC.x, NDC.y).distance({ cmp.x,cmp.y })*1.5;
+    NDC = NDC*0.5f + Vector4::one()*0.5f;
+    return NDC.x + r > 0.0f&&NDC.x - r<1.0f
+        &&NDC.y +r>0.0f&&NDC.y - r < 1.0f;
+}
+
 void Client::drawNode(Node * node,bool shadow) {
     if (node->getDrawable() 
-        //&& (shadow || node->getBoundingSphere().intersects(mCamera->getFrustum()))
+        && (shadow ?checkShadow(node): 
+        node->getBoundingSphere().intersects(mCamera->getFrustum()))
         ) {
         auto m = dynamic_cast<Model*>(node->getDrawable());
         auto t = dynamic_cast<Terrain*>(node->getDrawable());
@@ -51,7 +64,7 @@ void Client::drawNode(Node * node,bool shadow) {
         drawNode(i,shadow);
 }
 
-Vector2 Client::getPoint(int x, int y) const {
+Vector3 Client::getPoint(int x, int y) const {
     auto game = Game::getInstance();
     Ray ray;
     auto rect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
@@ -69,7 +82,7 @@ Vector2 Client::getPoint(int x, int y) const {
         if (error < minError)
             minError = error, maxwell = p;
     }
-    return { maxwell.x,maxwell.z };
+    return maxwell;
 }
 
 bool Client::checkCamera() {
@@ -88,7 +101,8 @@ void Client::move(int x, int y) {
     if (mChoosed.size()) {
         RakNet::BitStream data;
         data.Write(ClientMessage::setMoveTarget);
-        data.Write(getPoint(x, y));
+        auto p = getPoint(x, y);
+        data.Write(Vector2{p.x,p.z});
         data.Write(static_cast<uint32_t>(mChoosed.size()));
         for (auto x : mChoosed)
             data.Write(x);
@@ -389,12 +403,10 @@ void Client::render() {
         if (shadowSize > 1) {
             auto y = mCamera->getNode()->getTranslationY();
             Matrix projection, view;
-            auto f = (Vector3::one()*(mapSizeHF + 100.0f)).length();
-            Matrix::createOrthographic(mapSize*1.4f, mapSize*1.4f,
-                0.0f, f, &projection);
             auto p = getPoint(rect.width / 2, rect.height / 2);
-            Vector3 p3{ p.x,0.0f,p.y };
-            Matrix::createLookAt(p3+Vector3::one()*100.0f,p3 , Vector3::unitY(), &view);
+            auto fn = (Vector3::one()*100.0f).length();
+            Matrix::createOrthographic(y*2.0f, y*2.0f,0.0f, fn*(y/500.0f+5.0f), &projection);
+            Matrix::createLookAt(p+Vector3::one()*100.0f,p , Vector3::unitY(), &view);
             mLightSpace = projection*view;
 
             for (auto&& x : mUnits)
@@ -524,8 +536,8 @@ void Client::beginPoint(int x, int y) {
 void Client::endPoint(int x, int y) {
     if (mState) {
         if ((mBX - x)*(mBX - x) + (mBY - y)*(mBY - y) > 256) {
-            Vector2 b = getPoint(mBX, mBY), e = getPoint(x, y);
-            auto x1 = b.x, y1 = b.y, x2 = e.x, y2 = e.y;
+            Vector3 b = getPoint(mBX, mBY), e = getPoint(x, y);
+            auto x1 = b.x, y1 = b.z, x2 = e.x, y2 = e.z;
             if (x1 > x2)std::swap(x1, x2);
             if (y1 > y2)std::swap(y1, y2);
             mChoosed.clear();

@@ -9,9 +9,7 @@ material metal
 
 		renderState
 		{
-			cullFace = true
 			depthTest = true
-			cullFaceSide = FRONT
 		}
 		
         pass
@@ -40,6 +38,7 @@ material metal
 			u_shadowMap=SHADOW_MAP
 			u_matrix = LIGHT_MATRIX
 			u_model= WORLD_MATRIX 
+			u_mapSize =MAP_SIZE
 
 			
             vertexShader = res/shaders/textured.vert

@@ -35,6 +35,7 @@ material terrain
 		u_shadowMap=SHADOW_MAP
 		u_matrix = LIGHT_MATRIX
 		u_model= WORLD_MATRIX 
+		u_mapSize =MAP_SIZE
 
 		renderState
 		{

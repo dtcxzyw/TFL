@@ -111,7 +111,6 @@ void blendLayer(sampler2D textureMap, vec2 texCoord, float alphaBlend)
 #include "lighting.frag"
 #endif
 
-uniform sampler2D u_shadowMap;
 #include "shadow.frag"
 
 void main()

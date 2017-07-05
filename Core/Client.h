@@ -35,9 +35,10 @@ private:
     bool resolveAutoBinding(const char* autoBinding, Node* node,
         MaterialParameter* parameter) override;
     Matrix getMat() const;
+    bool checkShadow(Node* node) const;
 
     void drawNode(Node* node, bool shadow = false);
-    Vector2 getPoint(int x, int y) const;
+    Vector3 getPoint(int x, int y) const;
     float mCnt;
     //control
     int mX, mY,mBX,mBY;

@@ -118,7 +118,6 @@ varying vec3 v_cameraDirection;
 varying float v_clipDistance;
 #endif
 
-uniform sampler2D u_shadowMap;
 #include "shadow.frag"
 
 void main()
