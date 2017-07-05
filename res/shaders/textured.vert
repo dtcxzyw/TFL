@@ -91,6 +91,7 @@ uniform vec4 u_clipPlane;
 // Varyings
 varying vec2 v_texCoord;
 varying vec4 v_pos;
+varying vec3 v_lightDir;
 
 #if defined(LIGHTMAP)
 varying vec2 v_texCoord1;

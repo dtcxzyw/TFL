@@ -4,7 +4,7 @@
 #include <fstream>
 #include <Server.h>
 
-Map::Map(const std::string & name, bool isServer) :mIsServer(isServer) {
+Map::Map(const std::string & name) {
     std::string full = "/res/maps/" + name + "/";
     std::string map = full + "map.terrain";
     mTerrain = Terrain::create(map.c_str());
@@ -27,13 +27,6 @@ Map::Map(const std::string & name, bool isServer) :mIsServer(isServer) {
 
 void Map::set(Node* node) {
     node->setDrawable(mTerrain.get());
-#ifdef WIN32
-    if (!mIsServer) {
-        PhysicsRigidBody::Parameters p;
-        node->setCollisionObject(PhysicsCollisionObject::RIGID_BODY,
-            PhysicsCollisionShape::heightfield(), &p);
-    }
-#endif
 }
 
 const std::vector<Vector2>& Map::getKey() const {

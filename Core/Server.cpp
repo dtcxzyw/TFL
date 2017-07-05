@@ -32,7 +32,7 @@ void Server::chooseNew(KeyInfo& k) {
 
 Server::Server(const std::string & path) :
     mPeer(RakNet::RakPeerInterface::GetInstance()), mState(false),
-    mMap(path, true), mMapName(path) {
+    mMap(path), mMapName(path) {
     RakNet::SocketDescriptor SD(23333, nullptr);
     mPeer->Startup(16, &SD, 1);
     mPeer->SetMaximumIncomingConnections(16);

@@ -34,7 +34,7 @@ private:
     uniqueRAII<Texture::Sampler> mShadowMap;
     bool resolveAutoBinding(const char* autoBinding, Node* node,
         MaterialParameter* parameter) override;
-
+    Matrix getMat() const;
 
     void drawNode(Node* node, bool shadow = false);
     Vector2 getPoint(int x, int y) const;

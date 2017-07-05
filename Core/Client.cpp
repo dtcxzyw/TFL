@@ -10,12 +10,16 @@ std::unique_ptr<Client> localClient;
 bool Client::resolveAutoBinding(const char * autoBinding, Node * node, MaterialParameter * parameter) {
 #define CMP(x) (strcmp(autoBinding,x)==0)
     if (CMP("LIGHT_MATRIX"))
-        parameter->setMatrix(mLightSpace);
+        parameter->bindValue(this,&Client::getMat);
     else if (CMP("SHADOW_MAP"))
         parameter->setSampler(mShadowMap.get());
     else return false;
 #undef CMP
     return true;
+}
+
+Matrix Client::getMat() const {
+    return mLightSpace;
 }
 
 void Client::drawNode(Node * node,bool shadow) {
@@ -53,7 +57,6 @@ Vector2 Client::getPoint(int x, int y) const {
     auto rect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
     mCamera->setAspectRatio(rect.width / rect.height);
     mCamera->pickRay(rect, x, y, &ray);
-#ifdef ANDROID
     Vector3 maxwell;
     float minError = std::numeric_limits<float>::max();
     auto reslover = [ray](float x) {return ray.getOrigin() -
@@ -67,11 +70,6 @@ Vector2 Client::getPoint(int x, int y) const {
             minError = error, maxwell = p;
     }
     return { maxwell.x,maxwell.z };
-#else
-    PhysicsController::HitResult res;
-    game->getPhysicsController()->rayTest(ray, 1e10f, &res);
-    return { res.point.x,res.point.z };
-#endif
 }
 
 bool Client::checkCamera() {
@@ -124,13 +122,6 @@ Client::Client(const std::string & server, bool& res) :
     mDepth = FrameBuffer::create("depth", shadowSize, shadowSize, Texture::Format::RGBA);
     mDepth->setDepthStencilTarget(DepthStencilTarget::create("shadow",
         DepthStencilTarget::DEPTH, shadowSize, shadowSize));
-    Matrix projection, view;
-    Plane p(-1.0f*Vector3::one(), (Vector3::one()*100.0f).length());
-    auto f = p.intersects(Ray(-mapSizeHF*Vector3::one(),Vector3::one()));
-    Matrix::createOrthographic(mapSize*1.4f, mapSize*1.4f, 
-        0.0f,f, &projection);
-    Matrix::createLookAt(Vector3::one()*100.0f, Vector3::zero(), Vector3::unitY(), &view);
-    mLightSpace = projection*view;
     mShadowMap = Texture::Sampler::create(mDepth->getRenderTarget()->getTexture());
     mShadowMap->setFilterMode(Texture::LINEAR,Texture::LINEAR);
     mShadowMap->setWrapMode(Texture::CLAMP, Texture::CLAMP);
@@ -170,7 +161,7 @@ Client::WaitResult Client::wait() {
             }
             RakNet::RakString str;
             data.Read(str);
-            mMap = std::make_unique<Map>(str.C_String(), false);
+            mMap = std::make_unique<Map>(str.C_String());
             INFO("Load map ", str.C_String());
         }
         CheckHeader(ServerMessage::go) {
@@ -178,7 +169,7 @@ Client::WaitResult Client::wait() {
             data.IgnoreBytes(1);
             mScene = Scene::create();
             mCamera =
-                Camera::createPerspective(45.0f, Game::getInstance()->getAspectRatio(), 1.0f, 20000.0f);
+                Camera::createPerspective(45.0f, Game::getInstance()->getAspectRatio(), 1.0f, 5000.0f);
             mScene->addNode()->setCamera(mCamera.get());
             mScene->setActiveCamera(mCamera.get());
             mMap->set(mScene->addNode("terrain"));
@@ -388,6 +379,7 @@ bool Client::update(float delta) {
 void Client::render() {
     if (mState) {
         auto game = Game::getInstance();
+        auto rect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
 
         mDepth->bind();
 
@@ -395,6 +387,16 @@ void Client::render() {
         game->clear(Game::CLEAR_COLOR_DEPTH, Vector4::one(), 1.0f, 1.0f);
 
         if (shadowSize > 1) {
+            auto y = mCamera->getNode()->getTranslationY();
+            Matrix projection, view;
+            auto f = (Vector3::one()*(mapSizeHF + 100.0f)).length();
+            Matrix::createOrthographic(mapSize*1.4f, mapSize*1.4f,
+                0.0f, f, &projection);
+            auto p = getPoint(rect.width / 2, rect.height / 2);
+            Vector3 p3{ p.x,0.0f,p.y };
+            Matrix::createLookAt(p3+Vector3::one()*100.0f,p3 , Vector3::unitY(), &view);
+            mLightSpace = projection*view;
+
             for (auto&& x : mUnits)
                 drawNode(x.second.getNode(), true);
             for (auto&& x : mBullets)
@@ -404,7 +406,6 @@ void Client::render() {
 
         FrameBuffer::bindDefault();
 
-        auto rect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
         game->setViewport(rect);
         mCamera->setAspectRatio(rect.width / rect.height);
         mScene->setAmbientColor(-0.8f, -0.8f, -0.8f);
