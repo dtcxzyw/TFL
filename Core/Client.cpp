@@ -25,16 +25,7 @@ Matrix Client::getMat() const {
 }
 
 bool Client::checkShadow(Node * node) const {
-    /*
-    auto bs = node->getBoundingSphere();
-    auto NDC =mLightSpace * Vector4(bs.center.x, bs.center.y, bs.center.z, 1.0f);
-    auto cmp = mLightSpace * Vector4(bs.center.x + bs.radius, bs.center.y, bs.center.z, 1.0f);
-    auto r = Vector2(NDC.x, NDC.y).distance({ cmp.x,cmp.y })*1.5f;
-    NDC = NDC*0.5f + Vector4::one()*0.5f;
-    return NDC.x + r > 0.0f&&NDC.x - r<1.0f
-        &&NDC.y +r>0.0f&&NDC.y - r < 1.0f;
-        */
-    return true;
+    return Frustum(mLightSpace).intersects(node->getBoundingSphere());
 }
 
 void Client::drawNode(Node * node,bool shadow) {
