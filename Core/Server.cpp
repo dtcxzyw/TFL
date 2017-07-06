@@ -199,6 +199,9 @@ void Server::update(float delta) {
             for (auto&& g : mGroups) {
                 auto minDis = std::numeric_limits<float>::max();
                 for (auto&& u : g.second.units) {
+                    if (std::find_if(mDeferred.cbegin(), mDeferred.cend(), [&u](auto&& x) {
+                        return x.id == u.first;
+                    }) != mDeferred.cend())continue;
                     auto p = u.second.getNode()->getTranslation();
                     minDis = std::min(minDis, k.pos.distanceSquared({ p.x,p.z }));
                 }
@@ -207,7 +210,7 @@ void Server::update(float delta) {
             auto min = std::min_element(dis.cbegin(), dis.cend(),
                 [](auto p1, auto p2) {return p1.second < p2.second; });
 
-            if (min->second < 4000000.0f) {
+            if (min->second < 40000.0f) {
                 if (k.owner != KeyInfo::nil) {
                     if (k.owner != min->first) {
                         auto& old = mGroups[k.owner].key;

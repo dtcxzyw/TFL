@@ -234,7 +234,7 @@ void writeSettings() {
     ss << "shadowSize=" << shadowSize << std::endl
         << "enableParticle=" << std::boolalpha << enableParticle << std::endl;
     auto str = ss.str();
-    uniqueRAII<Stream> file = FileSystem::open("game.info", FileSystem::WRITE);
+    uniqueRAII<Stream> file = FileSystem::open("game.settings", FileSystem::WRITE);
     file->write(str.data(), str.size(), 1);
 }
 
