@@ -35,6 +35,7 @@ private:
     bool resolveAutoBinding(const char* autoBinding, Node* node,
         MaterialParameter* parameter) override;
     Matrix getMat() const;
+    Frustum mLightFrustum;
     bool checkShadow(Node* node) const;
 
     void drawNode(Node* node, bool shadow = false);

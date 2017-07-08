@@ -25,7 +25,7 @@ Matrix Client::getMat() const {
 }
 
 bool Client::checkShadow(Node * node) const {
-    return Frustum(mLightSpace).intersects(node->getBoundingSphere());
+    return mLightFrustum.intersects(node->getBoundingSphere());
 }
 
 void Client::drawNode(Node * node,bool shadow) {
@@ -127,7 +127,14 @@ Client::Client(const std::string & server, bool& res) :
 
     mRECT = SpriteBatch::create("res/common/rect.png");
     res = mPeer->NumberOfConnections();
-    mDepth = FrameBuffer::create("depth", shadowSize, shadowSize, Texture::Format::ALPHA);
+    mDepth = FrameBuffer::create("depth", shadowSize, shadowSize, 
+#ifdef ANDROID
+        Texture::Format::RGBA
+#else
+        Texture::Format::ALPHA
+#endif // ANDROID
+    );
+
     mDepth->setDepthStencilTarget(DepthStencilTarget::create("shadow",
         DepthStencilTarget::DEPTH, shadowSize, shadowSize));
     mShadowMap = Texture::Sampler::create(mDepth->getRenderTarget()->getTexture());
@@ -403,8 +410,7 @@ void Client::render() {
             auto fn = (Vector3::one()*100.0f).length();
             Matrix::createOrthographic(y*2.0f, y*2.0f,0.0f, fn*(y/500.0f+6.0f), &projection);
             Matrix::createLookAt(p+Vector3::one()*100.0f,p , Vector3::unitY(), &view);
-            mLightSpace = projection*view;
-
+            mLightFrustum = mLightSpace = projection*view;
             for (auto&& x : mUnits)
                 drawNode(x.second.getNode(), true);
             for (auto&& x : mBullets)

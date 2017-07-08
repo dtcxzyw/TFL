@@ -4,7 +4,7 @@ particle boom
 {
     sprite
     {
-        path = smoke.png
+        path = res/bullets/common/smoke.png
         width = 64
         height = 64
         blending = BLEND_ALPHA
