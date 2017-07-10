@@ -3,8 +3,7 @@ material green
 	technique depth
     {
 	
-		u_matrix = LIGHT_MATRIX
-		u_model= WORLD_MATRIX 
+		u_matrix = WORLD_VIEW_PROJECTION_MATRIX
 
 		renderState
 		{

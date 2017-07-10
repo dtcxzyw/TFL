@@ -9,12 +9,12 @@ std::unique_ptr<Client> localClient;
 
 bool Client::resolveAutoBinding(const char * autoBinding, Node * node, MaterialParameter * parameter) {
 #define CMP(x) (strcmp(autoBinding,x)==0)
-    if (CMP("LIGHT_MATRIX"))
-        parameter->bindValue(this, &Client::getMat);
-    else if (CMP("SHADOW_MAP"))
+    if (CMP("SHADOW_MAP"))
         parameter->setSampler(mShadowMap.get());
     else if (CMP("MAP_SIZE"))
         parameter->setInt(shadowSize);
+    else if (CMP("LIGHT_MATRIX"))
+        parameter->bindValue(this,&Client::getMat);
     else return false;
 #undef CMP
     return true;
@@ -24,23 +24,18 @@ Matrix Client::getMat() const {
     return mLightSpace;
 }
 
-bool Client::checkShadow(Node * node) const {
-    return mLightFrustum.intersects(node->getBoundingSphere());
-}
-
 void Client::drawNode(Node * node,bool shadow) {
     if (node->getDrawable() 
-        && (shadow ?checkShadow(node): 
-        node->getBoundingSphere().intersects(mCamera->getFrustum()))
+        &&node->getBoundingSphere().intersects(mScene->getActiveCamera()->getFrustum())
         ) {
         auto m = dynamic_cast<Model*>(node->getDrawable());
         auto t = dynamic_cast<Terrain*>(node->getDrawable());
+        
         if (shadow) {
             if (m) m->getMaterial()->setTechnique("depth");
             else if (t) {
                 for (unsigned int i = 0; i < t->getPatchCount(); ++i) 
                     t->getPatch(i)->getMaterial()->setTechnique("depth");
-                t->setFlag(Terrain::FRUSTUM_CULLING, false);
             }
         }
         else {
@@ -48,9 +43,9 @@ void Client::drawNode(Node * node,bool shadow) {
             else if (t) {
                 for (unsigned int i = 0; i < t->getPatchCount(); ++i)
                     t->getPatch(i)->getMaterial()->setTechnique("shadow");
-                t->setFlag(Terrain::FRUSTUM_CULLING, true);
             }
         }
+
         node->getDrawable()->draw();
     }
 
@@ -129,7 +124,7 @@ Client::Client(const std::string & server, bool& res) :
     res = mPeer->NumberOfConnections();
     mDepth = FrameBuffer::create("depth", shadowSize, shadowSize, 
 #ifdef ANDROID
-        Texture::Format::RGBA
+        Texture::Format::DEPTH
 #else
         Texture::Format::ALPHA
 #endif // ANDROID
@@ -140,6 +135,10 @@ Client::Client(const std::string & server, bool& res) :
     mShadowMap = Texture::Sampler::create(mDepth->getRenderTarget()->getTexture());
     mShadowMap->setFilterMode(Texture::LINEAR,Texture::LINEAR);
     mShadowMap->setWrapMode(Texture::CLAMP, Texture::CLAMP);
+    mLight = Node::create();
+    mLight->setCamera(Camera::createOrthographic(1.0f, 1.0f, 1.0f, 1.0f, 2.0f));
+    auto f = -Vector3::one();
+    correctVector(mLight.get(), &Node::getForwardVector, f.normalize(), M_PI, M_PI, 0.0f);
 }
 
 Client::~Client() {
@@ -193,6 +192,7 @@ Client::WaitResult Client::wait() {
             Vector2 p;
             data.Read(p);
             c->setTranslation(p.x, mMap->getHeight(p.x, p.y) + 200.0f, p.y);
+            mScene->addNode(mLight.get());
             mX = mY = mBX = mBY = 0;
             mState = true;
             mPeer->DeallocatePacket(packet);
@@ -398,27 +398,27 @@ void Client::render() {
         auto game = Game::getInstance();
         auto rect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
 
-        mDepth->bind();
-
-        game->setViewport(gameplay::Rectangle(shadowSize, shadowSize));
-        game->clear(Game::CLEAR_COLOR_DEPTH, Vector4::one(), 1.0f, 1.0f);
-
         if (shadowSize > 1) {
+            mDepth->bind();
+            game->setViewport(gameplay::Rectangle(shadowSize, shadowSize));
+            game->clear(Game::CLEAR_COLOR_DEPTH, Vector4::one(), 1.0f, 1.0f);
             auto y = mCamera->getNode()->getTranslationY();
-            Matrix projection, view;
+            Matrix projection;
             auto p = getPoint(rect.width / 2, rect.height / 2);
             auto fn = (Vector3::one()*100.0f).length();
             Matrix::createOrthographic(y*2.0f, y*2.0f,0.0f, fn*(y/500.0f+6.0f), &projection);
-            Matrix::createLookAt(p+Vector3::one()*100.0f,p , Vector3::unitY(), &view);
-            mLightFrustum = mLightSpace = projection*view;
+            mLight->setTranslation(p + Vector3::one()*100.0f);
+            mLight->getCamera()->setProjectionMatrix(projection);
+            mLightSpace = mLight->getCamera()->getViewProjectionMatrix();
+            mScene->setActiveCamera(mLight->getCamera());
             for (auto&& x : mUnits)
                 drawNode(x.second.getNode(), true);
             for (auto&& x : mBullets)
                 drawNode(x.second.getNode(), true);
             drawNode(mScene->findNode("terrain"), true);
+            mScene->setActiveCamera(mCamera.get());
+            FrameBuffer::bindDefault();
         }
-
-        FrameBuffer::bindDefault();
 
         game->setViewport(rect);
         mCamera->setAspectRatio(rect.width / rect.height);

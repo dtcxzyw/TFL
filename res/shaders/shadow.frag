@@ -11,14 +11,26 @@ float getShadow()
 		vec2 mapSize = textureSize(u_shadowMap, 0);
 	#endif
 	if(projCoords.x<0.0 || projCoords.x>1.0 || projCoords.y<0.0 || projCoords.y>1.0 
-		|| projCoords.z>1.0 || projCoords.z<0.0 || int(mapSize.x)!=u_mapSize)
+		|| projCoords.z>1.0 || projCoords.z<0.0 ||
+		#ifdef OPENGL_ES
+			u_mapSize==1
+		#else
+			int(mapSize.x)!=u_mapSize
+		#endif
+		)
 			return 1.0;
 	vec2 texelSize = 1.0/mapSize;
 	for(int x = -1; x <= 1; ++x)
 	{
 		for(int y = -1; y <= 1; ++y)
 		{
-			float pcfDepth = texture2D(u_shadowMap, projCoords.xy + vec2(x, y) * texelSize).a; 
+			float pcfDepth = texture2D(u_shadowMap, projCoords.xy + vec2(x, y) * texelSize).
+			#ifdef OPENGL_ES
+			r
+			#else
+			a
+			#endif
+			; 
 			shadow += currentDepth-0.0025 > pcfDepth ? 0.2 : 1.0;        
 		}    
 	}
