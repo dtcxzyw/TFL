@@ -38,7 +38,7 @@ material terrain
 
 		renderState
 		{
-			cullFace = true
+			cullFace = false
 			depthTest = true
 		}
         pass

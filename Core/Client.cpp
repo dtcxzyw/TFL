@@ -14,7 +14,7 @@ bool Client::resolveAutoBinding(const char * autoBinding, Node * node, MaterialP
     else if (CMP("MAP_SIZE"))
         parameter->setInt(shadowSize);
     else if (CMP("LIGHT_MATRIX"))
-        parameter->bindValue(this,&Client::getMat);
+        parameter->bindValue(this, &Client::getMat);
     else return false;
 #undef CMP
     return true;
@@ -24,28 +24,26 @@ Matrix Client::getMat() const {
     return mLightSpace;
 }
 
-void Client::drawNode(Node * node,bool shadow) {
-    if (node->getDrawable() 
-        &&node->getBoundingSphere().intersects(mScene->getActiveCamera()->getFrustum())
+void Client::drawNode(Node * node, bool shadow) {
+    if (node->getDrawable()
+        && node->getBoundingSphere().intersects(mScene->getActiveCamera()->getFrustum())
         ) {
 
-        if (shadowSize > 1) {
-            auto m = dynamic_cast<Model*>(node->getDrawable());
-            auto t = dynamic_cast<Terrain*>(node->getDrawable());
+        auto m = dynamic_cast<Model*>(node->getDrawable());
+        auto t = dynamic_cast<Terrain*>(node->getDrawable());
 
-            if (shadow) {
-                if (m) m->getMaterial()->setTechnique("depth");
-                else if (t) {
-                    for (unsigned int i = 0; i < t->getPatchCount(); ++i)
-                        t->getPatch(i)->getMaterial()->setTechnique("depth");
-                }
+        if (shadow) {
+            if (m) m->getMaterial()->setTechnique("depth");
+            else if (t) {
+                for (unsigned int i = 0; i < t->getPatchCount(); ++i)
+                    t->getPatch(i)->getMaterial()->setTechnique("depth");
             }
-            else {
-                if (m) m->getMaterial()->setTechnique("shadow");
-                else if (t) {
-                    for (unsigned int i = 0; i < t->getPatchCount(); ++i)
-                        t->getPatch(i)->getMaterial()->setTechnique("shadow");
-                }
+        }
+        else {
+            if (m) m->getMaterial()->setTechnique("shadow");
+            else if (t) {
+                for (unsigned int i = 0; i < t->getPatchCount(); ++i)
+                    t->getPatch(i)->getMaterial()->setTechnique("shadow");
             }
         }
 
@@ -53,7 +51,7 @@ void Client::drawNode(Node * node,bool shadow) {
     }
 
     for (auto i = node->getFirstChild(); i; i = i->getNextSibling())
-        drawNode(i,shadow);
+        drawNode(i, shadow);
 }
 
 Vector3 Client::getPoint(int x, int y) const {
@@ -94,7 +92,7 @@ void Client::move(int x, int y) {
         RakNet::BitStream data;
         data.Write(ClientMessage::setMoveTarget);
         auto p = getPoint(x, y);
-        data.Write(Vector2{p.x,p.z});
+        data.Write(Vector2{ p.x,p.z });
         data.Write(static_cast<uint32_t>(mChoosed.size()));
         for (auto x : mChoosed)
             data.Write(x);
@@ -125,9 +123,9 @@ Client::Client(const std::string & server, bool& res) :
 
     mRECT = SpriteBatch::create("res/common/rect.png");
     res = mPeer->NumberOfConnections();
-    mDepth = FrameBuffer::create("depth", shadowSize, shadowSize, 
+    mDepth = FrameBuffer::create("depth", shadowSize, shadowSize,
 #ifdef ANDROID
-        Texture::Format::DEPTH
+        Texture::Format::RGBA
 #else
         Texture::Format::ALPHA
 #endif // ANDROID
@@ -136,7 +134,7 @@ Client::Client(const std::string & server, bool& res) :
     mDepth->setDepthStencilTarget(DepthStencilTarget::create("shadow",
         DepthStencilTarget::DEPTH, shadowSize, shadowSize));
     mShadowMap = Texture::Sampler::create(mDepth->getRenderTarget()->getTexture());
-    mShadowMap->setFilterMode(Texture::LINEAR,Texture::LINEAR);
+    mShadowMap->setFilterMode(Texture::LINEAR, Texture::LINEAR);
     mShadowMap->setWrapMode(Texture::CLAMP, Texture::CLAMP);
     mLight = Node::create();
     mLight->setCamera(Camera::createOrthographic(1.0f, 1.0f, 1.0f, 1.0f, 2.0f));
@@ -350,8 +348,7 @@ bool Client::update(float delta) {
     for (auto&& x : mUnits)
         x.second.update(delta);
 
-    if (enableParticle)
-    {
+    if (enableParticle) {
         std::vector<decltype(mDuang)::const_iterator> deferred;
         auto end = Game::getAbsoluteTime();
         for (auto i = mDuang.cbegin(); i != mDuang.cend(); ++i)
@@ -409,7 +406,7 @@ void Client::render() {
             Matrix projection;
             auto p = getPoint(rect.width / 2, rect.height / 2);
             auto fn = (Vector3::one()*100.0f).length();
-            Matrix::createOrthographic(y*2.0f, y*2.0f,0.0f, fn*(y/500.0f+6.0f), &projection);
+            Matrix::createOrthographic(y*2.0f, y*2.0f, 0.0f, fn*(y / 500.0f + 6.0f), &projection);
             mLight->setTranslation(p + Vector3::one()*100.0f);
             mLight->getCamera()->setProjectionMatrix(projection);
             mLightSpace = mLight->getCamera()->getViewProjectionMatrix();
@@ -452,7 +449,6 @@ void Client::render() {
 
         auto rect2 = gameplay::Rectangle(game->getWidth(), game->getHeight());
         game->setViewport(rect2);
-        mCamera->setAspectRatio(rect2.width / rect2.height);
 
 #ifdef WIN32
         if (mBX&&mBY) {
@@ -520,7 +516,7 @@ void Client::scaleEvent(float x) {
         auto node = mCamera->getNode();
         auto pos = node->getTranslation();
         auto height = mMap->getHeight(pos.x, pos.z);
-        if (pos.y+x > 10.0f && pos.y+x - 100.0f > height) {
+        if (pos.y + x > 10.0f && pos.y + x - 100.0f > height) {
             node->translateY(x);
             if (checkCamera())
                 node->translateY(-x);

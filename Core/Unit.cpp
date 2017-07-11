@@ -25,7 +25,7 @@ std::string Unit::getName() const {
 }
 
 Node* Unit::getModel() const {
-    if (!mModel)
+    if (!mModel) 
         mModel = Scene::load(("/res/units/" + mName + "/model.scene").c_str());
     return mModel->findNode("root")->clone();
 }
