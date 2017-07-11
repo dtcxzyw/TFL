@@ -1,10 +1,3 @@
-#ifdef OPENGL_ES
-#ifdef GL_FRAGMENT_PRECISION_HIGH
-precision highp float;
-#else
-precision mediump float;
-#endif
-#endif
 
 #ifndef DIRECTIONAL_LIGHT_COUNT
 #define DIRECTIONAL_LIGHT_COUNT 0

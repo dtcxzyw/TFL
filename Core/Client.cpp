@@ -28,21 +28,24 @@ void Client::drawNode(Node * node,bool shadow) {
     if (node->getDrawable() 
         &&node->getBoundingSphere().intersects(mScene->getActiveCamera()->getFrustum())
         ) {
-        auto m = dynamic_cast<Model*>(node->getDrawable());
-        auto t = dynamic_cast<Terrain*>(node->getDrawable());
-        
-        if (shadow) {
-            if (m) m->getMaterial()->setTechnique("depth");
-            else if (t) {
-                for (unsigned int i = 0; i < t->getPatchCount(); ++i) 
-                    t->getPatch(i)->getMaterial()->setTechnique("depth");
+
+        if (shadowSize > 1) {
+            auto m = dynamic_cast<Model*>(node->getDrawable());
+            auto t = dynamic_cast<Terrain*>(node->getDrawable());
+
+            if (shadow) {
+                if (m) m->getMaterial()->setTechnique("depth");
+                else if (t) {
+                    for (unsigned int i = 0; i < t->getPatchCount(); ++i)
+                        t->getPatch(i)->getMaterial()->setTechnique("depth");
+                }
             }
-        }
-        else {
-            if (m) m->getMaterial()->setTechnique("shadow");
-            else if (t) {
-                for (unsigned int i = 0; i < t->getPatchCount(); ++i)
-                    t->getPatch(i)->getMaterial()->setTechnique("shadow");
+            else {
+                if (m) m->getMaterial()->setTechnique("shadow");
+                else if (t) {
+                    for (unsigned int i = 0; i < t->getPatchCount(); ++i)
+                        t->getPatch(i)->getMaterial()->setTechnique("shadow");
+                }
             }
         }
 
