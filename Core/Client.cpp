@@ -17,6 +17,16 @@ bool Client::resolveAutoBinding(const char * autoBinding, Node * node, MaterialP
         parameter->bindValue(this, &Client::getMat);
     else if (CMP("BIAS"))
         parameter->setValue(bias);
+    else if (CMP("ARGS")) {
+        auto dir = -Vector3::one();
+        dir.normalize();
+        float mat[16];
+        *reinterpret_cast<Vector3*>(mat) = dir;
+        mat[3] = shadowSize;
+        *reinterpret_cast<Vector3*>(mat+4) = Vector3::one()*1.5f;
+        mat[7] = bias;
+        parameter->setValue(Matrix(mat));
+    }
     else return false;
 #undef CMP
     return true;

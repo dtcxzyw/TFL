@@ -1,7 +1,5 @@
 uniform sampler2D u_shadowMap;
-uniform int u_mapSize;
-uniform float u_bias;
-float getShadow()
+float getShadowValue()
 {
     if(u_mapSize==1)
         return 1.0;

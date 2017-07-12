@@ -77,8 +77,7 @@ struct BindingResolver final :private RenderState::AutoBindingResolver {
             parameter->setValue(Vector3::one()*1.5f);
         else if (CMP("LIGHT_DIRECTION")) {
             auto dir = -Vector3::one();
-            dir.normalize();
-            parameter->setValue(dir);
+            parameter->setValue(dir.normalize());
         }
         else return false;
 #undef CMP

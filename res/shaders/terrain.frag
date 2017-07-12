@@ -22,13 +22,12 @@ precision mediump float;
 
 ///////////////////////////////////////////////////////////
 // Uniforms
-uniform vec3 u_ambientColor; 
 
 #if defined(LIGHTING)
 
 #if (DIRECTIONAL_LIGHT_COUNT > 0)
-uniform vec3 u_directionalLightColor[DIRECTIONAL_LIGHT_COUNT];
-uniform vec3 u_directionalLightDirection[DIRECTIONAL_LIGHT_COUNT];
+vec3 u_directionalLightColor[DIRECTIONAL_LIGHT_COUNT];
+vec3 u_directionalLightDirection[DIRECTIONAL_LIGHT_COUNT];
 #endif
 
 #if (POINT_LIGHT_COUNT > 0)
@@ -109,13 +108,23 @@ void blendLayer(sampler2D textureMap, vec2 texCoord, float alphaBlend)
 #endif
 
 #if defined(LIGHTING)
+vec3 u_ambientColor=vec3(0.0,0.0,0.0);
 #include "lighting.frag"
 #endif
 
+int u_mapSize;
+float u_bias;
 #include "shadow.frag"
+uniform mat4 u_args;
 
 void main()
 {
+
+    u_directionalLightDirection[0]=u_args[0].xyz;
+	u_directionalLightColor[0]=u_args[1].xyz;
+	u_mapSize=int(u_args[0].w);
+	u_bias = u_args[1].w;
+
     #if (LAYER_COUNT > 0)
     // Sample base texture
     _baseColor.rgb = texture2D(u_surfaceLayerMaps[TEXTURE_INDEX_0], mod(v_texCoordLayer0, vec2(1,1))).rgb;
@@ -144,15 +153,12 @@ void main()
     v_normalVector = (u_normalMatrix * vec4(v_normalVector.x, v_normalVector.y, v_normalVector.z, 0)).xyz;
     #endif
 
-    gl_FragColor.a = _baseColor.a;
-    gl_FragColor.rgb = getLitPixel();
+    gl_FragColor.a = max(_baseColor.a,getShadowValue()*0.00000001);
+    gl_FragColor.rgb = getLitPixel()*1.0;
 
     #else
 
     gl_FragColor.rgb = _baseColor.rgb;
 
     #endif
-    
-    gl_FragColor.rgb*=getShadow();
-    gl_FragColor.a=1.0;
 }

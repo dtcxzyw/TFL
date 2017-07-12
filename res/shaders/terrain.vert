@@ -31,14 +31,12 @@ uniform mat4 u_normalMatrix;
 
 #if defined(LIGHTING)
 
-uniform mat4 u_inverseTransposeWorldViewMatrix;
-
 #if (POINT_LIGHT_COUNT > 0) || (SPOT_LIGHT_COUNT > 0)
 uniform mat4 u_worldViewMatrix;
 #endif
 
 #if (DIRECTIONAL_LIGHT_COUNT > 0)
-uniform vec3 u_directionalLightDirection[DIRECTIONAL_LIGHT_COUNT];
+vec3 u_directionalLightDirection[DIRECTIONAL_LIGHT_COUNT];
 #endif
 
 #if (POINT_LIGHT_COUNT > 0) 
@@ -87,9 +85,12 @@ varying vec2 v_texCoordLayer1;
 varying vec2 v_texCoordLayer2;
 #endif
 
+uniform mat3 u_args;
 
 void main()
 {
+	u_directionalLightDirection[0]=u_args[0];
+
     // Transform position to clip space.
     gl_Position = u_worldViewProjectionMatrix * a_position;
     v_pos = u_matrix * u_model * a_position;

@@ -261,12 +261,12 @@ void Server::update(float delta) {
     //produce unit
     auto now = Game::getAbsoluteTime();
     bool flag;
+    std::uniform_real_distribution<float> dis(-100.0f, 100.0f);
     do {
         flag = false;
         for (auto&& k : mKey) {
             if (k.owner != KeyInfo::nil && Game::getAbsoluteTime() > k.time) {
-                auto pos = Vector2{ k.pos.x,k.pos.y }+
-                    Vector2{ mt() % 200-100.0f,  mt()%200-100.0f};
+                auto pos = Vector2{ k.pos.x+dis(mt),k.pos.y+dis(mt) };
                 Vector3 p(pos.x, mMap.getHeight(pos.x, pos.y) + 10.0f, pos.y);
                 auto id = UnitInstance::askID();
                 mGroups[k.owner].units.
