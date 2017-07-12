@@ -173,6 +173,7 @@ void readSettings() {
         shadowSize = info->getFloat("shadowSize");
         if (!shadowSize)shadowSize = 1;
         enableParticle = info->getBool("enableParticle");
+        bias = info->getFloat("bias");
     }
 }
 

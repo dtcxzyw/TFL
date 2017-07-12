@@ -69,7 +69,7 @@ void UI::render() {
 }
 
 void UI::controlEvent(Control * control, EventType evt) {
-    if(this==stack.top().get())
+    if (this == stack.top().get())
         event(control, evt);
 }
 
@@ -232,7 +232,8 @@ void SettingsMenu::event(Control * control, Event evt) {
 void writeSettings() {
     std::stringstream ss;
     ss << "shadowSize=" << shadowSize << std::endl
-        << "enableParticle=" << std::boolalpha << enableParticle << std::endl;
+        << "enableParticle=" << std::boolalpha << enableParticle << std::endl
+        << "bias=" << bias << std::endl;
     auto str = ss.str();
     uniqueRAII<Stream> file = FileSystem::open("game.settings", FileSystem::WRITE);
     file->write(str.data(), str.size(), 1);
@@ -244,7 +245,8 @@ void SettingsMenu::read() {
     get<Slider>("width")->setValue(p->getInt("width"));
     get<Slider>("height")->setValue(p->getInt("height"));
     get<CheckBox>("particle")->setChecked(enableParticle);
-    get<Slider>("shadow")->setValue(shadowSize-shadowSize%512);
+    get<Slider>("shadow")->setValue(shadowSize - shadowSize % 512);
+    get<Slider>("bias")->setValue(bias);
 }
 
 SettingsMenu::~SettingsMenu() {
@@ -278,6 +280,7 @@ window
     enableParticle = get<CheckBox>("particle")->isChecked();
     shadowSize = get<Slider>("shadow")->getValue();
     if (!shadowSize)shadowSize = 1;
+    bias = get<Slider>("bias")->getValue();
     writeSettings();
 }
 
@@ -291,7 +294,7 @@ void ServerMenu::event(Control * control, Event evt) {
     if (evt == Event::PRESS && CMPID("run")) {
         if (get<CheckBox>("ai")->isChecked()) {
             bool flag = false;
-            aiFuture =std::make_unique<std::future<void>>(std::async(std::launch::async, AIMain, &flag));
+            aiFuture = std::make_unique<std::future<void>>(std::async(std::launch::async, AIMain, &flag));
             while (!flag) localServer->waitClient();
         }
         localServer->run();
@@ -374,7 +377,7 @@ void GameMain::event(Control * control, Event evt) {
     else if (evt == Event::PRESS && CMPID("cancel"))
         localClient->cancel();
 #endif // ANDROID
-}
+    }
 
 void GameMain::update(float delta) {
     get<Label>("state")->setText(("FPS :" + to_string(Game::getInstance()->getFrameRate()) +

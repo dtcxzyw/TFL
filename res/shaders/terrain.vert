@@ -92,8 +92,8 @@ void main()
 {
     // Transform position to clip space.
     gl_Position = u_worldViewProjectionMatrix * a_position;
-	v_pos = u_matrix * u_model * a_position;
-	
+    v_pos = u_matrix * u_model * a_position;
+    
     #if defined(LIGHTING)
 
     #if !defined(NORMAL_MAP) 

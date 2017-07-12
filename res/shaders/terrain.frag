@@ -118,7 +118,7 @@ void main()
 {
     #if (LAYER_COUNT > 0)
     // Sample base texture
-	_baseColor.rgb = texture2D(u_surfaceLayerMaps[TEXTURE_INDEX_0], mod(v_texCoordLayer0, vec2(1,1))).rgb;
+    _baseColor.rgb = texture2D(u_surfaceLayerMaps[TEXTURE_INDEX_0], mod(v_texCoordLayer0, vec2(1,1))).rgb;
     _baseColor.a = 1.0;
     #else
     // If no layers are defined, simply use a white color
@@ -152,7 +152,7 @@ void main()
     gl_FragColor.rgb = _baseColor.rgb;
 
     #endif
-	
-	gl_FragColor.rgb*=getShadow();
-	gl_FragColor.a=1.0;
+    
+    gl_FragColor.rgb*=getShadow();
+    gl_FragColor.a=1.0;
 }

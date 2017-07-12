@@ -139,8 +139,8 @@ void main()
 {
     vec4 position = getPosition();
     gl_Position = u_worldViewProjectionMatrix * position;
-	v_pos = u_matrix * u_model *position;
-	
+    v_pos = u_matrix * u_model *position;
+    
     #if defined(LIGHTING)
     vec3 normal = getNormal();
     // Transform the normal, tangent and binormals to view space.

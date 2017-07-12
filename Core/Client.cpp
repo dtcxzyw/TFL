@@ -15,6 +15,8 @@ bool Client::resolveAutoBinding(const char * autoBinding, Node * node, MaterialP
         parameter->setInt(shadowSize);
     else if (CMP("LIGHT_MATRIX"))
         parameter->bindValue(this, &Client::getMat);
+    else if (CMP("BIAS"))
+        parameter->setValue(bias);
     else return false;
 #undef CMP
     return true;

@@ -118,3 +118,4 @@ std::mt19937_64 mt(std::chrono::high_resolution_clock::now().time_since_epoch().
 
 uint16_t shadowSize=1;
 bool enableParticle = false;
+float bias = 0.005;

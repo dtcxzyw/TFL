@@ -143,10 +143,10 @@ void main()
     gl_FragColor.rgb = _baseColor.rgb;
     #endif
 
-	#if defined(LIGHTMAP)
-	vec4 lightColor = texture2D(u_lightmapTexture, v_texCoord1);
-	gl_FragColor.rgb *= lightColor.rgb;
-	#endif
+    #if defined(LIGHTMAP)
+    vec4 lightColor = texture2D(u_lightmapTexture, v_texCoord1);
+    gl_FragColor.rgb *= lightColor.rgb;
+    #endif
 
     #if defined(MODULATE_COLOR)
     gl_FragColor *= u_modulateColor;
@@ -155,6 +155,6 @@ void main()
     #if defined(MODULATE_ALPHA)
     gl_FragColor.a *= u_modulateAlpha;
     #endif
-	
-	gl_FragColor.rgb*=getShadow();
+    
+    gl_FragColor.rgb*=getShadow();
 }
