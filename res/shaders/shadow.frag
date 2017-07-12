@@ -5,7 +5,6 @@ float getShadow()
     if(u_mapSize==1)
         return 1.0;
         
-    float shadow=0.0;
     vec3 projCoords = (v_pos.xyz/v_pos.w)*0.5+0.5;
     float currentDepth = projCoords.z;
     #ifndef OPENGL_ES
@@ -20,8 +19,9 @@ float getShadow()
             return 1.0;
     #ifdef OPENGL_ES
         float depth=texture2D(u_shadowMap, projCoords.xy).r;
-		shadow = currentDepth-0.001 > depth ? 0.2 : 1.0;        
+		float shadow = currentDepth-0.004 > depth ? 0.2 : 1.0;        
     #else
+	    float shadow=0.0;
         vec2 texelSize = 1.0/mapSize;
 		for(int x = -1; x <= 1; ++x)
 		{

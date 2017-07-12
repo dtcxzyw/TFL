@@ -7,7 +7,7 @@ particle boom
         path = res/bullets/common/smoke.png
         width = 64
         height = 64
-        blending = BLEND_ALPHA
+        blending = BLEND_OPAQUE
         animated = false
         looped = false
         frameCount = 1

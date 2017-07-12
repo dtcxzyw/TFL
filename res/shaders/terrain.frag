@@ -154,4 +154,5 @@ void main()
     #endif
 	
 	gl_FragColor.rgb*=getShadow();
+	gl_FragColor.a=1.0;
 }

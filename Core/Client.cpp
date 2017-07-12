@@ -36,14 +36,14 @@ void Client::drawNode(Node * node, bool shadow) {
             if (m) m->getMaterial()->setTechnique("depth");
             else if (t) {
                 for (unsigned int i = 0; i < t->getPatchCount(); ++i)
-                    t->getPatch(i)->getMaterial()->setTechnique("depth");
+                    t->getPatch(i)->getMaterial(0)->setTechnique("depth");
             }
         }
         else {
             if (m) m->getMaterial()->setTechnique("shadow");
             else if (t) {
                 for (unsigned int i = 0; i < t->getPatchCount(); ++i)
-                    t->getPatch(i)->getMaterial()->setTechnique("shadow");
+                    t->getPatch(i)->getMaterial(0)->setTechnique("shadow");
             }
         }
 
@@ -245,7 +245,6 @@ bool Client::update(float delta) {
         data.IgnoreBytes(1);
         CheckBegin;
         CheckHeader(ServerMessage::stop) {
-            INFO("The game stopped.");
             isStop = true;
             continue;
         }
@@ -340,7 +339,8 @@ bool Client::update(float delta) {
         }
     }
 
-    if (isStop) {
+    if (isStop || mPeer->NumberOfConnections()!=1) {
+        INFO("The game stopped.");
         stop();
         return false;
     }
