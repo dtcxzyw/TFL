@@ -115,7 +115,12 @@ vec3 u_ambientColor=vec3(0.0,0.0,0.0);
 int u_mapSize;
 float u_bias;
 #include "shadow.frag"
+
+#ifdef OPENGL_ES
+uniform mediump mat4 u_args;
+#else
 uniform mat4 u_args;
+#endif
 
 void main()
 {
@@ -153,8 +158,8 @@ void main()
     v_normalVector = (u_normalMatrix * vec4(v_normalVector.x, v_normalVector.y, v_normalVector.z, 0)).xyz;
     #endif
 
-    gl_FragColor.a = max(_baseColor.a,getShadowValue()*0.00000001);
-    gl_FragColor.rgb = getLitPixel()*1.0;
+    gl_FragColor.a = _baseColor.a;
+    gl_FragColor.rgb = getLitPixel()*getShadowValue();
 
     #else
 

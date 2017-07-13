@@ -85,11 +85,15 @@ varying vec2 v_texCoordLayer1;
 varying vec2 v_texCoordLayer2;
 #endif
 
-uniform mat3 u_args;
+#ifdef OPENGL_ES
+uniform mediump mat4 u_args;
+#else
+uniform mat4 u_args;
+#endif
 
 void main()
 {
-	u_directionalLightDirection[0]=u_args[0];
+	u_directionalLightDirection[0]=u_args[0].xyz;
 
     // Transform position to clip space.
     gl_Position = u_worldViewProjectionMatrix * a_position;
