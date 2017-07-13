@@ -17,9 +17,7 @@ float getShadowValue()
         )
             return 1.0;
     #ifdef OPENGL_ES
-        vec4 d=texture2D(u_shadowMap, projCoords.xy);
-		float depth=(((d.x*256.0)+d.y)*256.0)+d.z;
-		depth/=256.0*256.0;
+		float depth = texture2D(u_shadowMap, projCoords.xy).r;
         float shadow = currentDepth-u_bias > depth ? 0.2 : 1.0;        
     #else
         float shadow=0.0;

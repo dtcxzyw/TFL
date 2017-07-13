@@ -137,7 +137,7 @@ Client::Client(const std::string & server, bool& res) :
     res = mPeer->NumberOfConnections();
     mDepth = FrameBuffer::create("depth", shadowSize, shadowSize,
 #ifdef ANDROID
-        Texture::Format::RGBA8888
+        Texture::Format::RGB888
 #else
         Texture::Format::ALPHA
 #endif // ANDROID
@@ -452,12 +452,13 @@ void Client::render() {
             if (!x.second.isDied() && x.second.getGroup() != mGroup)
                 drawNode(x.second.getNode());
         mScene->setAmbientColor(0.0f, 0.0f, 0.0f);
-        if (enableParticle)
-            for (auto&& x : mDuang)
-                drawNode(x.emitter.get());
         for (auto&& x : mBullets)
             drawNode(x.second.getNode());
         drawNode(mScene->findNode("terrain"));
+
+        if (enableParticle)
+            for (auto&& x : mDuang)
+                drawNode(x.emitter.get());
 
         auto rect2 = gameplay::Rectangle(game->getWidth(), game->getHeight());
         game->setViewport(rect2);
