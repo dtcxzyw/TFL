@@ -137,7 +137,7 @@ Client::Client(const std::string & server, bool& res) :
     res = mPeer->NumberOfConnections();
     mDepth = FrameBuffer::create("depth", shadowSize, shadowSize,
 #ifdef ANDROID
-        Texture::Format::RGBA
+        Texture::Format::RGBA8888
 #else
         Texture::Format::ALPHA
 #endif // ANDROID

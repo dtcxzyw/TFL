@@ -159,7 +159,7 @@ void main()
     #endif
 
     gl_FragColor.a = _baseColor.a;
-    gl_FragColor.rgb = getLitPixel()*getShadowValue();
+    gl_FragColor.rgb = getLitPixel();
 
     #else
 

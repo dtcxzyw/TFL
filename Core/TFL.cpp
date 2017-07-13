@@ -20,7 +20,7 @@ std::string getLogPath() {
     ss << "logs/"
         << tm->tm_year + 1900 << '-' << tm->tm_mon + 1 << '-' << tm->tm_mday << ' '
         << tm->tm_hour << ' ' << tm->tm_min << ' ' << tm->tm_sec
-        << ".log";
+        << ".txt";
     return ss.str();
 }
 
