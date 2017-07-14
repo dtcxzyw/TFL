@@ -200,13 +200,6 @@ public:
         std::remove_if(mFree.begin(), mFree.end(),
             [this](uint32_t id) {return mMine.find(id) == mMine.cend(); });
 
-        if (mStep == Type::discover && mFree.size() > 5) {
-            TeamInfo team;
-            team.size = 3;
-            team.object = { mt() % mapSize - mapSizeHF,mt() % mapSize -mapSizeHF };
-            mTeams.emplace_back(team);
-        }
-
        // std::shuffle(mTeams.begin(), mTeams.end(), mt);
 
         for (auto&& x : mTeams) {
@@ -364,7 +357,7 @@ p2:
 
         builtinAI.update();
 
-        std::this_thread::sleep_for(500ms);
+        std::this_thread::sleep_for(100ms);
     }
     peer.Shutdown(500, 0, IMMEDIATE_PRIORITY);
 }
