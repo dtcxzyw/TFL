@@ -8,7 +8,7 @@ void Server::send(uint8_t group, const RakNet::BitStream & data, PacketPriority 
     for (auto&& c : mClients)
         if (c.second.group == group)
             mPeer->Send(&data, priority,
-                PacketReliability::RELIABLE, 0, c.first, false);
+                PacketReliability::RELIABLE_ORDERED, 0, c.first, false);
 }
 
 void Server::chooseNew(KeyInfo& k) {
@@ -81,12 +81,12 @@ const std::map<RakNet::SystemAddress, ClientInfo>& Server::getClientInfo() {
     std::vector<uint8_t> list;
     for (auto&& x : mGroups) {
         bool flag = true;
-        for(auto&& y:mClients)
+        for (auto&& y : mClients)
             if (y.second.group == x.first) {
                 flag = false;
                 break;
             }
-        if (flag) 
+        if (flag)
             list.emplace_back(x.first);
     }
     for (auto&& x : list)
@@ -266,7 +266,7 @@ void Server::update(float delta) {
         flag = false;
         for (auto&& k : mKey) {
             if (k.owner != KeyInfo::nil && Game::getAbsoluteTime() > k.time) {
-                auto pos = Vector2{ k.pos.x+dis(mt),k.pos.y+dis(mt) };
+                auto pos = Vector2{ k.pos.x + dis(mt),k.pos.y + dis(mt) };
                 Vector3 p(pos.x, mMap.getHeight(pos.x, pos.y) + 10.0f, pos.y);
                 auto id = UnitInstance::askID();
                 mGroups[k.owner].units.
@@ -286,12 +286,12 @@ void Server::update(float delta) {
 
         for (auto&& x : mGroups)
             for (auto&& u : x.second.units)
-                    units.push_back({ u.first,x.first,&u.second });
+                units.push_back({ u.first,x.first,&u.second });
 
         std::shuffle(units.begin(), units.end(), mt);
 
         for (auto&& u : units)
-            if(u.instance->updateSum(delta))
+            if (u.instance->updateSum(delta))
                 check.insert(u);
     }
 
@@ -348,19 +348,34 @@ void Server::update(float delta) {
     }
 
     {
-        std::map<uint8_t,std::set<uint32_t>> duang;
-        std::map<uint32_t,DuangSyncInfo> info;
+        std::map<uint8_t, std::set<uint32_t>> duang;
+        std::map<uint32_t, DuangSyncInfo> info;
         std::set<uint32_t> deferred;
+        std::vector<BoundingSphere> vbs;
         for (auto&& x : mBullets) {
             x.second.update(delta);
             auto bb = x.second.getHitBound();
             bool boom = false;
             for (auto&& g : mGroups)
                 for (auto&& u : g.second.units)
-                    if (u.second.getGroup()!=x.second.getGroup() && bb.intersects(u.second.getBound())) {
+                    if (u.second.getGroup() != x.second.getGroup() && bb.intersects(u.second.getBound())) {
                         boom = true;
                         goto point;
                     }
+            for (auto&& x : mDeferred) {
+                auto iter = mGroups[x.group].units.find(x.id);
+                if (iter!=mGroups[x.group].units.end() && iter->second.getBound().intersects(bb)) {
+                    boom = true;
+                    goto point;
+                }
+            }
+
+            for(auto&& x:vbs)
+                if (x.intersects(bb)) {
+                    boom = true;
+                    goto point;
+                }
+
             if (bb.center.y - bb.radius < mMap.getHeight(bb.center.x, bb.center.z))
                 boom = true;
         point:
@@ -373,7 +388,7 @@ void Server::update(float delta) {
                             auto dis = b.center.distance(bu.center);
                             auto fac = (dis - bu.radius) / b.radius;
                             fac = std::max(fac, 0.0f);
-                            attack(u.first, x.second.getHarm()*(1.0f -fac*fac));
+                            attack(u.first, x.second.getHarm()*(1.0f - fac*fac));
                         }
                         if (b.center.distanceSquared(bu.center) < u.second.getKind().getFOV())
                             duang[g.first].insert(x.first);
@@ -381,13 +396,15 @@ void Server::update(float delta) {
                 deferred.insert(x.first);
                 info[x.first] = { x.second.getKind(), b.center };
             }
+
+            vbs.emplace_back(bb);
         }
 
         for (auto&& x : duang) {
             RakNet::BitStream data;
             data.Write(ServerMessage::duang);
             data.Write(static_cast<uint16_t>(x.second.size()));
-            for (auto&& y : x.second) 
+            for (auto&& y : x.second)
                 data.Write(info[y]);
             send(x.first, data, PacketPriority::MEDIUM_PRIORITY);
         }
@@ -435,7 +452,7 @@ void Server::update(float delta) {
             for (auto&& mu : update.units)
                 if (!mu.second.isDied() && p.distanceSquared(mu.second.getNode()->getTranslation())
                     < mu.second.getKind().getFOV()) {
-                    bullets.push_back({b.first,b.second.getKind(),p,b.second.getNode()->getRotation()});
+                    bullets.push_back({ b.first,b.second.getKind(),p,b.second.getNode()->getRotation() });
                     break;
                 }
         }

@@ -341,7 +341,7 @@ bool Client::update(float delta) {
         }
     }
 
-    if (isStop || mPeer->NumberOfConnections()!=1) {
+    if (isStop || mPeer->NumberOfConnections() != 1) {
         INFO("The game stopped.");
         stop();
         return false;
