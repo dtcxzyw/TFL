@@ -68,12 +68,12 @@ void correct(UnitInstance& instance, float delta, float& cnt, float& time) {
 
 #define Init(name) name(info->getFloat(#name))
 struct Tank final :public UnitController {
-    float RST, RSC, v, time, harm, dis, count, rfac, sample, range, offset, speed, fcnt, x;
+    float RST, RSC, v, time, harm, dis, count, rfac, sample, range, offset, speed, fcnt, x,sy;
     Vector2 last;
     std::string bullet;
     Tank(const Properties* info) : Init(RST), Init(RSC), Init(v), Init(time), Init(harm), Init(dis), Init(rfac),
         Init(range), count(0.0f), sample(0.0f), bullet(info->getString("bullet")), Init(offset), Init(speed),
-        x(10000.0f) {
+        x(10000.0f),sy(0.0f) {
         v /= 1000.0f;
         //speed /= 1000.0f;
     }
@@ -85,17 +85,19 @@ struct Tank final :public UnitController {
     }
 
     bool update(UnitInstance& instance, float delta) override {
+
+        if (sy == 0.0f)
+            sy = instance.getNode()->getScaleY();
+
         {
             x += delta;
-            float y = 1.0f / (1.0f + std::pow(M_E, x / 100.0f));
+            float y = 1.0f / (1.0f +std::pow(M_E, std::min(-x / 100.0f,20.0f)));
             auto v = std::abs(y - 0.5f);
-            //1->1 0.5->m
-            //k+b=1 0.5k+b=m
-            //0.5k=1-m
-            //k=2-2m b=2m-1
-            constexpr auto m = 0.8f, k = 2.0f - 2.0f * m, b = 2.0f*m - 1.0f;
+            //0.5->1 0->m
+            //k=2-2m b=m
+            constexpr auto m = 0.8f, k = 2.0f - 2.0f * m, b =m;
             auto s = k*v + b;
-            instance.getNode()->setScaleY(s);
+            instance.getNode()->setScaleY(s*sy);
         }
 
         if (instance.isDied()) {
