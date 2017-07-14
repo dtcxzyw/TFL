@@ -68,12 +68,13 @@ void correct(UnitInstance& instance, float delta, float& cnt, float& time) {
 
 #define Init(name) name(info->getFloat(#name))
 struct Tank final :public UnitController {
-    float RST, RSC, v, time, harm, dis, count, rfac, sample, range, offset, speed, fcnt, x,sy;
+    float RST, RSC, v, time, harm, dis, count, rfac, sample, range, offset, speed, fcnt, x,sy,bt;
     Vector2 last;
     std::string bullet;
+    bool onBack;
     Tank(const Properties* info) : Init(RST), Init(RSC), Init(v), Init(time), Init(harm), Init(dis), Init(rfac),
         Init(range), count(0.0f), sample(0.0f), bullet(info->getString("bullet")), Init(offset), Init(speed),
-        x(10000.0f),sy(0.0f) {
+        x(10000.0f),sy(0.0f),bt(0.0f),onBack(false) {
         v /= 1000.0f;
         time *= 1000.0f;
         //speed /= 1000.0f;
@@ -133,19 +134,30 @@ struct Tank final :public UnitController {
                     localServer->newBullet(BulletInstance(bullet, t->getTranslationWorld() +
                         offset*f, point, speed, harm, range, instance.getGroup()));
                 }
+                t->translateForward(-(bt = 15.0f));
+                onBack = true;
                 count = 0.0f;
             }
-            else {
+            else if(!onBack) {
                 auto dest = point - now;
                 dest.normalize();
                 correctVector(t, &Node::getForwardVectorWorld, dest, 0.0f, RST*delta, 0.0f);
             }
         }
-        else {
+        else if(!onBack) {
             mObject = 0;
             auto f = node->getForwardVectorWorld();
             f.normalize();
             correctVector(t, &Node::getForwardVectorWorld, f, 0.0f, RST*delta, 0.0f);
+        }
+
+        if (onBack) {
+            bt -= delta/100.0f;
+            t->translateForward(delta / 100.0f);
+            if (bt < 0.0f) {
+                onBack = false;
+                t->translateForward(bt);
+            }
         }
 
         if (!mDest.isZero()) {
