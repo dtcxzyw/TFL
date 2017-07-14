@@ -1,5 +1,5 @@
 radius= 5
-time = 5000
+time = 2000
 particle boom
 {
     sprite
@@ -15,21 +15,21 @@ particle boom
         frameDuration = 0
     }
 
-    particleCountMax = 5000
-    emissionRate = 2000
+    particleCountMax = 1000
+    emissionRate = 500
     ellipsoid = false
     orbitPosition = false
     orbitVelocity = false
     orbitAcceleration = false
     sizeStartMin = 0.5
     sizeStartMax = 0.5
-    sizeEndMin = 1.0
-    sizeEndMax = 1.0
-    energyMin = 4000
+    sizeEndMin = 0.5
+    sizeEndMax = 0.5
+    energyMin = 0
     energyMax = 5000
-    colorStart = 0.0, 0.0, 0.0, 0.0
+    colorStart = 0.2, 0.2, 0.2, 0.0
     colorStartVar = 0, 0, 0, 0
-    colorEnd = 0.0, 0.0, 0.0, 1.0
+    colorEnd = 0.5, 0.5, 0.5, 1.0
     colorEndVar = 0, 0, 0, 0
     position = 0, 10, 0
     positionVar = 0, 0, 0
