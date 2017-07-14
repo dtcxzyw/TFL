@@ -11,7 +11,7 @@ void Unit::operator=(const std::string& name) {
     std::string full = "/res/units/" + name + "/";
     mInfo = Properties::create((full + "unit.info").c_str());
     mHP = mInfo->getFloat("HP");
-    mTime = mInfo->getFloat("cost");
+    mTime = mInfo->getFloat("cost")*1000.0f;
     mFOV = mInfo->getFloat("FOV");
     mFOV *= mFOV;
     mInfo->getVector2("plane", &mPlane);

@@ -1,5 +1,5 @@
 HP = 60
-cost = 5000
+cost = 5
 FOV = 2000
 plane= 5,10
 offset=0,-8,0
@@ -12,7 +12,7 @@ control
 	RSC = 0.008
 	v=100
 	dis = 300
-	time = 500
+	time = 2
 	harm = 40
 	rfac = 0.9
 	range = 10

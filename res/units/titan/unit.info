@@ -1,5 +1,5 @@
 HP = 150
-cost = 15000
+cost = 15
 FOV = 1000
 plane= 10,10
 offset=0,-10,0
@@ -12,11 +12,11 @@ control
 	RSC = 0.0005
 	v=30
 	dis = 800
-	time = 3000
-	harm = 80
+	time = 4
+	harm = 100
 	rfac = 0.2
 	range = 50
 	offset = 5
 	bullet =common
-	speed = 2
+	speed = 4
 }

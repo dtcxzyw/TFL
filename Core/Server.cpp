@@ -321,10 +321,10 @@ void Server::update(float delta) {
 
         for (auto&& c : check)
             if (mGroups[c.group].units.find(c.id) != mGroups[c.group].units.cend()) {
+                auto bs1 = c.instance->getBound();
                 for (auto&& x : mGroups)
                     for (auto&& u : x.second.units)
                         if (c.id != u.first) {
-                            auto bs1 = c.instance->getBound();
                             auto bs2 = u.second.getBound();
                             if (bs1.intersects(bs2)) {
                                 auto v = bs1.center - bs2.center;
@@ -340,6 +340,19 @@ void Server::update(float delta) {
                                 newCheck.insert({ u.first,x.first,&u.second });
                             }
                         }
+                for (auto&& x : mMap.getKey()) {
+                    Vector3 p{ x.x,mMap.getHeight(x.x,x.y),x.y };
+                    BoundingSphere bs2{ p,5.0f };
+                    if (bs1.intersects(bs2)) {
+                        auto v = bs1.center - bs2.center;
+                        v.y = 0.0f;
+                        v.normalize();
+                        v *= bs1.radius + bs2.radius - bs1.center.distance(bs2.center);
+                        v *= 1.3f;
+                        c.instance->getNode()->translate(v);
+                        newCheck.insert(c);
+                    }
+                }
             }
     }
     while (newCheck.size() && Game::getAbsoluteTime() - now < 10.0);

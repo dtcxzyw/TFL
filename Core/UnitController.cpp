@@ -75,6 +75,7 @@ struct Tank final :public UnitController {
         Init(range), count(0.0f), sample(0.0f), bullet(info->getString("bullet")), Init(offset), Init(speed),
         x(10000.0f),sy(0.0f) {
         v /= 1000.0f;
+        time *= 1000.0f;
         //speed /= 1000.0f;
     }
     auto dot(Node* node, Vector2 obj) {
