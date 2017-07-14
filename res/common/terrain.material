@@ -9,7 +9,6 @@ material terrain
         renderState
         {
             depthTest = true
-			depthFunc = LEQUAL
         }
         
         pass
@@ -25,6 +24,7 @@ material terrain
         {
             cullFace = true
             depthTest = true
+			depthFunc = LEQUAL
         }
         pass
         {
