@@ -142,6 +142,9 @@ Client::Client(const std::string & server, bool& res) :
     mLight->setCamera(Camera::createOrthographic(1.0f, 1.0f, 1.0f, 1.0f, 2.0f));
     auto f = -Vector3::one();
     correctVector(mLight.get(), &Node::getForwardVector, f.normalize(), M_PI, M_PI, 0.0f);
+
+    uniqueRAII<Scene> model= Scene::load("res/common/flag.scene");
+    mFlagModel = model->findNode("root")->clone();
 }
 
 Client::~Client() {
@@ -179,6 +182,7 @@ Client::WaitResult Client::wait() {
             RakNet::RakString str;
             data.Read(str);
             mMap = std::make_unique<Map>(str.C_String());
+            
             INFO("Load map ", str.C_String());
         }
         CheckHeader(ServerMessage::go) {
@@ -189,6 +193,7 @@ Client::WaitResult Client::wait() {
                 Camera::createPerspective(45.0f, Game::getInstance()->getAspectRatio(), 1.0f, 5000.0f);
             mScene->addNode()->setCamera(mCamera.get());
             mScene->setActiveCamera(mCamera.get());
+            mScene->addNode(mFlagModel.get());
             mMap->set(mScene->addNode("terrain"));
             auto c = mCamera->getNode();
             c->rotateX(-M_PI_2);
@@ -417,6 +422,12 @@ void Client::render() {
                 drawNode(x.second.getNode(), true);
             for (auto&& x : mBullets)
                 drawNode(x.second.getNode(), true);
+
+            for (auto&& p : mMap->getKey()) {
+                mFlagModel->setTranslation(p.x,mMap->getHeight(p.x,p.y), p.y);
+                drawNode(mFlagModel.get(), true);
+            }
+
             drawNode(mScene->findNode("terrain"), true);
             mScene->setActiveCamera(mCamera.get());
             FrameBuffer::bindDefault();
@@ -444,6 +455,11 @@ void Client::render() {
         mScene->setAmbientColor(0.0f, 0.0f, 0.0f);
         for (auto&& x : mBullets)
             drawNode(x.second.getNode());
+
+        for (auto&& p : mMap->getKey()) {
+            mFlagModel->setTranslation(p.x, mMap->getHeight(p.x, p.y), p.y);
+            drawNode(mFlagModel.get());
+        }
 
         drawNode(mScene->findNode("terrain"));
 

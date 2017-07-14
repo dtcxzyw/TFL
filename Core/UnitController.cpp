@@ -14,13 +14,13 @@ uint32_t UnitController::getAttackTarget() const {
 
 void UnitController::isServer() { mIsServer = true; }
 
-void correct(UnitInstance& instance,float delta,float& cnt) {
+void correct(UnitInstance& instance, float delta, float& cnt, float& time) {
     auto node = instance.getNode();
     auto kind = &instance.getKind();
     auto p = node->getTranslation();
     auto b = p + kind->getOffset();
     auto h = localClient->getHeight(b.x, b.z);
-    if (b.y  < h) {
+    if (b.y < h) {
         node->setTranslationY(h - kind->getOffset().y);
         auto d = kind->getPlane();
 
@@ -57,21 +57,23 @@ void correct(UnitInstance& instance,float delta,float& cnt) {
         };
 
         correctVector(node, &Node::getUpVector, mean, M_PI_4, false, M_PI_4);
+        if (cnt > 250.0f)time = -500.0f;
         cnt = 0.0f;
     }
     else {
-        node->translateY(-49.0f*(2.0f*cnt+delta)*delta/1e6f);
+        node->translateY(-49.0f*(2.0f*cnt + delta)*delta / 1e6f);
         cnt += delta;
     }
 }
 
 #define Init(name) name(info->getFloat(#name))
 struct Tank final :public UnitController {
-    float RST, RSC, v, time, harm, dis, count, rfac, sample,range,offset,speed,fcnt;
+    float RST, RSC, v, time, harm, dis, count, rfac, sample, range, offset, speed, fcnt, x;
     Vector2 last;
     std::string bullet;
     Tank(const Properties* info) : Init(RST), Init(RSC), Init(v), Init(time), Init(harm), Init(dis), Init(rfac),
-        Init(range) , count(0.0f), sample(0.0f),bullet(info->getString("bullet")),Init(offset),Init(speed) {
+        Init(range), count(0.0f), sample(0.0f), bullet(info->getString("bullet")), Init(offset), Init(speed),
+        x(10000.0f) {
         v /= 1000.0f;
         //speed /= 1000.0f;
     }
@@ -83,8 +85,21 @@ struct Tank final :public UnitController {
     }
 
     bool update(UnitInstance& instance, float delta) override {
+        {
+            x += delta;
+            float y = 1.0f / (1.0f + std::pow(M_E, x / 100.0f));
+            auto v = std::abs(y - 0.5f);
+            //1->1 0.5->m
+            //k+b=1 0.5k+b=m
+            //0.5k=1-m
+            //k=2-2m b=2m-1
+            constexpr auto m = 0.8f, k = 2.0f - 2.0f * m, b = 2.0f*m - 1.0f;
+            auto s = k*v + b;
+            instance.getNode()->setScaleY(s);
+        }
+
         if (instance.isDied()) {
-            correct(instance,delta,fcnt);
+            correct(instance, delta, fcnt, x);
             return false;
         }
         auto node = instance.getNode();
@@ -113,21 +128,21 @@ struct Tank final :public UnitController {
                     auto f = t->getForwardVectorWorld();
                     f.normalize();
                     localServer->newBullet(BulletInstance(bullet, t->getTranslationWorld() +
-                        offset*f, point, speed, harm, range,instance.getGroup()));
+                        offset*f, point, speed, harm, range, instance.getGroup()));
                 }
                 count = 0.0f;
             }
             else {
                 auto dest = point - now;
                 dest.normalize();
-                correctVector(t, &Node::getForwardVectorWorld,dest, 0.0f, RST*delta, 0.0f);
+                correctVector(t, &Node::getForwardVectorWorld, dest, 0.0f, RST*delta, 0.0f);
             }
         }
         else {
             mObject = 0;
             auto f = node->getForwardVectorWorld();
             f.normalize();
-            correctVector(t, &Node::getForwardVectorWorld,f , 0.0f, RST*delta, 0.0f);
+            correctVector(t, &Node::getForwardVectorWorld, f, 0.0f, RST*delta, 0.0f);
         }
 
         if (!mDest.isZero()) {
@@ -149,11 +164,11 @@ struct Tank final :public UnitController {
             if (d > 0.7f) {
                 c->translateForward(std::min(delta*v*fd*fac, np.distance(mDest)))
                     , sample += delta;
-                correct(instance, delta, fcnt);
+                correct(instance, delta, fcnt, x);
                 return true;
             }
         }
-        correct(instance, delta, fcnt);
+        correct(instance, delta, fcnt, x);
         return false;
     }
 };

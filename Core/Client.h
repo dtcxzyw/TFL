@@ -25,6 +25,7 @@ private:
     std::vector<uint16_t> mWeight;
     std::map<uint32_t, UnitInstance> mUnits;
     std::map<uint32_t, BulletInstance> mBullets;
+    uniqueRAII<Node> mFlagModel;
     uint32_t mGroup;
 
     //Effects

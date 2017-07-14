@@ -1,0 +1,19 @@
+scene flag
+{
+	node root
+	{
+		scale = 0.05,0.05,0.05
+		
+		node flag
+		{
+			url = res/common/flag.gpb#root#flag 
+			material = res/common/flag.material#red
+		}
+		
+		node base
+		{
+			url = res/units/cat/model.gpb#root#base
+			material = res/common/flag.material#gray
+		}
+	}
+}

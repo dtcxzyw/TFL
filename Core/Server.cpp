@@ -328,8 +328,10 @@ void Server::update(float delta) {
                             auto bs2 = u.second.getBound();
                             if (bs1.intersects(bs2)) {
                                 auto v = bs1.center - bs2.center;
+                                v.y = 0.0f;
                                 v.normalize();
                                 v *= bs1.radius + bs2.radius - bs1.center.distance(bs2.center);
+                                v *= 1.3f;
                                 auto cube = [](float x) {return x*x*x; };
                                 auto ss = cube(bs1.radius) + cube(bs2.radius);
                                 c.instance->getNode()->translate(v*cube(bs2.radius) / ss);
