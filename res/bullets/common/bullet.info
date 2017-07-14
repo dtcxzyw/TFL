@@ -16,7 +16,7 @@ particle boom
     }
 
     particleCountMax = 5000
-    emissionRate = 20
+    emissionRate = 2000
     ellipsoid = false
     orbitPosition = false
     orbitVelocity = false

@@ -399,7 +399,7 @@ void Server::update(float delta) {
                 for (auto&& g : mGroups)
                     for (auto&& u : g.second.units) {
                         auto bu = u.second.getBound();
-                        if (u.second.getGroup() != x.second.getGroup() && b.intersects(bu)) {
+                        if (b.intersects(bu)) {
                             auto dis = b.center.distance(bu.center);
                             auto fac = (dis - bu.radius) / b.radius;
                             fac = std::max(fac, 0.0f);
