@@ -36,7 +36,7 @@ public:
         listDirs("res/units", units);
         for (auto&& x : units) {
             uniqueRAII<Properties> info = Properties::create(("res/units/" + x + "/unit.info").c_str());
-            auto tname = info->getString("AIType", "discover");
+            std::string tname = info->getString("AIType", "discover");
             if (tname == "attack")mUnits[x] = Type::attack;
             else if (tname == "defense")mUnits[x] = Type::defense;
             else mUnits[x] = Type::discover;
