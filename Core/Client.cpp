@@ -27,7 +27,7 @@ Matrix Client::getMat() const {
 }
 
 void Client::drawNode(Node * node, bool shadow) {
-    if (node->getDrawable()
+    if (node->isEnabled() && node->getDrawable()
         && node->getBoundingSphere().intersects(mScene->getActiveCamera()->getFrustum())
         ) {
 

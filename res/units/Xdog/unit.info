@@ -1,0 +1,20 @@
+HP = 300
+cost = 3
+FOV = 2000
+plane= 10,10
+offset=0,-10,0
+radius=35
+AIType=attack
+control
+{
+	type=DET
+	RSC = 0.01
+	RSX = 0.01
+	RSY = 0.01
+	v=500
+	dis = 2000
+	time = 10
+	ht = 3
+	harm = 1
+	rfac = 0.9
+}
