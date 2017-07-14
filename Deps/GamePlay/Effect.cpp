@@ -442,8 +442,7 @@ Effect* Effect::createFromSource(const char* vshPath, const char* vshSource, con
                 if (uniformType == GL_SAMPLER_2D || uniformType == GL_SAMPLER_CUBE)
                 {
                     uniform->_index = samplerIndex;
-                    //samplerIndex += uniformSize;
-                    ++samplerIndex;
+                    samplerIndex += uniformSize;
                 }
                 else
                 {

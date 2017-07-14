@@ -536,7 +536,11 @@ unsigned int Terrain::draw(bool wireframe)
     size_t visibleCount = 0;
     for (size_t i = 0, count = _patches.size(); i < count; ++i)
     {
-        visibleCount += _patches[i]->draw(wireframe);
+        if (_patches[i]->draw(wireframe)) 
+        {
+            if (visibleCount == 0)_patches[i]->draw(wireframe);
+            ++visibleCount;
+        }
     }
     return visibleCount;
 }

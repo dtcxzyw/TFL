@@ -119,8 +119,6 @@ varying vec3 v_cameraDirection;
 varying float v_clipDistance;
 #endif
 
-uniform int u_mapSize;
-uniform float u_bias;
 #include "shadow.frag"
 
 void main()

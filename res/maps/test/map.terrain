@@ -7,16 +7,6 @@ terrain
 	size = 6000, 300, 6000
 	patchSize = 32
 
-    layer dirt
-    {
-		texture
-		{
-			path = res/maps/test/dirt.png
-			repeat = 750,750
-		}
-		index =0
-    }
-
     layer grass
 	{
 		texture
@@ -24,12 +14,7 @@ terrain
 			path = res/maps/test/grass.png
 			repeat = 500,500
 		}
-
-		blend
-		{
-            path = res/maps/test/grass.png
-            channel = 3
-		}
-		index =1
+		
+		index =0
 	}
 }

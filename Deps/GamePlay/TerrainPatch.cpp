@@ -731,11 +731,19 @@ bool TerrainAutoBindingResolver::resolveAutoBinding(const char* autoBinding, Nod
         }
     };
 
+    /*
     if (strcmp(autoBinding, "TERRAIN_LAYER_MAPS") == 0)
     {
         TerrainPatch* patch = HelperFunctions::getPatch(node);
         if (patch && patch->_layers.size() > 0)
             parameter->setValue((const Texture::Sampler**)&patch->_samplers[0], (unsigned int)patch->_samplers.size());
+        return true;
+    }
+    */
+    if (strcmp(autoBinding, "TERRAIN_LAYER_MAP") == 0) {
+        TerrainPatch* patch = HelperFunctions::getPatch(node);
+        if (patch && patch->_layers.size() > 0)
+            parameter->setValue(patch->_samplers[0]);
         return true;
     }
     else if (strcmp(autoBinding, "TERRAIN_NORMAL_MAP") == 0)

@@ -1,3 +1,5 @@
+uniform int u_mapSize;
+uniform float u_bias;
 uniform sampler2D u_shadowMap;
 float getShadowValue()
 {
@@ -10,11 +12,7 @@ float getShadowValue()
         vec2 mapSize = textureSize(u_shadowMap, 0);
     #endif
     if(projCoords.x<0.0 || projCoords.x>1.0 || projCoords.y<0.0 || projCoords.y>1.0 
-        || projCoords.z>1.0 || projCoords.z<0.0
-        #ifndef OPENGL_ES
-            || int(mapSize.x)!=u_mapSize
-        #endif
-        )
+        || projCoords.z>1.0 || projCoords.z<0.0)
             return 1.0;
     #ifdef OPENGL_ES
 		float depth = texture2D(u_shadowMap, projCoords.xy).r;

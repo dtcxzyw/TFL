@@ -36,7 +36,7 @@ uniform mat4 u_worldViewMatrix;
 #endif
 
 #if (DIRECTIONAL_LIGHT_COUNT > 0)
-vec3 u_directionalLightDirection[DIRECTIONAL_LIGHT_COUNT];
+uniform vec3 u_directionalLightDirection[DIRECTIONAL_LIGHT_COUNT];
 #endif
 
 #if (POINT_LIGHT_COUNT > 0) 
@@ -85,15 +85,8 @@ varying vec2 v_texCoordLayer1;
 varying vec2 v_texCoordLayer2;
 #endif
 
-#ifdef OPENGL_ES
-uniform mediump mat4 u_args;
-#else
-uniform mat4 u_args;
-#endif
-
 void main()
 {
-	u_directionalLightDirection[0]=u_args[0].xyz;
 
     // Transform position to clip space.
     gl_Position = u_worldViewProjectionMatrix * a_position;

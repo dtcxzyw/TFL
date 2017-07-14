@@ -26,8 +26,8 @@ precision mediump float;
 #if defined(LIGHTING)
 
 #if (DIRECTIONAL_LIGHT_COUNT > 0)
-vec3 u_directionalLightColor[DIRECTIONAL_LIGHT_COUNT];
-vec3 u_directionalLightDirection[DIRECTIONAL_LIGHT_COUNT];
+uniform vec3 u_directionalLightColor[DIRECTIONAL_LIGHT_COUNT];
+uniform vec3 u_directionalLightDirection[DIRECTIONAL_LIGHT_COUNT];
 #endif
 
 #if (POINT_LIGHT_COUNT > 0)
@@ -57,7 +57,7 @@ uniform float u_column;
 #endif
 
 #if (LAYER_COUNT > 0)
-uniform sampler2D u_surfaceLayerMaps[SAMPLER_COUNT];
+uniform sampler2D u_surfaceLayerMap;
 #endif
 
 ///////////////////////////////////////////////////////////
@@ -89,61 +89,25 @@ varying vec3 v_vertexToSpotLightDirection[SPOT_LIGHT_COUNT];
 
 varying vec2 v_texCoord0;
 varying vec4 v_pos;
-
-#if (LAYER_COUNT > 0)
 varying vec2 v_texCoordLayer0;
-#endif
-#if (LAYER_COUNT > 1)
-varying vec2 v_texCoordLayer1;
-#endif
-#if (LAYER_COUNT > 2)
-varying vec2 v_texCoordLayer2;
-#endif
-#if (LAYER_COUNT > 1)
-void blendLayer(sampler2D textureMap, vec2 texCoord, float alphaBlend)
-{
-    vec3 diffuse = texture2D(textureMap,  mod(texCoord, vec2(1,1))).rgb;
-    _baseColor.rgb = _baseColor.rgb * (1.0 - alphaBlend) + diffuse * alphaBlend;
-}
-#endif
 
 #if defined(LIGHTING)
 vec3 u_ambientColor=vec3(0.0,0.0,0.0);
 #include "lighting.frag"
 #endif
 
-int u_mapSize;
-float u_bias;
 #include "shadow.frag"
-
-#ifdef OPENGL_ES
-uniform mediump mat4 u_args;
-#else
-uniform mat4 u_args;
-#endif
 
 void main()
 {
 
-    u_directionalLightDirection[0]=u_args[0].xyz;
-	u_directionalLightColor[0]=u_args[1].xyz;
-	u_mapSize=int(u_args[0].w);
-	u_bias = u_args[1].w;
-
     #if (LAYER_COUNT > 0)
     // Sample base texture
-    _baseColor.rgb = texture2D(u_surfaceLayerMaps[TEXTURE_INDEX_0], mod(v_texCoordLayer0, vec2(1,1))).rgb;
+    _baseColor.rgb = texture2D(u_surfaceLayerMap, mod(v_texCoordLayer0, vec2(1,1))).rgb;
     _baseColor.a = 1.0;
     #else
     // If no layers are defined, simply use a white color
     _baseColor = vec4(1, 1, 1, 1);
-    #endif
-
-    #if (LAYER_COUNT > 1)
-    blendLayer(u_surfaceLayerMaps[TEXTURE_INDEX_1], v_texCoordLayer1, texture2D(u_surfaceLayerMaps[BLEND_INDEX_1], v_texCoord0)[BLEND_CHANNEL_1]);
-    #endif
-    #if (LAYER_COUNT > 2)
-    blendLayer(u_surfaceLayerMaps[TEXTURE_INDEX_2], v_texCoordLayer2, texture2D(u_surfaceLayerMaps[BLEND_INDEX_2], v_texCoord0)[BLEND_CHANNEL_2]);
     #endif
 
     #if defined(DEBUG_PATCHES)
@@ -157,8 +121,7 @@ void main()
     v_normalVector = texture2D(u_normalMap, v_texCoord0).xyz * 2.0 - 1.0;
     v_normalVector = (u_normalMatrix * vec4(v_normalVector.x, v_normalVector.y, v_normalVector.z, 0)).xyz;
     #endif
-
-    gl_FragColor.a = _baseColor.a;
+	
     gl_FragColor.rgb = getLitPixel()*getShadowValue();
 
     #else
@@ -166,4 +129,6 @@ void main()
     gl_FragColor.rgb = _baseColor.rgb;
 
     #endif
+	
+	gl_FragColor.a = 1.0;
 }

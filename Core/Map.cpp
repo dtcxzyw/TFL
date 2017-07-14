@@ -17,8 +17,8 @@ Map::Map(const std::string & name) {
     Vector2 tmp;
     while ((id = info->getNextProperty()) && info->getVector2(id, &tmp)) {
         mKeyPoint.emplace_back(tmp / 512.0f* mapSizeF - Vector2{ mapSizeHF, mapSizeHF });
-        mTerrain->setLayer(1, "res/common/key.png", { 16.0f,16.0f },
-            "res/common/cover.png", 0, tmp.y / 32, tmp.x / 32);
+        mTerrain->setLayer(0, "res/common/key.png", { 16.0f,16.0f },
+           nullptr, 0, tmp.y / 32, tmp.x / 32);
     }
 
     if (mKeyPoint.size() < 4) GP_ERROR("The number of the map must be bigger than 3.");
