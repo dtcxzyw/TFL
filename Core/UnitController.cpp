@@ -76,7 +76,8 @@ auto dot(Node* node, Vector2 obj) {
 }
 
 auto checkRay(Vector3 begin, Vector3 end) {
-    constexpr auto step = 16;
+    constexpr auto unit = 20.0f;
+    int step = begin.distance(end)/unit+1;
     for (int w = step - 1; w > 0; --w) {
         auto p = (begin*w + end*(step - w)) / step;
         if (localClient->getHeight(p.x, p.z) > p.y)return p;
@@ -299,7 +300,7 @@ struct DET final :public UnitController {
     }
 };
 
-struct CBM fina :public UnitControllerl {
+struct CBM final :public UnitController {
 
 };
 #undef Init
