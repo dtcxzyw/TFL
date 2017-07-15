@@ -1,0 +1,19 @@
+scene DFExpress
+{
+	node root
+	{
+		scale = 0.05,0.05,0.05
+		
+		node base
+		{
+			url = res/shared/Core/DF.gpb#base 
+			material = res/shared/Core/green.material
+		}
+		
+		node missile
+		{
+			url = res/shared/Core/DF.gpb#missile
+			material = res/shared/Core/green.material
+		}
+	}
+}

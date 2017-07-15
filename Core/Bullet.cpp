@@ -1,5 +1,7 @@
 #include "Bullet.h"
 #include <algorithm>
+#include "Server.h"
+#include "Client.h"
 
 std::map<std::string, Bullet> globalBullets;
 void loadAllBullets() {
@@ -22,7 +24,7 @@ void Bullet::operator=(const std::string & name) {
     mModelPath = full + "model.scene";
     mHitRadius = info->getFloat("radius");
     mBoomTime = info->getFloat("time");
-    auto p = ParticleEmitter::create((full+"bullet.info#boom").c_str());
+    auto p = ParticleEmitter::create((full + "bullet.info#boom").c_str());
     mDuang = Node::create();
     mDuang->setDrawable(p);
 }
@@ -54,38 +56,57 @@ uint32_t BulletInstance::askID() {
 }
 
 BulletInstance::BulletInstance(const std::string & kind, Vector3 begin, Vector3 end,
-    float time, float harm, float radius,uint8_t group)
-:BulletInstance(std::distance(globalBullets.begin(),globalBullets.find(kind)),
-    begin,end,time,harm,radius,group){}
+    float speed, float harm, float radius, uint8_t group, uint32_t obj, float angle)
+    :BulletInstance(std::distance(globalBullets.begin(), globalBullets.find(kind)),
+        begin, end, speed, harm, radius, group, obj, angle) {}
 
-BulletInstance::BulletInstance(uint16_t kind, Vector3 begin,Vector3 end,
-    float speed, float harm, float radius,uint8_t group)
-    :mHarm(harm),mBegin(begin),mEnd(end),mCnt(0.0f),
-    mTime(begin.distance(end)/speed),mRadius(radius),mKind(kind),mGroup(group){
+BulletInstance::BulletInstance(uint16_t kind, Vector3 begin, Vector3 end,
+    float speed, float harm, float radius, uint8_t group, uint32_t object, float angle)
+    : mHarm(harm), mBegin(begin), mEnd(end), mCnt(0.0f),
+    mTime(begin.distance(end) / speed), mRadius(radius), mKind(kind)
+    , mGroup(group), mObject(object), mAngle(0.0f) {
     auto i = globalBullets.begin();
     std::advance(i, kind);
     mNode = i->second.getModel();
     mHitRadius = i->second.getRadius();
     mNode->setTranslation(begin);
 
-    auto obj = end - begin;
-    obj.normalize();
+    if (mObject) {
+        correctVector(mNode.get(), &Node::getForwardVector, end, M_PI, M_PI, M_PI);
+        mTime = speed;
+    }
+    else {
+        auto obj = end - begin;
+        obj.normalize();
 
-    correctVector(mNode.get(), &Node::getForwardVector, obj, M_PI, M_PI, M_PI);
+        correctVector(mNode.get(), &Node::getForwardVector, obj, M_PI, M_PI, M_PI);
+    }
 }
 
 void BulletInstance::update(float delta) {
-    mCnt += delta;
-    Vector3 pos=mBegin+(mEnd-mBegin)*std::min(mCnt,mTime)/mTime;
-    mNode->setTranslation(pos);
+    if (mObject) {
+        auto p = localServer->getUnitPos(mObject, mGroup);
+        if (p.isZero())mCnt = 1e10f;
+        auto mp = mNode->getTranslation();
+        auto f = p - mp;
+        if (mp.distanceSquared(mBegin) > mBegin.distanceSquared(p)*0.04f)
+            f.y = std::max(localClient->getHeight(mp.x, mp.z) + 100.0f - mp.y, 0.0f);
+        correctVector(mNode.get(), &Node::getForwardVector, f.normalize(), mAngle, mAngle, 0.0f);
+        mNode->translateForward(mTime*delta);
+    }
+    else {
+        mCnt += delta;
+        Vector3 pos = mBegin + (mEnd - mBegin)*std::min(mCnt, mTime) / mTime;
+        mNode->setTranslation(pos);
+    }
 }
 
 BoundingSphere BulletInstance::getHitBound() {
-    return { mNode->getTranslation(),(mCnt<mTime)?mHitRadius:100000.0f };
+    return { mNode->getTranslation(),(mCnt < mTime) ? mHitRadius : 1e10f };
 }
 
 BoundingSphere BulletInstance::getBound() {
-    return {mNode->getTranslation(),mRadius};
+    return { mNode->getTranslation(),mRadius };
 }
 
 float BulletInstance::getHarm() const {

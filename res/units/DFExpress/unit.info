@@ -1,0 +1,21 @@
+HP = 300
+cost = 30
+FOV = 2000
+plane= 10,20
+offset=0,-10,0
+radius=50
+AIType=defense
+control
+{
+	type=CBM
+	rfac=0.5
+	RSC=0.001
+	time=5
+	v=70
+	dis=1500
+	missile=DF
+	harm = 150
+	range = 100
+	speed = 500
+	angle = 0.5
+}

@@ -26,16 +26,18 @@ private:
     Vector3 mBegin, mEnd;
     uint16_t mKind;
     uint8_t mGroup;
+    uint32_t mObject;
+    float mAngle;
     static uint32_t cnt;
 public:
     static uint32_t askID();
     BulletInstance() {
         throw;
     }
-    BulletInstance(const std::string& kind, Vector3 begin, Vector3 end, 
-        float time, float harm, float radius, uint8_t group);
+    BulletInstance(const std::string& kind, Vector3 begin, Vector3 end,
+        float speed, float harm, float radius, uint8_t group, uint32_t obj=0,float angle=0.0f);
     BulletInstance(uint16_t kind, Vector3 begin,Vector3 end,
-        float time,float harm,float radius, uint8_t group);
+        float speed,float harm,float radius, uint8_t group, uint32_t obj=0,float angle=0.0f);
 #ifdef ANDROID
     BulletInstance(const BulletInstance& rhs) {
         auto& r = const_cast<BulletInstance&>(rhs);

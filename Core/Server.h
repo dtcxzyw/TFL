@@ -60,6 +60,7 @@ public:
     std::string getIP();
     void attack(uint32_t id, float harm);
     void newBullet(BulletInstance&& bullet);
+    Vector3 getUnitPos(uint32_t id,uint8_t group) const;
 };
 
 extern std::unique_ptr<Server> localServer;

@@ -86,7 +86,7 @@ auto checkRay(Vector3 begin, Vector3 end) {
 }
 
 bool move(UnitInstance& instance, Vector2 dest, Vector2 np, Node* c, float RSC, float delta, float rfac,
-    float v, float& sample, float& fcnt, float& x) {
+    float v, float& sample, float& fcnt, float& x,float turn=0.7f) {
     if (!dest.isZero()) {
 
         auto obj = dest - np;
@@ -102,8 +102,9 @@ bool move(UnitInstance& instance, Vector2 dest, Vector2 np, Node* c, float RSC, 
         auto d = dot(c, obj);
         auto f = c->getForwardVectorWorld();
         f.normalize();
-        auto fd = 1.0f + f.dot(-Vector3::unitY());
-        if (d > 0.7f) {
+        auto base = -Vector3::unitY();
+        auto fd = 1.0f + f.dot(base.normalize());
+        if (d > turn) {
             c->translateForward(std::min(delta*v*fd*fac, np.distance(dest)))
                 , sample += delta;
             correct(instance, delta, fcnt, x);
@@ -301,7 +302,66 @@ struct DET final :public UnitController {
 };
 
 struct CBM final :public UnitController {
+    float RSC, rfac, time,sy,x,fcnt,count,sample,v,dis,range,harm,speed,angle;
+    Vector2 last;
+    std::string missile;
+    CBM(const Properties* info):Init(RSC),Init(rfac),Init(time),sy(0.0f),x(0.0f),fcnt(0.0f),count(0.0f),
+    sample(0.0f),Init(v),Init(dis), missile(info->getString("missile")),Init(range),Init(harm),Init(speed)
+    ,Init(angle){
+        v /= 1000.0f;
+        time *= 1000.0f;
+    }
+    bool update(UnitInstance& instance, float delta) override {
+        if (sy == 0.0f)
+            sy = instance.getNode()->getScaleY();
 
+        {
+            x += delta;
+            float y = 1.0f / (1.0f + std::pow(M_E, std::min(-x / 100.0f, 20.0f)));
+            auto v = std::abs(y - 0.5f);
+            //0.5->1 0->m
+            //k=2-2m b=m
+            constexpr auto m = 0.9f, k = 2.0f - 2.0f * m, b = m;
+            auto s = k*v + b;
+            instance.getNode()->setScaleY(s*sy);
+        }
+
+        if (instance.isDied()) {
+            correct(instance, delta, fcnt, x);
+            return false;
+        }
+
+        auto node = instance.getNode();
+        count += delta;
+        count = std::min(count, time + 0.1f);
+
+        auto c = node;
+        auto point = localClient->getPos(mObject);
+        auto now = node->getTranslation();
+        Vector2 np{ now.x,now.z };
+
+        if (sample > 100.0f && !mDest.isZero()) {
+            if (last.distanceSquared(np) < 10.0f*v && np.distanceSquared(mDest) < 10000.0f)
+                mDest = Vector2::zero();
+            last = np;
+            sample = 0.0f;
+        }
+
+        if (!mIsServer) 
+            node->findNode("missile")->setEnabled(count >= time);
+
+        if (mObject && !point.isZero() && count>=time) {
+            if (isServer) {
+                auto m = node->findNode("missile");
+                localServer->newBullet(BulletInstance(missile,m->getTranslationWorld(),
+                    m->getForwardVectorWorld().normalize(),speed,harm,range,instance.getGroup()
+                    ,mObject,angle));
+            }
+            count = 0.0f;
+        }
+
+        return move(instance, mDest, np, c, RSC, delta, rfac, v, sample, fcnt, x,-1.0f);
+    }
 };
 #undef Init
 

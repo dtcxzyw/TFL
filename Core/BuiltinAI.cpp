@@ -107,12 +107,12 @@ public:
     void update() {
 
         auto old = mStep;
-        //discover
+
         if (mValue > -5.0f || mArmies.empty())mStep = Type::discover;
-        //attack
+
         if (mValue > 20.0f || (mArmies.size() &&
             mArmies.size() * 5 < mMine.size())) mStep = Type::attack;
-        //defense
+
         if (mArmies.size()>0.2*mMine.size())mStep = Type::defense;
 
         if (old != mStep) {

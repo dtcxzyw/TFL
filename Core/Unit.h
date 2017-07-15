@@ -61,7 +61,7 @@ public:
     bool update(float delta);
     BoundingSphere getBound() const;
     //Server
-    Node* getNode();
+    Node* getNode() const;
     bool attacked(float harm);
     uint32_t getID() const;
     const Unit& getKind() const;

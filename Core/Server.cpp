@@ -534,6 +534,21 @@ void Server::newBullet(BulletInstance && bullet) {
     mScene->addNode(mBullets[id].getNode());
 }
 
+Vector3 Server::getUnitPos(uint32_t id, uint8_t group) const {
+    for (auto&& g : mGroups) {
+        auto&& units = g.second.units;
+        auto i = units.find(id);
+        if (i != units.end()) {
+            auto p = i->second.getNode()->getTranslation();
+            for (auto&& x : mGroups.find(group)->second.units)
+                if (p.distanceSquared(x.second.getNode()->getTranslation()) 
+                    <= x.second.getKind().getFOV())
+                    return p;
+           return {};
+        }
+    }
+    return {};
+}
 GroupInfo::GroupInfo() :weight(globalUnits.size(), 1) {}
 
 KeyInfo::KeyInfo(Vector2 p) : owner(nil), id(none), pos(p) {}

@@ -61,7 +61,7 @@ float Unit::getRadius() const {
 
 uint32_t UnitInstance::cnt = 0;
 
-Node * UnitInstance::getNode() {
+Node * UnitInstance::getNode() const {
     return mNode.get();
 }
 
