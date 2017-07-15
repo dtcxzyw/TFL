@@ -14,6 +14,8 @@ uint32_t UnitController::getAttackTarget() const {
 
 void UnitController::isServer() { mIsServer = true; }
 
+void UnitController::onDied(UnitInstance & instance) {}
+
 void correct(UnitInstance& instance, float delta, float& cnt, float& time) {
     auto node = instance.getNode();
     auto kind = &instance.getKind();
@@ -73,8 +75,17 @@ auto dot(Node* node, Vector2 obj) {
     return obj.dot(x);
 }
 
-bool move(UnitInstance& instance,Vector2 dest,Vector2 np,Node* c,float RSC,float delta,float rfac,
-    float v,float& sample,float& fcnt,float& x) {
+auto checkRay(Vector3 begin, Vector3 end) {
+    constexpr auto step = 16;
+    for (int w = step - 1; w > 0; --w) {
+        auto p = (begin*w + end*(step - w)) / step;
+        if (localClient->getHeight(p.x, p.z) > p.y)return p;
+    }
+    return end;
+}
+
+bool move(UnitInstance& instance, Vector2 dest, Vector2 np, Node* c, float RSC, float delta, float rfac,
+    float v, float& sample, float& fcnt, float& x) {
     if (!dest.isZero()) {
 
         auto obj = dest - np;
@@ -104,16 +115,16 @@ bool move(UnitInstance& instance,Vector2 dest,Vector2 np,Node* c,float RSC,float
 
 #define Init(name) name(info->getFloat(#name))
 struct Tank final :public UnitController {
-    float RST, RSC, v, time, harm, dis, count, rfac, sample, range, offset, speed, fcnt, x,sy,bt;
+    float RST, RSC, v, time, harm, dis, count, rfac, sample, range, offset, speed, fcnt, x, sy, bt;
     Vector2 last;
     std::string bullet;
     bool onBack;
     Tank(const Properties* info) : Init(RST), Init(RSC), Init(v), Init(time), Init(harm), Init(dis), Init(rfac),
         Init(range), count(0.0f), sample(0.0f), bullet(info->getString("bullet")), Init(offset), Init(speed),
-        x(10000.0f),sy(0.0f),bt(0.0f),onBack(false),fcnt(0.0f) {
+        x(10000.0f), sy(0.0f), bt(0.0f), onBack(false), fcnt(0.0f) {
         v /= 1000.0f;
         time *= 1000.0f;
-        //speed /= 1000.0f;
+        dis *= dis;
     }
 
     bool update(UnitInstance& instance, float delta) override {
@@ -123,11 +134,11 @@ struct Tank final :public UnitController {
 
         {
             x += delta;
-            float y = 1.0f / (1.0f +std::pow(M_E, std::min(-x / 100.0f,20.0f)));
+            float y = 1.0f / (1.0f + std::pow(M_E, std::min(-x / 100.0f, 20.0f)));
             auto v = std::abs(y - 0.5f);
             //0.5->1 0->m
             //k=2-2m b=m
-            constexpr auto m = 0.8f, k = 2.0f - 2.0f * m, b =m;
+            constexpr auto m = 0.8f, k = 2.0f - 2.0f * m, b = m;
             auto s = k*v + b;
             instance.getNode()->setScaleY(s*sy);
         }
@@ -157,8 +168,8 @@ struct Tank final :public UnitController {
             auto obj = Vector2{ point.x,point.z } -np;
             obj.normalize();
             auto d = dot(t, obj);
-            if (d > 0.999f && count > time && obj.lengthSquared() < dis) {
-                if (mIsServer) {
+            if (d > 0.999f && count > time && obj.lengthSquared() <= dis) {
+                if (mIsServer && checkRay(t->getTranslationWorld(), point) == point) {
                     auto f = t->getForwardVectorWorld();
                     f.normalize();
                     localServer->newBullet(BulletInstance(bullet, t->getTranslationWorld() +
@@ -168,13 +179,13 @@ struct Tank final :public UnitController {
                 onBack = true;
                 count = 0.0f;
             }
-            else if(!onBack) {
+            else if (!onBack) {
                 auto dest = point - now;
                 dest.normalize();
                 correctVector(t, &Node::getForwardVectorWorld, dest, 0.0f, RST*delta, 0.0f);
             }
         }
-        else if(!onBack) {
+        else if (!onBack) {
             mObject = 0;
             auto f = node->getForwardVectorWorld();
             f.normalize();
@@ -182,7 +193,7 @@ struct Tank final :public UnitController {
         }
 
         if (onBack) {
-            bt -= delta/100.0f;
+            bt -= delta / 100.0f;
             t->translateForward(delta / 100.0f);
             if (bt < 0.0f) {
                 onBack = false;
@@ -193,14 +204,15 @@ struct Tank final :public UnitController {
         return move(instance, mDest, np, c, RSC, delta, rfac, v, sample, fcnt, x);
     }
 };
+
 struct DET final :public UnitController {
-    float RSC, RSX, RSY, harm,dis,time,v,rfac,x,sy,fcnt,count,sample,ht,RT;
+    float RSC, RSX, RSY, harm, dis, v, rfac, x, sy, fcnt, count, sample, add, sub, max,st,time;
     Vector2 last;
-    DET(const Properties* info):Init(RSC),Init(RSX),Init(RSY),Init(harm),Init(dis),Init(time),Init(v),Init(rfac)
-    , x(10000.0f), sy(0.0f), count(0.0f), sample(0.0f), fcnt(0.0f),Init(ht),RT(0.0f){
+    DET(const Properties* info) :Init(RSC), Init(RSX), Init(RSY), Init(harm), Init(dis), Init(add), Init(v), Init(rfac)
+        , x(10000.0f), sy(0.0f), count(0.0f), sample(0.0f), fcnt(0.0f), Init(sub), Init(max),Init(st),time(0.0f) {
         v /= 1000.0f;
-        time *= 1000.0f;
-        ht *= 1000.0f;
+        st *= 1000.0f;
+        dis *= dis;
     }
 
     bool update(UnitInstance& instance, float delta) override {
@@ -224,8 +236,8 @@ struct DET final :public UnitController {
             return false;
         }
         auto node = instance.getNode();
-        count += delta;
-        count = std::min(count, time + 0.1f);
+        count += add*delta;
+        count = std::min(count, max);
 
         auto c = node;
         auto ty = node->findNode("yr");
@@ -241,20 +253,15 @@ struct DET final :public UnitController {
             sample = 0.0f;
         }
 
+        float d = 0.0f;
         if (mObject && !point.isZero()) {
-            auto obj = Vector2{ point.x,point.z } -np;
-            obj.normalize();
-            auto d = dot(t, obj);
-            if (d > 0.9999f && count > time && obj.lengthSquared() < dis) {
-                count = 0.0f;
-                RT = ht;
-            }
-            else {
-                auto dest = point - now;
-                dest.normalize();
-                correctVector(ty, &Node::getForwardVectorWorld, dest, 0.0f, RSY*delta, 0.0f);
-                correctVector(t, &Node::getForwardVectorWorld, dest, RSX*delta, 0.0f, 0.0f);
-            }
+            auto obj = point - now; obj.normalize();
+            auto f = t->getForwardVectorWorld(); f.normalize();
+            d = obj.dot(f);
+            correctVector(ty, &Node::getForwardVectorWorld, obj, 0.0f, RSY*delta, 0.0f);
+            auto limit = ty->getForwardVectorWorld().normalize()
+                .dot(t->getForwardVectorWorld().normalize());
+            correctVector(t, &Node::getForwardVectorWorld, obj, std::min(limit, RSX*delta), 0.0f, 0.0f);
         }
         else {
             mObject = 0;
@@ -265,25 +272,35 @@ struct DET final :public UnitController {
         }
 
         auto ray = t->findNode("ray");
-        if (RT>0.0f && !point.isZero()) {
-            if(mIsServer) 
-                localServer->attack(mObject, delta*harm);
-            else {
-                auto len = point.distance(now);
-                ray->scaleZ(len / ray->getBoundingSphere().radius);
-                ray->translate((point - ray->getTranslationWorld()) / 2.0f);
-                ray->setEnabled(true);
-                RT -= delta;
-            }
-        }
-        else {
-            ray->scaleZ(1.0f / ray->getBoundingSphere().radius);
-            ray->setTranslation(Vector3::zero());
-            ray->setEnabled(false);
-        }
+        auto p = t->getTranslationWorld();
 
+        if (count >= sub)
+            time += st,count-=sub;
+
+        if (time >= delta && !point.isZero() && d > 0.999f && p.distanceSquared(point) <= dis) {
+            auto end = checkRay(p, point);
+            if (mIsServer) {
+                if (end == point)
+                    localServer->attack(mObject, delta*harm);
+            }
+            else {
+                auto len = end.distance(p);
+                ray->setScaleZ(len*0.05f);
+                ray->setEnabled(true);
+            }
+            time -= delta;
+        }
+        else ray->setEnabled(false);
+        
         return move(instance, mDest, np, c, RSC, delta, rfac, v, sample, fcnt, x);
     }
+    void onDied(UnitInstance& instance) override {
+        instance.getNode()->findNode("ray")->setEnabled(false);
+    }
+};
+
+struct CBM fina :public UnitControllerl {
+
 };
 #undef Init
 
@@ -294,6 +311,7 @@ void UnitController::initAllController() {
 #define Model(name) factory[#name]=[](auto info){return std::make_unique<name>(info);}
     Model(Tank);
     Model(DET);
+    Model(CBM);
 #undef Model
 }
 

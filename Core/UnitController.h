@@ -13,6 +13,7 @@ public:
     uint32_t getAttackTarget() const;
     void isServer();
     virtual bool update(UnitInstance& instance,float delta) = 0;
+    virtual void onDied(UnitInstance& instance);
 protected:
     uint32_t mObject=0;
     Vector2 mDest=Vector2::zero();

@@ -92,7 +92,9 @@ void UnitInstance::setAttackTarget(uint32_t id) {
 }
 
 bool UnitInstance::attacked(float harm) {
-    return (mHP -= harm) <= 0.0f;
+    mHP -= harm;
+    if (mHP < 0.0f)mController->onDied(*this);
+    return mHP < 0.0f;
 }
 
 uint32_t UnitInstance::getID() const {

@@ -21,6 +21,7 @@ scene Xdog
 				translate = 0.0,-200.0,0.0
 				node ray
 				{
+					translate = 0.0,-350.0,0.0
 					url = res/units/Xdog/model.gpb#ray
 					material = res/units/Xdog/ray.material
 				}

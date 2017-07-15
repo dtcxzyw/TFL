@@ -31,8 +31,7 @@ material green
             u_inverseTransposeWorldViewMatrix = INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX
             u_directionalLightDirection[0] = LIGHT_DIRECTION
             u_directionalLightColor[0] = LIGHT_COLOR
-            u_ambientColor = SCENE_AMBIENT_COLOR
-            u_specularExponent = 32
+            u_ambientColor = 0.0,0.0,0.0
             
             u_shadowMap=SHADOW_MAP
             u_matrix = LIGHT_MATRIX
@@ -42,16 +41,16 @@ material green
             
             vertexShader = res/shaders/textured.vert
             fragmentShader = res/shaders/textured.frag
-            defines = DIRECTIONAL_LIGHT_COUNT 1;SPECULAR
+            defines = DIRECTIONAL_LIGHT_COUNT 1
 
             sampler u_diffuseTexture
             {
                 path = res/units/Xdog/ray.png
-                mipmap = true
+                mipmap = false
                 wrapS = REPEAT
                 wrapT = REPEAT
-                minFilter = LINEAR_MIPMAP_LINEAR
-                magFilter = LINEAR
+                minFilter = NEAREST
+                magFilter = NEAREST
             }
         }
     }
