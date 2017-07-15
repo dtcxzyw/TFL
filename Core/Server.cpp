@@ -394,6 +394,11 @@ void Server::update(float delta) {
 
             if (bb.center.y - bb.radius < mMap.getHeight(bb.center.x, bb.center.z))
                 boom = true;
+
+            if (bb.center.y < 0.0f || bb.center.x<-mapSizeHF || bb.center.x>mapSizeHF
+                || bb.center.z<-mapSizeHF || bb.center.z>mapSizeHF)
+                boom = true;
+
         point:
             if (boom) {
                 auto b = x.second.getBound();

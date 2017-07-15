@@ -1,0 +1,9 @@
+scene DF
+{
+	node root
+	{
+		scale=0.05,0.05,0.05
+		url = res/shared/Core/DF.gpb#missile
+		material = res/shared/Core/green.material
+	}
+}

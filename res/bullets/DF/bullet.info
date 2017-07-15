@@ -1,0 +1,42 @@
+radius= 20
+time = 5000
+particle boom
+{
+    sprite
+    {
+        path = res/bullets/DF/smoke.png
+        width = 64
+        height = 64
+        blending = BLEND_ALPHA
+        animated = false
+        looped = false
+        frameCount = 1
+        frameRandomOffset = 0
+        frameDuration = 0
+    }
+
+    particleCountMax = 1000
+    emissionRate = 500
+    ellipsoid = false
+    orbitPosition = false
+    orbitVelocity = false
+    orbitAcceleration = false
+    sizeStartMin = 0.5
+    sizeStartMax = 0.5
+    sizeEndMin = 0.5
+    sizeEndMax = 0.5
+    energyMin = 0
+    energyMax = 5000
+    colorStart = 0.2, 0.2, 0.2, 0.0
+    colorStartVar = 0, 0, 0, 0
+    colorEnd = 0.5, 0.5, 0.5, 1.0
+    colorEndVar = 0, 0, 0, 0
+    position = 0, 10, 0
+    positionVar = 0, 0, 0
+    velocity = 0, 20, 0
+    velocityVar = 10, 0, 10
+    acceleration = 0, 5, 0
+    accelerationVar = 2.5, 5, 2.5
+    rotationPerParticleSpeedMin = -1.5
+    rotationPerParticleSpeedMax = 1.5
+}

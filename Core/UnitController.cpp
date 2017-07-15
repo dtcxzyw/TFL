@@ -310,6 +310,7 @@ struct CBM final :public UnitController {
     ,Init(angle){
         v /= 1000.0f;
         time *= 1000.0f;
+        speed /= 1000.0f;
     }
     bool update(UnitInstance& instance, float delta) override {
         if (sy == 0.0f)
@@ -351,7 +352,7 @@ struct CBM final :public UnitController {
             node->findNode("missile")->setEnabled(count >= time);
 
         if (mObject && !point.isZero() && count>=time) {
-            if (isServer) {
+            if (mIsServer) {
                 auto m = node->findNode("missile");
                 localServer->newBullet(BulletInstance(missile,m->getTranslationWorld(),
                     m->getForwardVectorWorld().normalize(),speed,harm,range,instance.getGroup()
