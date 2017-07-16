@@ -485,7 +485,7 @@ void Server::update(float delta) {
         for (auto&& b : bullets)
             data.Write(b);
 
-        send(choose, data, PacketPriority::IMMEDIATE_PRIORITY);
+        send(choose, data, PacketPriority::HIGH_PRIORITY);
     }
 
     //update weight

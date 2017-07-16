@@ -88,8 +88,7 @@ void BulletInstance::update(float delta) {
         auto p = localServer->getUnitPos(mObject);
         if (p.isZero())mCnt = 1e10f;
         else {
-            auto mp = mNode->getTranslation();
-            auto f = p - mp;
+            auto f = p - mNode->getTranslation();
             correctVector(mNode.get(), &Node::getForwardVector, f.normalize(),
                 mAngle*delta, mAngle*delta, 0.0f);
             mNode->translateForward(mTime*delta);

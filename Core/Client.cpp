@@ -346,7 +346,7 @@ bool Client::update(float delta) {
         }
     }
 
-    if (isStop || mPeer->NumberOfConnections() != 1) {
+    if (isStop || mPeer->GetConnectionState(mServer) != RakNet::IS_CONNECTED) {
         INFO("The game stopped.");
         stop();
         return false;

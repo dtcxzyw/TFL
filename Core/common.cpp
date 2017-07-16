@@ -86,7 +86,7 @@ void correctVector(Node * node, Vector3(Node::* sampler)() const, Vector3 dest
     , float X, float Y, float Z) {
     auto unit = 1.0f;
     auto dot = [&] {
-        auto vec = (node->*sampler)();
+        auto vec = (node->*sampler)().normalize();
         return vec.dot(dest);
     };
     auto cd = dot();
@@ -118,4 +118,4 @@ std::mt19937_64 mt(std::chrono::high_resolution_clock::now().time_since_epoch().
 
 uint16_t shadowSize=1;
 bool enableParticle = false;
-float bias = 0.005;
+float bias = 0.005f;
