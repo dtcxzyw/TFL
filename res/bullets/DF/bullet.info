@@ -4,7 +4,7 @@ particle boom
 {
     sprite
     {
-        path = res/bullets/DF/smoke.png
+        path = res/shared/Core/smoke.png
         width = 64
         height = 64
         blending = BLEND_ALPHA
@@ -45,14 +45,14 @@ particle fire
 {
     sprite
     {
-        path = res/bullets/DF/fire.png
-        width = 256
-        height = 256
-        blending = ADDITIVE
+        path = res/shared/Core/smoke.png
+        width = 64
+        height = 64
+        blending = BLEND_ALPHA
         animated = false
         looped = false
-        frameCount = 3
-        frameRandomOffset = 3
+        frameCount = 1
+        frameRandomOffset = 0
         frameDuration = 0
     }
 
@@ -70,9 +70,9 @@ particle fire
     energyMax = 5000
     colorStart = 1.0, 1.0, 1.0, 1.0
     colorStartVar = 0, 0, 0, 0
-    colorEnd = 1.0, 1.0, 1.0, 0.0
+    colorEnd = 1.0, 1.0, 1.0, 0.5
     colorEndVar = 0, 0, 0, 0
-    position = 0, 10, 0
+    position = 0, 0, 0
     positionVar = 0, 0, 0
     velocity = 0, 0, -20
     velocityVar = 10, 10, 0

@@ -5,10 +5,10 @@ scene DF
 		scale=0.05,0.05,0.05
 		url = res/shared/Core/DF.gpb#missile
 		material = res/shared/Core/green.material
+		
 		node fire
 		{
 			particle = res/bullets/DF/bullet.info#fire
-			translate = 0.0,0.0,-10.0
 		}
 	}
 }
