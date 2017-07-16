@@ -59,5 +59,6 @@ public:
     uint16_t getKind() const;
     Node* getNode() const;
     uint8_t getGroup() const;
+    void updateClient(float delta);
 };
 

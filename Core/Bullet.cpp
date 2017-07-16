@@ -84,6 +84,7 @@ BulletInstance::BulletInstance(uint16_t kind, Vector3 begin, Vector3 end,
 }
 
 void BulletInstance::update(float delta) {
+
     if (mObject) {
         auto p = localServer->getUnitPos(mObject);
         if (p.isZero())mCnt = 1e10f;
@@ -122,6 +123,21 @@ uint16_t BulletInstance::getKind() const {
 
 uint8_t BulletInstance::getGroup() const {
     return mGroup;
+}
+
+void BulletInstance::updateClient(float delta) {
+    std::function<void(Node*)> updateFire = [&](Node* node) {
+        auto p = dynamic_cast<ParticleEmitter*>(node->getDrawable());
+        if (p) {
+            if (!p->isStarted())p->start();
+            p->update(delta);
+        }
+
+        for (auto i = node->getFirstChild(); i; i = i->getNextSibling())
+            updateFire(i);
+    };
+
+    updateFire(mNode.get());
 }
 
 Node * BulletInstance::getNode() const {

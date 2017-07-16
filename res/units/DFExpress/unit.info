@@ -1,9 +1,9 @@
 HP = 300
-cost = 3
+cost = 30
 FOV = 2000
 plane= 10,20
 offset=0,-10,0
-radius=50
+radius=40
 AIType=defense
 control
 {
@@ -11,11 +11,11 @@ control
 	rfac=0.5
 	RSC=0.001
 	time=5
-	v=140
+	v=70
 	dis=1500
 	missile=DF
 	harm = 150
 	range = 100
-	speed = 50
-	angle = 0.5
+	speed = 500
+	angle = 0.005
 }

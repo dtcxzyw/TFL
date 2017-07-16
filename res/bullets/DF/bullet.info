@@ -48,7 +48,7 @@ particle fire
         path = res/shared/Core/smoke.png
         width = 64
         height = 64
-        blending = BLEND_ALPHA
+        blending = BLEND_ADDITIVE
         animated = false
         looped = false
         frameCount = 1
@@ -56,18 +56,18 @@ particle fire
         frameDuration = 0
     }
 
-    particleCountMax = 10000
-    emissionRate = 2000
+    particleCountMax = 1000
+    emissionRate = 100
     ellipsoid = false
     orbitPosition = false
     orbitVelocity = false
     orbitAcceleration = false
-    sizeStartMin = 0.5
-    sizeStartMax = 0.5
-    sizeEndMin = 0.5
-    sizeEndMax = 0.5
+    sizeStartMin = 5
+    sizeStartMax = 5
+    sizeEndMin = 5
+    sizeEndMax = 5
     energyMin = 0
-    energyMax = 5000
+    energyMax = 1000
     colorStart = 1.0, 1.0, 1.0, 1.0
     colorStartVar = 0, 0, 0, 0
     colorEnd = 1.0, 1.0, 1.0, 0.5
@@ -77,7 +77,7 @@ particle fire
     velocity = 0, 0, -20
     velocityVar = 10, 10, 0
     acceleration = 0, 0, -5
-    accelerationVar = 2.5, 2.5, -5
+    accelerationVar = 2.5, 2.5, 5
     rotationPerParticleSpeedMin = -1.5
     rotationPerParticleSpeedMax = 1.5
 }

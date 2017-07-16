@@ -27,11 +27,8 @@ Matrix Client::getMat() const {
 }
 
 void Client::drawNode(Node * node, bool shadow) {
-    if (node->isEnabled() && node->getDrawable()
-        && (dynamic_cast<ParticleEmitter*>(node->getDrawable()) ||
-        node->getBoundingSphere().intersects(mScene->getActiveCamera()->getFrustum()))
-        ) {
-
+    if (node->isEnabled() && node->getDrawable() &&
+        (dynamic_cast<ParticleEmitter*>(node->getDrawable()) || node->getBoundingSphere().intersects(mScene->getActiveCamera()->getFrustum()))) {
         auto m = dynamic_cast<Model*>(node->getDrawable());
         auto t = dynamic_cast<Terrain*>(node->getDrawable());
 
@@ -50,10 +47,9 @@ void Client::drawNode(Node * node, bool shadow) {
             }
         }
 
-        if(!shadow || m || t)
+        if (!shadow || m || t)
             node->getDrawable()->draw();
     }
-
 
     for (auto i = node->getFirstChild(); i; i = i->getNextSibling())
         drawNode(i, shadow);
@@ -364,6 +360,9 @@ bool Client::update(float delta) {
             mScene->removeNode(x->emitter.get());
             mDuang.erase(x);
         }
+
+        for (auto&& x : mBullets)
+            x.second.updateClient(delta);
     }
 
     //control
@@ -450,8 +449,6 @@ void Client::render() {
             if (!x.second.isDied() && x.second.getGroup() != mGroup)
                 drawNode(x.second.getNode());
         mScene->setAmbientColor(0.0f, 0.0f, 0.0f);
-        for (auto&& x : mBullets)
-            drawNode(x.second.getNode());
 
         for (auto&& p : mMap->getKey()) {
             mFlagModel->setTranslation(p.x, mMap->getHeight(p.x, p.y), p.y);
@@ -459,6 +456,9 @@ void Client::render() {
         }
 
         drawNode(mScene->findNode("terrain"));
+
+        for (auto&& x : mBullets)
+            drawNode(x.second.getNode());
 
         if (enableParticle)
             for (auto&& x : mDuang)
