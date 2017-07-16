@@ -15,8 +15,8 @@ particle boom
         frameDuration = 0
     }
 
-    particleCountMax = 1000
-    emissionRate = 500
+    particleCountMax = 10000
+    emissionRate = 2000
     ellipsoid = false
     orbitPosition = false
     orbitVelocity = false
@@ -40,3 +40,45 @@ particle boom
     rotationPerParticleSpeedMin = -1.5
     rotationPerParticleSpeedMax = 1.5
 }
+
+particle fire
+{
+    sprite
+    {
+        path = res/bullets/DF/fire.png
+        width = 256
+        height = 256
+        blending = ADDITIVE
+        animated = false
+        looped = false
+        frameCount = 3
+        frameRandomOffset = 3
+        frameDuration = 0
+    }
+
+    particleCountMax = 10000
+    emissionRate = 2000
+    ellipsoid = false
+    orbitPosition = false
+    orbitVelocity = false
+    orbitAcceleration = false
+    sizeStartMin = 0.5
+    sizeStartMax = 0.5
+    sizeEndMin = 0.5
+    sizeEndMax = 0.5
+    energyMin = 0
+    energyMax = 5000
+    colorStart = 1.0, 1.0, 1.0, 1.0
+    colorStartVar = 0, 0, 0, 0
+    colorEnd = 1.0, 1.0, 1.0, 0.0
+    colorEndVar = 0, 0, 0, 0
+    position = 0, 10, 0
+    positionVar = 0, 0, 0
+    velocity = 0, 0, -20
+    velocityVar = 10, 10, 0
+    acceleration = 0, 0, -5
+    accelerationVar = 2.5, 2.5, -5
+    rotationPerParticleSpeedMin = -1.5
+    rotationPerParticleSpeedMax = 1.5
+}
+

@@ -49,7 +49,8 @@ void Client::drawNode(Node * node, bool shadow) {
             }
         }
 
-        node->getDrawable()->draw();
+        if(!shadow || m || t)
+            node->getDrawable()->draw();
     }
 
     for (auto i = node->getFirstChild(); i; i = i->getNextSibling())
