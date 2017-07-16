@@ -64,7 +64,7 @@ BulletInstance::BulletInstance(uint16_t kind, Vector3 begin, Vector3 end,
     float speed, float harm, float radius, uint8_t group, uint32_t object, float angle)
     : mHarm(harm), mBegin(begin), mEnd(end), mCnt(0.0f),
     mTime(begin.distance(end) / speed), mRadius(radius), mKind(kind)
-    , mGroup(group), mObject(object), mAngle(0.0f) {
+    , mGroup(group), mObject(object), mAngle(angle) {
     auto i = globalBullets.begin();
     std::advance(i, kind);
     mNode = i->second.getModel();
@@ -85,15 +85,15 @@ BulletInstance::BulletInstance(uint16_t kind, Vector3 begin, Vector3 end,
 
 void BulletInstance::update(float delta) {
     if (mObject) {
-        auto p = localServer->getUnitPos(mObject, mGroup);
+        auto p = localServer->getUnitPos(mObject);
         if (p.isZero())mCnt = 1e10f;
-        auto mp = mNode->getTranslation();
-        auto f = p - mp;
-        if (mp.distanceSquared(mBegin) > mBegin.distanceSquared(p)*0.16f)
-            f.y = std::max(localClient->getHeight(mp.x, mp.z) + 100.0f - mp.y, 0.0f);
-        correctVector(mNode.get(), &Node::getForwardVector, f.normalize(), 
-            mAngle*delta, mAngle*delta, 0.0f);
-        mNode->translateForward(mTime*delta);
+        else {
+            auto mp = mNode->getTranslation();
+            auto f = p - mp;
+            correctVector(mNode.get(), &Node::getForwardVector, f.normalize(),
+                mAngle*delta, mAngle*delta, 0.0f);
+            mNode->translateForward(mTime*delta);
+        }
     }
     else {
         mCnt += delta;

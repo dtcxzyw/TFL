@@ -435,6 +435,7 @@ void Server::update(float delta) {
             mBullets.erase(x);
         }
     }
+
     std::vector<uint8_t> groups;
     for (auto c : mClients)
         groups.emplace_back(c.second.group);
@@ -484,7 +485,7 @@ void Server::update(float delta) {
         for (auto&& b : bullets)
             data.Write(b);
 
-        send(choose, data, PacketPriority::HIGH_PRIORITY);
+        send(choose, data, PacketPriority::IMMEDIATE_PRIORITY);
     }
 
     //update weight
@@ -539,21 +540,19 @@ void Server::newBullet(BulletInstance && bullet) {
     mScene->addNode(mBullets[id].getNode());
 }
 
-Vector3 Server::getUnitPos(uint32_t id, uint8_t group) const {
+Vector3 Server::getUnitPos(uint32_t id) const {
+    if (std::find_if(mDeferred.cbegin(), mDeferred.cend(), 
+        [id](auto&& x) {return x.id == id; }) != mDeferred.cend())
+        return {};
     for (auto&& g : mGroups) {
         auto&& units = g.second.units;
         auto i = units.find(id);
-        if (i != units.end()) {
-            auto p = i->second.getNode()->getTranslation();
-            for (auto&& x : mGroups.find(group)->second.units)
-                if (p.distanceSquared(x.second.getNode()->getTranslation()) 
-                    <= x.second.getKind().getFOV())
-                    return p;
-           return {};
-        }
+        if (i != units.end()) 
+            return i->second.getNode()->getTranslation();
     }
     return {};
 }
+
 GroupInfo::GroupInfo() :weight(globalUnits.size(), 1) {}
 
 KeyInfo::KeyInfo(Vector2 p) : owner(nil), id(none), pos(p) {}
