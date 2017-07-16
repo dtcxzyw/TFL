@@ -1,6 +1,12 @@
 uniform int u_mapSize;
 uniform float u_bias;
 uniform sampler2D u_shadowMap;
+float unpackDepth(const in vec4 rgba_depth)
+{
+    const vec4 bit_shift = vec4(1.0/(256.0*256.0*256.0), 1.0/(256.0*256.0), 1.0/256.0, 1.0);
+    float depth = dot(rgba_depth, bit_shift);
+    return depth;
+}
 float getShadowValue()
 {
     if(u_mapSize==1)
@@ -15,7 +21,7 @@ float getShadowValue()
         || projCoords.z>1.0 || projCoords.z<0.0)
             return 1.0;
     #ifdef OPENGL_ES
-		float depth = texture2D(u_shadowMap, projCoords.xy).r;
+		float depth = unpackDepth(texture2D(u_shadowMap, projCoords.xy));
         float shadow = currentDepth-u_bias > depth ? 0.2 : 1.0;        
     #else
         float shadow=0.0;
@@ -24,7 +30,7 @@ float getShadowValue()
         {
             for(int y = -1; y <= 1; ++y)
             {
-                float pcfDepth = texture2D(u_shadowMap, projCoords.xy + vec2(x, y) * texelSize).a;
+                float pcfDepth = unpackDepth(texture2D(u_shadowMap, projCoords.xy + vec2(x, y) * texelSize));
                 shadow += currentDepth-u_bias > pcfDepth ? 0.2 : 1.0;        
             }    
         }

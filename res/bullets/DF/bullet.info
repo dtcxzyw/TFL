@@ -1,4 +1,4 @@
-radius= 20
+radius= 10
 time = 5000
 particle boom
 {

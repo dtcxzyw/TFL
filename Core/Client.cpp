@@ -125,13 +125,7 @@ Client::Client(const std::string & server, bool& res) :
 
     mRECT = SpriteBatch::create("res/common/rect.png");
     res = mPeer->NumberOfConnections();
-    mDepth = FrameBuffer::create("depth", shadowSize, shadowSize,
-#ifdef ANDROID
-        Texture::Format::RGB888
-#else
-        Texture::Format::ALPHA
-#endif // ANDROID
-    );
+    mDepth = FrameBuffer::create("depth", shadowSize, shadowSize,Texture::Format::RGBA8888);
 
     mDepth->setDepthStencilTarget(DepthStencilTarget::create("shadow",
         DepthStencilTarget::DEPTH, shadowSize, shadowSize));

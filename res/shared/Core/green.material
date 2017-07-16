@@ -8,6 +8,8 @@ material green
         renderState
         {
             depthTest = true
+            cullFace = true
+            cullFaceSide =FRONT
         }
         
         pass
@@ -38,7 +40,7 @@ material green
             u_matrix = LIGHT_MATRIX
             u_model= WORLD_MATRIX 
             u_mapSize =MAP_SIZE
-			u_bias = BIAS
+            u_bias = BIAS
             
             vertexShader = res/shaders/textured.vert
             fragmentShader = res/shaders/textured.frag

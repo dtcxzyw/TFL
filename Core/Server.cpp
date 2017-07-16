@@ -368,9 +368,15 @@ void Server::update(float delta) {
         std::map<uint32_t, DuangSyncInfo> info;
         std::set<uint32_t> deferred;
         std::vector<BoundingSphere> vbs;
+
         for (auto&& x : mBullets) {
             x.second.update(delta);
-            auto bb = x.second.getHitBound();
+            vbs.emplace_back(x.second.getHitBound());
+        }
+
+        size_t idx = 0;
+        for (auto&& x : mBullets) {
+            auto bb = vbs[idx];
             bool boom = false;
             for (auto&& g : mGroups)
                 for (auto&& u : g.second.units)
@@ -386,17 +392,15 @@ void Server::update(float delta) {
                 }
             }
 
-            for(auto&& x:vbs)
-                if (x.intersects(bb)) {
+            for(size_t i=0;i<vbs.size();++i)
+                if (i!=idx && vbs[i].intersects(bb)) {
                     boom = true;
                     goto point;
                 }
 
-            if (bb.center.y - bb.radius < mMap.getHeight(bb.center.x, bb.center.z))
-                boom = true;
-
-            if (bb.center.y < 0.0f || bb.center.x<-mapSizeHF || bb.center.x>mapSizeHF
+            if((bb.center.y < 0.0f || bb.center.x<-mapSizeHF || bb.center.x>mapSizeHF
                 || bb.center.z<-mapSizeHF || bb.center.z>mapSizeHF)
+                || (bb.center.y - bb.radius < mMap.getHeight(bb.center.x, bb.center.z)))
                 boom = true;
 
         point:
@@ -418,7 +422,7 @@ void Server::update(float delta) {
                 info[x.first] = { x.second.getKind(), b.center };
             }
 
-            vbs.emplace_back(bb);
+            ++idx;
         }
 
         for (auto&& x : duang) {
