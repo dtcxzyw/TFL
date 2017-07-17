@@ -9,7 +9,6 @@ material green
         {
             depthTest = true
             cullFace = true
-            cullFaceSide =FRONT
         }
         
         pass

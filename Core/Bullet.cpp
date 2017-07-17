@@ -90,9 +90,15 @@ void BulletInstance::update(float delta) {
         if (p.isZero())mCnt = 1e10f;
         else {
             auto mp= mNode->getTranslation();
-            if (mp.distanceSquared(p) >= 3e5f)
-                p.y = std::max(p.y, localClient->getHeight(p.x, p.z)+500.0f);
-            auto f = p - mp;
+            auto hl = localClient->getHeight(mp.x, mp.z) + 300.0f;
+            Vector3 f;
+            auto dis = mp.distanceSquared(p);
+            if (mp.y > hl || dis < 3e5f) {
+                if (dis >= 3e5f)
+                    p.y = std::max(p.y, localClient->getHeight(p.x, p.z) + 500.0f);
+                f = p - mp;
+            }
+            else f = Vector3{ 0.0f,hl - mp.y,0.0f };
             correctVector(mNode.get(), &Node::getForwardVector, f.normalize(),
                 mAngle*delta, mAngle*delta, 0.0f);
             mNode->translateForward(mTime*delta);

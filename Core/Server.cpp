@@ -233,20 +233,34 @@ void Server::update(float delta) {
     }
 
     //check state
+
+    auto win = [this](uint8_t group) {
+        RakNet::BitStream data;
+        data.Write(ServerMessage::win);
+        send(group, data, PacketPriority::IMMEDIATE_PRIORITY);
+        stop();
+    };
+
+    uint8_t out=0;
     for (auto && g : mGroups) {
         if (g.second.key.empty() && g.second.units.empty()) {
             RakNet::BitStream data;
             data.Write(ServerMessage::out);
             send(g.first, data, PacketPriority::IMMEDIATE_PRIORITY);
+            ++out;
         }
         else if (g.second.key.size() == mKey.size()) {
-            RakNet::BitStream data;
-            data.Write(ServerMessage::win);
-            send(g.first, data, PacketPriority::IMMEDIATE_PRIORITY);
-            stop();
+            win(g.first);
             return;
         }
     }
+
+    if(out==mGroups.size()-1)
+        for(auto && g : mGroups)
+            if (!(g.second.key.empty() && g.second.units.empty())) {
+                win(g.first);
+                return;
+            }
 
     //update scene
     struct CheckInfo {

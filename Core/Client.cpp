@@ -28,7 +28,7 @@ Matrix Client::getMat() const {
 
 void Client::drawNode(Node * node, bool shadow) {
     if (node->isEnabled() && node->getDrawable() &&
-        (dynamic_cast<ParticleEmitter*>(node->getDrawable()) || node->getBoundingSphere().intersects(mScene->getActiveCamera()->getFrustum()))) {
+        node->getBoundingSphere().intersects(mScene->getActiveCamera()->getFrustum())) {
         auto m = dynamic_cast<Model*>(node->getDrawable());
         auto t = dynamic_cast<Terrain*>(node->getDrawable());
 
@@ -203,7 +203,6 @@ Client::WaitResult Client::wait() {
         return wait();
     }
     return WaitResult::None;
-
 }
 
 void Client::stop() {

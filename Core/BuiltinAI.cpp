@@ -110,10 +110,10 @@ public:
 
         if (mValue > -5.0f || mArmies.empty())mStep = Type::discover;
 
-        if (mValue > 20.0f || (mArmies.size() &&
-            mArmies.size() * 5 < mMine.size())) mStep = Type::attack;
+        if (mValue > 5.0f || (mArmies.size() &&
+            mArmies.size() < mMine.size())) mStep = Type::attack;
 
-        if (mArmies.size()>0.2*mMine.size())mStep = Type::defense;
+        if (mArmies.size()>mMine.size())mStep = Type::defense;
 
         if (old != mStep) {
             uint16_t id = 0;

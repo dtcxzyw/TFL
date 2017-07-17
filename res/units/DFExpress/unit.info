@@ -17,5 +17,5 @@ control
 	harm = 150
 	range = 100
 	speed = 500
-	angle = 0.005
+	angle = 0.003
 }
