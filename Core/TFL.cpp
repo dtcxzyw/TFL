@@ -76,8 +76,9 @@ void unpackPack(Stream* pak, uint64_t& p, uint64_t all) {
         pak->read(data.data(), tmp.size, 1);
         file->write(data.data(), tmp.size, 1);
 
+        p += tmp.size+sizeof(tmp);
         Game::getInstance()->
-            clear(Game::CLEAR_COLOR, Vector4::one()*pak->position() / pak->length(), 1.0f, 0);
+            clear(Game::CLEAR_COLOR, Vector4::one()*p / all, 1.0f, 0);
         Platform::swapBuffers();
     }
 }
@@ -274,8 +275,8 @@ protected:
         label->update(delta);
 #ifdef ANDROID
         joystick->update(delta);
-        constexpr float fac = 0.01f;
-        auto j = dynamic_cast<JoystickControl*>(joystick->getControl(0U))->getValue()*fac;
+        constexpr float fac = 0.0005f;
+        auto j = dynamic_cast<JoystickControl*>(joystick->getControl(0U))->getValue()*fac*delta;
         if (localClient && localClient->isPlaying() && !j.isZero())
             localClient->moveEvent(j.x,-j.y);
 #endif // ANDROID
@@ -365,6 +366,8 @@ public:
             case Touch::TOUCH_PRESS:localClient->beginPoint(x, y);
                 break;
             case Touch::TOUCH_RELEASE:localClient->endPoint(x, y);
+                break;
+            case Touch::TOUCH_MOVE:localClient->mousePos(x, y); 
                 break;
             default:
                 break;

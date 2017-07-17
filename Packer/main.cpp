@@ -28,7 +28,12 @@ void find(const path& p) {
             info.size = file_size(child.path());
             out.write(reinterpret_cast<const char*>(&info), sizeof(info));
             ifstream in(child.path(),ios::binary);
-            out<<in.rdbuf();
+            if(in.is_open())
+                out << in.rdbuf();
+            else {
+                cout << "Error: Cannot open the file." << endl;
+                throw;
+            }
         }
         else cout << "   ignored";
         cout << endl;

@@ -470,7 +470,6 @@ void Client::render() {
         auto rect2 = gameplay::Rectangle(game->getWidth(), game->getHeight());
         game->setViewport(rect2);
 
-#ifdef WIN32
         if (mBX&&mBY) {
             float x1 = mX, y1 = mY, x2 = mBX, y2 = mBY;
             if (x1 > x2)std::swap(x1, x2);
@@ -480,7 +479,6 @@ void Client::render() {
             mRECT->draw(range, { 32,32 });
             mRECT->finish();
         }
-#endif // WIN32
     }
 }
 
@@ -550,9 +548,8 @@ void Client::mousePos(int x, int y) {
 
 void Client::beginPoint(int x, int y) {
 
-    if (!mState)return;
-
-    mBX = x, mBY = y;
+    if (mState)
+        mBX = x, mBY = y;
 }
 
 void Client::endPoint(int x, int y) {
