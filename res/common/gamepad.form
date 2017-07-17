@@ -1,0 +1,15 @@
+form control
+{
+    theme = res/common/gamepad.theme
+	alignment = ALIGN_BOTTOM_LEFT
+	size = 23%, 41%
+	consumeInputEvents = false
+	
+	joystick joystick
+	{
+		style = joystickStyle
+		size = 85%, 85%
+		alignment = ALIGN_VCENTER_HCENTER
+		radius = 12.5%
+	}
+}

@@ -72,7 +72,7 @@ public:
     void beginPoint(int x, int y);
     void endPoint(int x, int y);
     void cancel();
-    bool hasChoosed() const;
+    bool isPlaying() const;
 };
 
 extern std::unique_ptr<Client> localClient;

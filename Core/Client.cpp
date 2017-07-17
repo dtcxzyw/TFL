@@ -79,6 +79,7 @@ Vector3 Client::getPoint(int x, int y) const {
 bool Client::checkCamera() {
     auto game = Game::getInstance();
     auto rect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
+    mCamera->setAspectRatio(rect.width/rect.height);
     auto test = [this, rect](float x, float y) {
         Ray r;
         mCamera->pickRay(rect, x, y, &r);
@@ -219,6 +220,9 @@ void Client::stop() {
 }
 
 bool Client::update(float delta) {
+
+    if (checkCamera())
+        mCamera->getNode()->setTranslation({ 0.0f,mMap->getHeight(0.0f,0.0f) + 200.0f,0.0f });
 
 #ifdef WIN32
     if (!(mBX || mBY)) {
@@ -575,6 +579,6 @@ void Client::cancel() {
     mChoosed.clear();
 }
 
-bool Client::hasChoosed() const {
-    return mChoosed.size();
+bool Client::isPlaying() const {
+    return mState;
 }

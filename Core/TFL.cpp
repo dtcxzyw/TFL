@@ -8,6 +8,7 @@
 bool isRunning = true;
 uint64_t pakKey;
 std::unique_ptr<BindingResolver> br;
+uniqueRAII<Form> joystick;
 
 void callback() {
     isRunning = false;
@@ -103,7 +104,7 @@ void unpackAllPacks() {
         uniqueRAII<Stream> data = FileSystem::open(("paks/" + p).c_str());
         uint64_t k;
         data->read(&k, sizeof(k), 1);
-        key ^= k;
+        if(k)key ^= k;
         size += data->length();
         pakData.push_back({ std::move(data), 0,p,cnt });
         ++cnt;
@@ -240,9 +241,15 @@ protected:
             info->setConsumeInputEvents(false);
         }
 
+#ifdef ANDROID
+        joystick = Form::create("res/common/gamepad.form#control");
+#endif // ANDROID
+
         UnitController::initAllController();
 
-        setMultiTouch(false);
+#ifdef ANDROID
+        setMultiTouch(true);
+#endif // ANDROID
         setVsync(true);
         setMultiSampling(true);
         readSettings();
@@ -265,6 +272,14 @@ protected:
         if (now - lastTime > 3000.0)
             dynamic_cast<Label*>(label->getControl("info"))->setText("");
         label->update(delta);
+#ifdef ANDROID
+        joystick->update(delta);
+        constexpr float fac = 0.01f;
+        auto j = dynamic_cast<JoystickControl*>(joystick->getControl(0U))->getValue()*fac;
+        if (localClient && localClient->isPlaying() && !j.isZero())
+            localClient->moveEvent(j.x,-j.y);
+#endif // ANDROID
+
     }
 
     void render(float delta) override {
@@ -278,6 +293,11 @@ protected:
         else setViewport(gameplay::Rectangle(getWidth(), getHeight()));
         UI::render();
         label->draw();
+#ifdef ANDROID
+        if (localClient && localClient->isPlaying())
+            joystick->draw();
+#endif // ANDROID
+
     }
 public:
 
@@ -300,6 +320,7 @@ public:
         return true;
     }
     void touchEvent(Touch::TouchEvent evt, int x, int y, unsigned int contactIndex) override {
+        /*
         static int lx = 0, ly, px, py;
         static bool press = false,flag;
 
@@ -333,6 +354,18 @@ public:
                 lx = x, ly = y;
             }
             break;
+            default:
+                break;
+            }
+        }
+        */
+
+        if (localClient) {
+            switch (evt) {
+            case Touch::TOUCH_PRESS:localClient->beginPoint(x, y);
+                break;
+            case Touch::TOUCH_RELEASE:localClient->endPoint(x, y);
+                break;
             default:
                 break;
             }
