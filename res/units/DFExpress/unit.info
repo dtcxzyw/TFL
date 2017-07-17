@@ -1,6 +1,6 @@
 HP = 300
 cost = 30
-FOV = 2000
+FOV = 1000
 plane= 10,20
 offset=0,-10,0
 radius=40
@@ -12,7 +12,7 @@ control
 	RSC=0.001
 	time=5
 	v=70
-	dis=1500
+	dis=3000
 	missile=DF
 	harm = 150
 	range = 100

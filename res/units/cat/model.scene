@@ -1,4 +1,4 @@
-scene cat
+scene Cat
 {
 	node root
 	{
@@ -6,13 +6,13 @@ scene cat
 		
 		node chassis
 		{
-			url = res/units/cat/model.gpb#chassis 
+			url = res/units/Cat/model.gpb#chassis 
 			material = res/shared/Core/green.material
 		}
 		
 		node turret
 		{
-			url = res/units/cat/model.gpb#turret
+			url = res/units/Cat/model.gpb#turret
 			material = res/shared/Core/green.material
 		}
 	}

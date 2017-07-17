@@ -1,4 +1,4 @@
-scene titan
+scene Titan
 {
 	node root
 	{
@@ -6,13 +6,13 @@ scene titan
 		
 		node chassis
 		{
-			url = res/units/titan/model.gpb#chassis 
+			url = res/units/Titan/model.gpb#chassis 
 			material = res/shared/Core/green.material
 		}
 		
 		node turret
 		{
-			url = res/units/titan/model.gpb#turret
+			url = res/units/Titan/model.gpb#turret
 			material = res/shared/Core/green.material
 		}
 	}

@@ -1,0 +1,10 @@
+scene Ghost
+{
+	node root
+	{
+		scale = 0.2,0.2,0.2
+		
+		url = res/units/Ghost/model.gpb#root
+		material = res/units/Ghost/color.material
+	}
+}

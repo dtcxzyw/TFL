@@ -1,0 +1,21 @@
+HP = 100
+cost = 2
+FOV = 2500
+plane= 10,20
+offset=0,-10,0
+radius=40
+AIType=attack
+control
+{
+	type=PBM
+	RSC=0.05
+	time=10
+	v=400
+	dis=1500
+	missile=DF
+	harm = 150
+	range = 70
+	speed = 600
+	angle = 0.005
+	height = 500
+}

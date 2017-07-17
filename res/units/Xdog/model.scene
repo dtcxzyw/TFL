@@ -6,7 +6,7 @@ scene Xdog
 		
 		node base
 		{
-			url = res/units/Xdog/model.gpb#base 
+			url = res/units/Xdog/model.gpb#base
 			material = res/shared/Core/green.material
 		}
 		

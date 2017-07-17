@@ -1,4 +1,4 @@
-scene tank
+scene Tank
 {
 	node root
 	{
@@ -6,13 +6,13 @@ scene tank
 		
 		node chassis
 		{
-			url = res/units/tank/model.gpb#chassis 
+			url = res/units/Tank/model.gpb#chassis 
 			material = res/shared/Core/green.material
 		}
 		
 		node turret
 		{
-			url = res/units/tank/model.gpb#turret
+			url = res/units/Tank/model.gpb#turret
 			material = res/shared/Core/green.material
 		}
 	}

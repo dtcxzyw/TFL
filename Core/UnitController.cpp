@@ -115,7 +115,7 @@ bool move(UnitInstance& instance, Vector2 dest, Vector2 np, Node* c, float RSC, 
     return false;
 }
 
-void scale(UnitInstance& instance, float& sy, float& x, float delta, float m=0.8f) {
+void scale(UnitInstance& instance, float& sy, float& x, float delta, float m = 0.8f) {
     if (sy == 0.0f)
         sy = instance.getNode()->getScaleY();
 
@@ -303,7 +303,7 @@ struct CBM final :public UnitController {
         speed /= 1000.0f;
     }
     bool update(UnitInstance& instance, float delta) override {
-        
+
         scale(instance, sy, x, delta, 0.9f);
 
         if (instance.isDied()) {
@@ -343,6 +343,63 @@ struct CBM final :public UnitController {
         return move(instance, mDest, np, c, RSC, delta, rfac, v, sample, fcnt, x, -1.0f);
     }
 };
+
+bool fly(UnitInstance& instance, Vector2 dest, float h, float v, float delta, float RSC, Vector3 now) {
+    if (!dest.isZero()) {
+        Vector3 obj(dest.x, h, dest.y);
+        auto f = obj - now;
+        correctVector(instance.getNode(), &Node::getForwardVector, f.normalize()
+            ,0.0f, RSC*delta, 0.0f);
+        correctVector(instance.getNode(), &Node::getForwardVector, f.normalize()
+            , RSC*delta, 0.0f, 0.0f);
+        instance.getNode()->translateForward(v*delta);
+        return true;
+    }
+    auto f = Vector3::unitY();
+    correctVector(instance.getNode(), &Node::getUpVector,f.normalize()
+        , RSC*delta, 0.0f, RSC*delta);
+    return false;
+}
+
+struct PBM final :public UnitController {
+    float time, fcnt, count, v, dis, range, harm, speed, angle, RSC, height;
+    std::string missile;
+    PBM(const Properties* info) : Init(time), fcnt(0.0f), count(0.0f), Init(RSC), Init(height)
+        , Init(v), Init(dis), missile(info->getString("missile")), Init(range), Init(harm), Init(speed), Init(angle) {
+        v /= 1000.0f;
+        time *= 1000.0f;
+        speed /= 1000.0f;
+    }
+    bool update(UnitInstance& instance, float delta) override {
+
+        if (instance.isDied()) {
+            float x;
+            correct(instance, delta, fcnt, x);
+            return false;
+        }
+
+        auto node = instance.getNode();
+        count += delta;
+        count = std::min(count, time + 0.1f);
+
+        auto c = node;
+        auto point = localClient->getPos(mObject);
+        auto now = node->getTranslation();
+
+        if (mIsServer && mObject && !point.isZero() && count >= time) {
+            localServer->newBullet(BulletInstance(missile, now + instance.getKind().getOffset(),
+                node->getForwardVectorWorld().normalize(), speed, harm, range, instance.getGroup()
+                , mObject, angle));
+            count = 0.0f;
+        }
+
+        if (now.distanceSquared({ mDest.x,height,mDest.y }) < 100.0f)
+            mDest = Vector2::zero();
+
+        return fly(instance, mDest, height, v, delta, RSC, now);
+    }
+};
+
 #undef Init
 
 using factoryFunction = std::function<std::unique_ptr<UnitController>(const Properties *)>;
@@ -353,6 +410,7 @@ void UnitController::initAllController() {
     Model(Tank);
     Model(DET);
     Model(CBM);
+    Model(PBM);
 #undef Model
 }
 
