@@ -74,10 +74,10 @@ bool UnitInstance::update(float delta) {
     if (localClient->getPos(mController->getAttackTarget()).
         distanceSquared(mPos) > mKind->getFOV())
         mController->setAttackTarget(0);
-    if (mPos.x < -5000.0f)mNode->setTranslationX(-5000.0f);
-    if (mPos.x > 5000.0f)mNode->setTranslationX(5000.0f);
-    if (mPos.z < -5000.0f)mNode->setTranslationZ(-5000.0f);
-    if (mPos.z > 5000.0f)mNode->setTranslationZ(5000.0f);
+    if (mPos.x < -mapSizeHF)mNode->setTranslationX(-mapSizeHF);
+    if (mPos.x > mapSizeHF)mNode->setTranslationX(mapSizeHF);
+    if (mPos.z < -mapSizeHF)mNode->setTranslationZ(-mapSizeHF);
+    if (mPos.z > mapSizeHF)mNode->setTranslationZ(mapSizeHF);
     delta += mDelta;
     mDelta = 0.0f;
     return mController->update(*this, delta );

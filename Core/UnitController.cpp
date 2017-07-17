@@ -344,21 +344,26 @@ struct CBM final :public UnitController {
     }
 };
 
-bool fly(UnitInstance& instance, Vector2 dest, float h, float v, float delta, float RSC, Vector3 now) {
+void fly(UnitInstance& instance, Vector2 dest, float h, float v, float delta, float RSC, Vector3 now) {
+    h += localClient->getHeight(now.x, now.z);
+
+    if (now.y < h && dest.isZero()) 
+        dest = { now.x,now.z};
+
     if (!dest.isZero()) {
         Vector3 obj(dest.x, h, dest.y);
         auto f = obj - now;
         correctVector(instance.getNode(), &Node::getForwardVector, f.normalize()
-            ,0.0f, RSC*delta, 0.0f);
-        correctVector(instance.getNode(), &Node::getForwardVector, f.normalize()
-            , RSC*delta, 0.0f, 0.0f);
+            ,RSC*delta, RSC*delta, 0.0f);
         instance.getNode()->translateForward(v*delta);
-        return true;
+    }
+    else {
+        instance.getNode()->rotateY(RSC*delta*0.1f);
+        instance.getNode()->translateForward(v*delta*0.1f);
     }
     auto f = Vector3::unitY();
-    correctVector(instance.getNode(), &Node::getUpVector,f.normalize()
-        , RSC*delta, 0.0f, RSC*delta);
-    return false;
+    correctVector(instance.getNode(), &Node::getUpVector, f.normalize()
+        ,dest.isZero()?RSC*delta:0.0f, 0.0f, RSC*delta);
 }
 
 struct PBM final :public UnitController {
@@ -393,10 +398,11 @@ struct PBM final :public UnitController {
             count = 0.0f;
         }
 
-        if (now.distanceSquared({ mDest.x,height,mDest.y }) < 100.0f)
+        if (now.distanceSquared({ mDest.x,height,mDest.y }) < 10000.0f)
             mDest = Vector2::zero();
 
-        return fly(instance, mDest, height, v, delta, RSC, now);
+        fly(instance, mDest, height, v, delta, RSC, now);
+        return true;
     }
 };
 
