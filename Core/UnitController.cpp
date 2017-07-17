@@ -168,7 +168,7 @@ struct Tank final :public UnitController {
             sample = 0.0f;
         }
 
-        if (mObject && !point.isZero()) {
+        if (mObject && !point.isZero() && abs(point.y-now.y)<=100.0f) {
             auto obj = Vector2{ point.x,point.z } -np;
             obj.normalize();
             auto d = dot(t, obj);
@@ -347,7 +347,7 @@ struct CBM final :public UnitController {
 void fly(UnitInstance& instance, Vector2 dest, float h, float v, float delta, float RSC, Vector3 now) {
     h += localClient->getHeight(now.x, now.z);
 
-    if (now.y < h && dest.isZero()) 
+    if (now.y < h-50.0f && dest.isZero()) 
         dest = { now.x,now.z};
 
     if (!dest.isZero()) {
@@ -398,7 +398,7 @@ struct PBM final :public UnitController {
             count = 0.0f;
         }
 
-        if (now.distanceSquared({ mDest.x,height,mDest.y }) < 10000.0f)
+        if (now.distanceSquared({ mDest.x,height,mDest.y }) < 40000.0f)
             mDest = Vector2::zero();
 
         fly(instance, mDest, height, v, delta, RSC, now);
