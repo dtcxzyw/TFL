@@ -164,20 +164,20 @@ Client::WaitResult Client::wait() {
             mPeer->DeallocatePacket(packet);
             return WaitResult::Disconnected;
         }
-        CheckHeader(ServerMessage::info) {
-            RakNet::BitStream data(packet->data, packet->length, false);
-            data.IgnoreBytes(1);
-            uint64_t key;
-            data.Read(key);
-            if (key != pakKey) {
-                INFO("The pakKey of server is not equal yours.");
-                mPeer->DeallocatePacket(packet);
-                return WaitResult::Disconnected;
-            }
-            RakNet::RakString str;
-            data.Read(str);
-            mMap = std::make_unique<Map>(str.C_String());
-			mMiniMap = SpriteBatch::create(("res/maps/"s+str.C_String()).c_str());
+		CheckHeader(ServerMessage::info) {
+			RakNet::BitStream data(packet->data, packet->length, false);
+			data.IgnoreBytes(1);
+			uint64_t key;
+			data.Read(key);
+			if (key != pakKey) {
+				INFO("The pakKey of server is not equal yours.");
+				mPeer->DeallocatePacket(packet);
+				return WaitResult::Disconnected;
+			}
+			RakNet::RakString str;
+			data.Read(str);
+			mMap = std::make_unique<Map>(str.C_String());
+			mMiniMap = SpriteBatch::create(("res/maps/"s + str.C_String() +"/view.png").c_str());
             INFO("Load map ", str.C_String());
         }
         CheckHeader(ServerMessage::go) {
@@ -494,8 +494,8 @@ void Client::render() {
 			mMiniMapUnit->start();
 			for (auto&& x : mUnits) {
 				auto p=x.second.getRoughPos();
-				auto dp = base + Vector2(p.x, p.z) / mapSizeHF*256.0f;
-				gameplay::Rectangle range{ dp.x,dp.y,1,1 };
+				auto dp = base + Vector2(p.x, p.z) / mapSizeHF*128.0f;
+				gameplay::Rectangle range{ dp.x-2,dp.y-2,4,4 };
 				mMiniMapUnit->draw(range, { 1,1 },x.second.getGroup()==mGroup?red:blue);
 			}
 			mMiniMapUnit->finish();
