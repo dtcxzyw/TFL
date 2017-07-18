@@ -120,13 +120,22 @@ public:
             for (auto&& x : mUnits) {
                 if (x.second == mStep)
                     send(id, 1000);
+                else
+                    send(id, 1);
                 ++id;
             }
             clearTeams();
 
             switch (mStep) {
-            case Type::attack:
-            {
+            case Type::attack:{
+                clearTeams();
+
+                for (auto&& x : mKeyPoint) {
+                    TeamInfo team;
+                    team.size = mFree.size() / mKeyPoint.size();
+                    team.object = x;
+                    mTeams.emplace_back(team);
+                }
             }
             break;
             case Type::defense:
@@ -156,44 +165,6 @@ public:
             break;
             default:
                 break;
-            }
-        }
-
-        if (mStep == Type::attack) {
-            clearTeams();
-
-            std::map<Vector2, uint32_t> find;
-            for (auto&& x : mArmies) {
-                auto&& info = x.second;
-                if (info.group != mGroup) {
-                    Vector2 p{ info.pos.x,info.pos.z };
-                    bool flag = true;
-                    for (auto&& x : find) {
-                        if (x.first.distanceSquared(p) < 90000.0f) {
-                            ++x.second, flag = false;
-                            break;
-                        }
-                    }
-                    if (flag)find[p] = 1;
-                }
-            }
-
-            int32_t size = mFree.size();
-            for (auto&& x : find) {
-                TeamInfo team;
-                team.size = x.second*1.5;
-                size -= team.size;
-                team.object = x.first;
-                mTeams.emplace_back(team);
-            }
-
-            size = std::max(size, 0);
-
-            for (auto&& x : mKeyPoint) {
-                TeamInfo team;
-                team.size = 30 + size / mKeyPoint.size();
-                team.object = x;
-                mTeams.emplace_back(team);
             }
         }
 

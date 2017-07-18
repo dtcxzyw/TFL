@@ -224,8 +224,6 @@ void Client::stop() {
 
 bool Client::update(float delta) {
 
-    delta *= mSpeed;
-
     if (checkCamera())
         mCamera->getNode()->setTranslation(mCameraPos);
     else
@@ -244,6 +242,8 @@ bool Client::update(float delta) {
         moveEvent(mx, my);
     }
 #endif // WIN32
+
+    delta *= mSpeed;
 
     std::set<uint32_t> others;
     std::set<uint32_t> mine;

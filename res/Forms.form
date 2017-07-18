@@ -245,7 +245,7 @@ form Server
 	slider speed
 	{
 		text = Speed
-		width = 50%
+		width = 80%
 		min =  1
 		max =  10
 		value = 1.0
