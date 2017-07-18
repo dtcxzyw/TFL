@@ -27,6 +27,8 @@ private:
     std::map<uint32_t, BulletInstance> mBullets;
     uniqueRAII<Node> mFlagModel;
     uint32_t mGroup;
+    float mSpeed;
+    Vector3 mCameraPos;
 
     //Effects
     std::set<DuangInfo> mDuang;

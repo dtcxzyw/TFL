@@ -575,8 +575,11 @@ Vector3 Server::getUnitPos(uint32_t id) const {
 void Server::changeSpeed(float speed) {
     mSpeed = speed;
     RakNet::BitStream data;
-    data.Write();
-    for(auto&& c:getClientInfo())
+    data.Write(ServerMessage::changeSpeed);
+    data.Write(mSpeed);
+    for (auto&& c : getClientInfo())
+        mPeer->Send(&data, PacketPriority::IMMEDIATE_PRIORITY,
+            PacketReliability::RELIABLE_ORDERED, 0, c.first, false);
 }
 
 GroupInfo::GroupInfo() :weight(globalUnits.size(), 1) {}

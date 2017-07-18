@@ -305,6 +305,8 @@ void ServerMenu::event(Control * control, Event evt) {
             std::this_thread::yield();
         push<GameMain>();
     }
+    if (evt == Event::VALUE_CHANGED && CMPID("speed"))
+        localServer->changeSpeed(get<Slider>("speed")->getValue());
 }
 
 void ServerMenu::update(float) {

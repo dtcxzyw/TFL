@@ -105,7 +105,7 @@ void Client::move(int x, int y) {
 
 Client::Client(const std::string & server, bool& res) :
     mPeer(RakNet::RakPeerInterface::GetInstance()), mServer(server.c_str(), 23333),
-    mState(false), mWeight(globalUnits.size(), 1), mCnt(0.0f) {
+    mState(false), mWeight(globalUnits.size(), 1), mCnt(0.0f),mSpeed(1.0f) {
 
     RakNet::SocketDescriptor SD;
     mPeer->Startup(1, &SD, 1);
@@ -159,14 +159,14 @@ void Client::changeGroup(uint8_t group) {
 Client::WaitResult Client::wait() {
     auto packet = mPeer->Receive();
     if (packet) {
+        RakNet::BitStream data(packet->data, packet->length, false);
+        data.IgnoreBytes(1);
         CheckBegin;
         CheckHeader(ID_DISCONNECTION_NOTIFICATION) {
             mPeer->DeallocatePacket(packet);
             return WaitResult::Disconnected;
         }
 		CheckHeader(ServerMessage::info) {
-			RakNet::BitStream data(packet->data, packet->length, false);
-			data.IgnoreBytes(1);
 			uint64_t key;
 			data.Read(key);
 			if (key != pakKey) {
@@ -180,9 +180,10 @@ Client::WaitResult Client::wait() {
 			mMiniMap = SpriteBatch::create(("res/maps/"s + str.C_String() +"/view.png").c_str());
             INFO("Load map ", str.C_String());
         }
+        CheckHeader(ServerMessage::changeSpeed) {
+            data.Read(mSpeed);
+        }
         CheckHeader(ServerMessage::go) {
-            RakNet::BitStream data(packet->data, packet->bitSize >> 3, false);
-            data.IgnoreBytes(1);
             mScene = Scene::create();
             mCamera =
                 Camera::createPerspective(45.0f, Game::getInstance()->getAspectRatio(), 1.0f, 5000.0f);
@@ -194,7 +195,8 @@ Client::WaitResult Client::wait() {
             c->rotateX(-M_PI_2);
             Vector2 p;
             data.Read(p);
-            c->setTranslation(p.x, mMap->getHeight(p.x, p.y) + 200.0f, p.y);
+            mCameraPos = { p.x, mMap->getHeight(p.x, p.y) + 200.0f, p.y };
+            c->setTranslation(mCameraPos);
             mScene->addNode(mLight.get());
             mX = mY = mBX = mBY = 0;
             mState = true;
@@ -222,8 +224,12 @@ void Client::stop() {
 
 bool Client::update(float delta) {
 
+    delta *= mSpeed;
+
     if (checkCamera())
-        mCamera->getNode()->setTranslation({ 0.0f,mMap->getHeight(0.0f,0.0f) + 200.0f,0.0f });
+        mCamera->getNode()->setTranslation(mCameraPos);
+    else
+        mCameraPos = mCamera->getNode()->getTranslation();
 
 #ifdef WIN32
     if (!(mBX || mBY)) {
