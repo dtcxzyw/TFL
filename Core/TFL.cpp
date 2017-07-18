@@ -51,7 +51,7 @@ void logCallback(Logger::Level level, const char* message) {
     }
 }
 
-void buildDir(const std::string& name) {
+void buildDir(std::string name) {
     size_t pos = 0;
     std::vector<size_t> point;
     while (pos != std::string::npos)
@@ -59,7 +59,13 @@ void buildDir(const std::string& name) {
     point.pop_back();
     if (point.size())
         for (auto&& x : point)
-            MKDIR(name.substr(0, x).c_str());
+            MKDIR((FileSystem::getResourcePath()+name.substr(0, x+1)).c_str());
+}
+
+void show(float x) {
+    glScissor(0, 0, Game::getInstance()->getWidth()*x, Game::getInstance()->getHeight());
+    Game::getInstance()->clear(Game::CLEAR_COLOR, Vector4::one(), 1.0f, 0);
+    Platform::swapBuffers();
 }
 
 void unpackPack(Stream* pak, uint64_t& p, uint64_t all) {
@@ -68,18 +74,19 @@ void unpackPack(Stream* pak, uint64_t& p, uint64_t all) {
         uint32_t size = 0;
     } tmp;
 
+    std::string path = FileSystem::getResourcePath();
+
     while (pak->read(&tmp, sizeof(tmp), 1)) {
         INFO("Unpacking File ", tmp.name);
         buildDir(tmp.name);
-        uniqueRAII<Stream> file = FileSystem::open(tmp.name, FileSystem::WRITE);
+        auto file = fopen((path+tmp.name).c_str(), "wb");
         std::vector<char> data(tmp.size);
         pak->read(data.data(), tmp.size, 1);
-        file->write(data.data(), tmp.size, 1);
-
+        if (!file)INFO("No");
+        fwrite(data.data(), tmp.size, 1, file);
+        fclose(file);
         p += tmp.size+sizeof(tmp);
-        Game::getInstance()->
-            clear(Game::CLEAR_COLOR, Vector4::one()*p / all, 1.0f, 0);
-        Platform::swapBuffers();
+        show(static_cast<float>(p) / all);
     }
 }
 
@@ -123,7 +130,7 @@ void unpackAllPacks() {
 
     if (!reload)return;
 
-    removeAll(std::string(FileSystem::getResourcePath())+"res");
+    removeAll("res");
 
     std::map<std::string, std::vector<uint8_t>> parents;
     std::set<std::string> out;
@@ -157,13 +164,14 @@ void unpackAllPacks() {
         }
     };
 
-    Game::getInstance()->
-        clear(Game::CLEAR_COLOR, Vector4::one()*pos / size, 1.0f, 0);
-    Platform::swapBuffers();
+    glEnable(GL_SCISSOR_TEST);
+    show(static_cast<float>(pos) / size);
 
     for (auto&& x : pakData)
         if (out.find(x.name) == out.cend())
             visit(x.id);
+
+    glDisable(GL_SCISSOR_TEST);
 
     uniqueRAII<Stream> keyCache = FileSystem::open("key", FileSystem::WRITE);
     keyCache->write(&key, sizeof(key), 1);
@@ -363,7 +371,11 @@ public:
 
         if (localClient) {
             switch (evt) {
-            case Touch::TOUCH_PRESS:localClient->beginPoint(x, y);
+            case Touch::TOUCH_PRESS:
+            {
+                localClient->mousePos(x, y);
+                localClient->beginPoint(x, y);
+            }
                 break;
             case Touch::TOUCH_RELEASE:localClient->endPoint(x, y);
                 break;
