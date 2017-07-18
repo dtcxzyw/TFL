@@ -20,7 +20,7 @@ private:
     uniqueRAII<Scene> mScene;
     uint32_t mRight;
     uniqueRAII<Camera> mCamera;
-    uniqueRAII<SpriteBatch> mRECT;
+    uniqueRAII<SpriteBatch> mRECT,mMiniMap,mMiniMapUnit;
     std::unique_ptr<Map> mMap;
     std::vector<uint16_t> mWeight;
     std::map<uint32_t, UnitInstance> mUnits;

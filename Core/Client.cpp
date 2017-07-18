@@ -124,6 +124,7 @@ Client::Client(const std::string & server, bool& res) :
         INFO("Failed to connect to the server.");
 
     mRECT = SpriteBatch::create("res/common/rect.png");
+	mMiniMapUnit= SpriteBatch::create("res/common/white.png");
     res = mPeer->NumberOfConnections();
     mDepth = FrameBuffer::create("depth", shadowSize, shadowSize,Texture::Format::RGBA8888);
 
@@ -176,7 +177,7 @@ Client::WaitResult Client::wait() {
             RakNet::RakString str;
             data.Read(str);
             mMap = std::make_unique<Map>(str.C_String());
-            
+			mMiniMap = SpriteBatch::create(("res/maps/"s+str.C_String()).c_str());
             INFO("Load map ", str.C_String());
         }
         CheckHeader(ServerMessage::go) {
@@ -479,7 +480,28 @@ void Client::render() {
             mRECT->draw(range, { 32,32 });
             mRECT->finish();
         }
-    }
+
+		{
+			gameplay::Rectangle range{ rect.width-256.0f,0.0f,256.0f,256.0f};
+			mMiniMap->start();
+			mMiniMap->draw(range, { 256,256 });
+			mMiniMap->finish();
+
+			static const Vector4 red = { 1.0f,0.0f,0.0f,1.0f };
+			static const Vector4 blue = { 0.0f,0.0f,1.0f,1.0f };
+
+			Vector2 base{ rect.width - 128.0f,128.0f };
+			mMiniMapUnit->start();
+			for (auto&& x : mUnits) {
+				auto p=x.second.getRoughPos();
+				auto dp = base + Vector2(p.x, p.z) / mapSizeHF*256.0f;
+				gameplay::Rectangle range{ dp.x,dp.y,1,1 };
+				mMiniMapUnit->draw(range, { 1,1 },x.second.getGroup()==mGroup?red:blue);
+			}
+			mMiniMapUnit->finish();
+		}
+
+	} 
 }
 
 Vector3 Client::getPos(uint32_t id) {
