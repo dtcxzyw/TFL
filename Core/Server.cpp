@@ -25,14 +25,14 @@ void Server::chooseNew(KeyInfo& k) {
 
     k.id = (idx == w.size()) ? 0 : idx;
     if (k.time)
-        k.time += getUnit(k.id).getTime();
+        k.time += getUnit(k.id).getTime() / mSpeed;
     else
         k.time = Game::getAbsoluteTime();
 }
 
 Server::Server(const std::string & path) :
     mPeer(RakNet::RakPeerInterface::GetInstance()), mState(false),
-    mMap(path), mMapName(path) {
+    mMap(path), mMapName(path), mSpeed(1.0f) {
     RakNet::SocketDescriptor SD(23333, nullptr);
     mPeer->Startup(16, &SD, 1);
     mPeer->SetMaximumIncomingConnections(16);
@@ -105,7 +105,7 @@ void Server::run() {
     for (auto&& x : mClients)
         flag[x.second.group] = true;
 
-    auto time = Game::getAbsoluteTime() + getUnit(0).getTime();
+    auto time = Game::getAbsoluteTime() + getUnit(0).getTime() / mSpeed;
 
     for (uint8_t i = 1; i <= 5; ++i)
         if (flag[i]) {
@@ -136,6 +136,9 @@ void Server::run() {
 }
 
 void Server::update(float delta) {
+
+    delta *= mSpeed;
+
     if (!mState)return;
 
     bool updateWeight = false;
@@ -209,7 +212,7 @@ void Server::update(float delta) {
             }
             auto cnt = std::count_if(dis.cbegin(), dis.cend(), [](auto p) {return p.second < 40000.0f; });
 
-            if (cnt==1) {
+            if (cnt == 1) {
                 auto min = std::min_element(dis.cbegin(), dis.cend(),
                     [](auto p1, auto p2) {return p1.second < p2.second; });
                 if (k.owner != KeyInfo::nil) {
@@ -241,7 +244,7 @@ void Server::update(float delta) {
         stop();
     };
 
-    uint8_t out=0;
+    uint8_t out = 0;
     for (auto && g : mGroups) {
         if (g.second.key.empty() && g.second.units.empty()) {
             RakNet::BitStream data;
@@ -255,8 +258,8 @@ void Server::update(float delta) {
         }
     }
 
-    if(out==mGroups.size()-1)
-        for(auto && g : mGroups)
+    if (out == mGroups.size() - 1)
+        for (auto && g : mGroups)
             if (!(g.second.key.empty() && g.second.units.empty())) {
                 win(g.first);
                 return;
@@ -292,8 +295,7 @@ void Server::update(float delta) {
                 flag = true;
             }
         }
-    }
-    while (flag && Game::getAbsoluteTime() - now < 10.0);
+    } while (flag && Game::getAbsoluteTime() - now < 10.0);
 
     {
         //shuffle groups to make the game blance.
@@ -369,8 +371,7 @@ void Server::update(float delta) {
                     }
                 }
             }
-    }
-    while (newCheck.size() && Game::getAbsoluteTime() - now < 10.0);
+    } while (newCheck.size() && Game::getAbsoluteTime() - now < 10.0);
 
     if (newCheck.size()) {
         check.swap(newCheck);
@@ -400,19 +401,19 @@ void Server::update(float delta) {
                     }
             for (auto&& x : mDeferred) {
                 auto iter = mGroups[x.group].units.find(x.id);
-                if (iter!=mGroups[x.group].units.end() && iter->second.getBound().intersects(bb)) {
+                if (iter != mGroups[x.group].units.end() && iter->second.getBound().intersects(bb)) {
                     boom = true;
                     goto point;
                 }
             }
 
-            for(size_t i=0;i<vbs.size();++i)
-                if (i!=idx && vbs[i].intersects(bb)) {
+            for (size_t i = 0; i < vbs.size(); ++i)
+                if (i != idx && vbs[i].intersects(bb)) {
                     boom = true;
                     goto point;
                 }
 
-            if((bb.center.y < 0.0f || bb.center.x<-mapSizeHF || bb.center.x>mapSizeHF
+            if ((bb.center.y < 0.0f || bb.center.x<-mapSizeHF || bb.center.x>mapSizeHF
                 || bb.center.z<-mapSizeHF || bb.center.z>mapSizeHF)
                 || (bb.center.y - bb.radius < mMap.getHeight(bb.center.x, bb.center.z)))
                 boom = true;
@@ -423,7 +424,7 @@ void Server::update(float delta) {
                 for (auto&& g : mGroups)
                     for (auto&& u : g.second.units) {
                         auto bu = u.second.getBound();
-                        if (x.second.getGroup()!=u.second.getGroup() && b.intersects(bu)) {
+                        if (x.second.getGroup() != u.second.getGroup() && b.intersects(bu)) {
                             auto dis = b.center.distance(bu.center);
                             auto fac = (dis - bu.radius) / b.radius;
                             fac = std::max(fac, 0.0f);
@@ -559,16 +560,23 @@ void Server::newBullet(BulletInstance && bullet) {
 }
 
 Vector3 Server::getUnitPos(uint32_t id) const {
-    if (std::find_if(mDeferred.cbegin(), mDeferred.cend(), 
+    if (std::find_if(mDeferred.cbegin(), mDeferred.cend(),
         [id](auto&& x) {return x.id == id; }) != mDeferred.cend())
         return {};
     for (auto&& g : mGroups) {
         auto&& units = g.second.units;
         auto i = units.find(id);
-        if (i != units.end()) 
+        if (i != units.end())
             return i->second.getNode()->getTranslation();
     }
     return {};
+}
+
+void Server::changeSpeed(float speed) {
+    mSpeed = speed;
+    RakNet::BitStream data;
+    data.Write();
+    for(auto&& c:getClientInfo())
 }
 
 GroupInfo::GroupInfo() :weight(globalUnits.size(), 1) {}

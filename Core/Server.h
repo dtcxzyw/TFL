@@ -43,6 +43,8 @@ private:
         double time;
     };
     std::vector<DiedInfo> mDeferred;
+	float mSpeed;
+
     void send(uint8_t group,const RakNet::BitStream& data,PacketPriority priority);
     void chooseNew(KeyInfo& k);
 public:
@@ -61,6 +63,7 @@ public:
     void attack(uint32_t id, float harm);
     void newBullet(BulletInstance&& bullet);
     Vector3 getUnitPos(uint32_t id) const;
+	void changeSpeed(float speed);
 };
 
 extern std::unique_ptr<Server> localServer;

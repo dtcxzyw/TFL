@@ -18,6 +18,7 @@ enum class ServerMessage : unsigned char {
     updateUnit,
     updateWeight,
     updateBullet,
+	changeSpeed,
     duang,
     win,
     out,
