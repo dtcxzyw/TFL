@@ -79,7 +79,7 @@ Vector3 Client::getPoint(int x, int y) const {
 bool Client::checkCamera() {
     auto game = Game::getInstance();
     auto rect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
-    mCamera->setAspectRatio(rect.width/rect.height);
+    mCamera->setAspectRatio(rect.width / rect.height);
     auto test = [this, rect](float x, float y) {
         Ray r;
         mCamera->pickRay(rect, x, y, &r);
@@ -105,7 +105,7 @@ void Client::move(int x, int y) {
 
 Client::Client(const std::string & server, bool& res) :
     mPeer(RakNet::RakPeerInterface::GetInstance()), mServer(server.c_str(), 23333),
-    mState(false), mWeight(globalUnits.size(), 1), mCnt(0.0f),mSpeed(1.0f) {
+    mState(false), mWeight(globalUnits.size(), 1), mCnt(0.0f), mSpeed(1.0f) {
 
     RakNet::SocketDescriptor SD;
     mPeer->Startup(1, &SD, 1);
@@ -124,9 +124,9 @@ Client::Client(const std::string & server, bool& res) :
         INFO("Failed to connect to the server.");
 
     mRECT = SpriteBatch::create("res/common/rect.png");
-	mMiniMapUnit= SpriteBatch::create("res/common/white.png");
+    mMiniMapUnit = SpriteBatch::create("res/common/white.png");
     res = mPeer->NumberOfConnections();
-    mDepth = FrameBuffer::create("depth", shadowSize, shadowSize,Texture::Format::RGBA8888);
+    mDepth = FrameBuffer::create("depth", shadowSize, shadowSize, Texture::Format::RGBA8888);
 
     mDepth->setDepthStencilTarget(DepthStencilTarget::create("shadow",
         DepthStencilTarget::DEPTH, shadowSize, shadowSize));
@@ -138,7 +138,7 @@ Client::Client(const std::string & server, bool& res) :
     auto f = -Vector3::one();
     correctVector(mLight.get(), &Node::getForwardVector, f.normalize(), M_PI, M_PI, 0.0f);
 
-    uniqueRAII<Scene> model= Scene::load("res/common/flag.scene");
+    uniqueRAII<Scene> model = Scene::load("res/common/flag.scene");
     mFlagModel = model->findNode("root")->clone();
 }
 
@@ -166,18 +166,18 @@ Client::WaitResult Client::wait() {
             mPeer->DeallocatePacket(packet);
             return WaitResult::Disconnected;
         }
-		CheckHeader(ServerMessage::info) {
-			uint64_t key;
-			data.Read(key);
-			if (key != pakKey) {
-				INFO("The pakKey of server is not equal yours.");
-				mPeer->DeallocatePacket(packet);
-				return WaitResult::Disconnected;
-			}
-			RakNet::RakString str;
-			data.Read(str);
-			mMap = std::make_unique<Map>(str.C_String());
-			mMiniMap = SpriteBatch::create(("res/maps/"s + str.C_String() +"/view.png").c_str());
+        CheckHeader(ServerMessage::info) {
+            uint64_t key;
+            data.Read(key);
+            if (key != pakKey) {
+                INFO("The pakKey of server is not equal yours.");
+                mPeer->DeallocatePacket(packet);
+                return WaitResult::Disconnected;
+            }
+            RakNet::RakString str;
+            data.Read(str);
+            mMap = std::make_unique<Map>(str.C_String());
+            mMiniMap = SpriteBatch::create(("res/maps/"s + str.C_String() + "/view.png").c_str());
             INFO("Load map ", str.C_String());
         }
         CheckHeader(ServerMessage::changeSpeed) {
@@ -430,7 +430,7 @@ void Client::render() {
                 drawNode(x.second.getNode(), true);
 
             for (auto&& p : mMap->getKey()) {
-                mFlagModel->setTranslation(p.x,mMap->getHeight(p.x,p.y), p.y);
+                mFlagModel->setTranslation(p.x, mMap->getHeight(p.x, p.y), p.y);
                 drawNode(mFlagModel.get(), true);
             }
 
@@ -487,30 +487,31 @@ void Client::render() {
             mRECT->finish();
         }
 
-		if(miniMapSize){
+        if (miniMapSize) {
 
-			gameplay::Rectangle range{ rect.width-miniMapSize,0.0f,miniMapSize*1.0f,miniMapSize*1.0f};
-			mMiniMap->start();
-			auto texture = mMiniMap->getSampler()->getTexture();
-			mMiniMap->draw(range, {texture->getWidth()*1.0f,texture->getHeight()*1.0f});
-			mMiniMap->finish();
+            gameplay::Rectangle range{ rect.width - miniMapSize,0.0f,miniMapSize*1.0f,miniMapSize*1.0f };
+            mMiniMap->start();
+            auto texture = mMiniMap->getSampler()->getTexture();
+            mMiniMap->draw(range, { texture->getWidth()*1.0f,texture->getHeight()*1.0f });
+            mMiniMap->finish();
 
-			static const Vector4 red = { 1.0f,0.0f,0.0f,1.0f };
-			static const Vector4 blue = { 0.0f,0.0f,1.0f,1.0f };
+            static const Vector4 red = { 1.0f,0.0f,0.0f,1.0f };
+            static const Vector4 blue = { 0.0f,0.0f,1.0f,1.0f };
 
-			Vector2 base{ rect.width - miniMapSize/2.0f,miniMapSize/2.0f };
-			mMiniMapUnit->start();
-			for (auto&& x : mUnits) {
-				auto p=x.second.getRoughPos();
-				auto dp = base + Vector2(p.x, p.z) / mapSizeHF*miniMapSize/2.0f;
-				gameplay::Rectangle range{ dp.x- miniMapSize/128.0f,dp.y- miniMapSize / 128.0f
-					,miniMapSize / 64.0f,miniMapSize / 64.0f };
-				mMiniMapUnit->draw(range, { 1,1 },x.second.getGroup()==mGroup?red:blue);
-			}
-			mMiniMapUnit->finish();
-		}
+            Vector2 base{ rect.width - miniMapSize / 2.0f,miniMapSize / 2.0f };
+            mMiniMapUnit->start();
+            for (auto&& x : mUnits)
+                if (!x.second.isDied()) {
+                    auto p = x.second.getRoughPos();
+                    auto dp = base + Vector2(p.x, p.z) / mapSizeHF*miniMapSize / 2.0f;
+                    gameplay::Rectangle range{ dp.x - miniMapSize / 128.0f,dp.y - miniMapSize / 128.0f
+                        ,miniMapSize / 64.0f,miniMapSize / 64.0f };
+                    mMiniMapUnit->draw(range, { 1,1 }, x.second.getGroup() == mGroup ? red : blue);
+                }
+            mMiniMapUnit->finish();
+        }
 
-	} 
+    }
 }
 
 Vector3 Client::getPos(uint32_t id) {

@@ -276,26 +276,28 @@ protected:
 
 	void finalize() override {}
 
-	void update(float delta) override {
-		UI::updateForm(delta);
-		auto now = Game::getAbsoluteTime();
+    void update(float delta) override {
+        UI::updateForm(delta);
+        auto now = Game::getAbsoluteTime();
 
-		if (now - lastTime > 3000.0)
-			dynamic_cast<Label*>(label->getControl(0U))->setText("");
-		label->update(delta);
-		while (label->getHeight() * 2 > getHeight()) {
-			auto l = dynamic_cast<Label*>(label->getControl(0U));
-			std::string info = l->getText();
-			l->setText(info.substr(info.find('\n')+1).c_str());
-			label->update(delta);
-		}
+        if (now - lastTime > 3000.0)
+            dynamic_cast<Label*>(label->getControl(0U))->setText("");
+        label->update(delta);
+        while (label->getHeight() * 2 > getHeight()) {
+            auto l = dynamic_cast<Label*>(label->getControl(0U));
+            std::string info = l->getText();
+            l->setText(info.substr(info.find('\n') + 1).c_str());
+            label->update(delta);
+        }
 
 #ifdef ANDROID
-		joystick->update(delta);
-		constexpr float fac = 0.0005f;
-		auto j = dynamic_cast<JoystickControl*>(joystick->getControl(0U))->getValue()*fac*delta;
-		if (localClient && localClient->isPlaying() && !j.isZero())
-			localClient->moveEvent(j.x, -j.y);
+        joystick->update(delta);
+        constexpr float fac = 0.0005f;
+        auto j = dynamic_cast<JoystickControl*>(joystick->getControl(0U))->getValue()*fac*delta;
+        if (localClient && localClient->isPlaying() && !j.isZero()) {
+            localClient->moveEvent(j.x, 0.0f);
+            localClient->moveEvent(0.0f, -j.y);
+        }
 #endif // ANDROID
 
 	}
