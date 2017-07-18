@@ -481,21 +481,24 @@ void Client::render() {
             mRECT->finish();
         }
 
-		{
-			gameplay::Rectangle range{ rect.width-256.0f,0.0f,256.0f,256.0f};
+		if(miniMapSize){
+
+			gameplay::Rectangle range{ rect.width-miniMapSize,0.0f,miniMapSize*1.0f,miniMapSize*1.0f};
 			mMiniMap->start();
-			mMiniMap->draw(range, { 256,256 });
+			auto texture = mMiniMap->getSampler()->getTexture();
+			mMiniMap->draw(range, {texture->getWidth()*1.0f,texture->getHeight()*1.0f});
 			mMiniMap->finish();
 
 			static const Vector4 red = { 1.0f,0.0f,0.0f,1.0f };
 			static const Vector4 blue = { 0.0f,0.0f,1.0f,1.0f };
 
-			Vector2 base{ rect.width - 128.0f,128.0f };
+			Vector2 base{ rect.width - miniMapSize/2.0f,miniMapSize/2.0f };
 			mMiniMapUnit->start();
 			for (auto&& x : mUnits) {
 				auto p=x.second.getRoughPos();
-				auto dp = base + Vector2(p.x, p.z) / mapSizeHF*128.0f;
-				gameplay::Rectangle range{ dp.x-2,dp.y-2,4,4 };
+				auto dp = base + Vector2(p.x, p.z) / mapSizeHF*miniMapSize/2.0f;
+				gameplay::Rectangle range{ dp.x- miniMapSize/128.0f,dp.y- miniMapSize / 128.0f
+					,miniMapSize / 64.0f,miniMapSize / 64.0f };
 				mMiniMapUnit->draw(range, { 1,1 },x.second.getGroup()==mGroup?red:blue);
 			}
 			mMiniMapUnit->finish();

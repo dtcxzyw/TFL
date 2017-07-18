@@ -1,6 +1,6 @@
 theme mainMenu
 {
-    texture = default-theme.png
+    texture = UI.png
 
     /////////////////////////////////////////////////////////////////////
     //                    Global theme variables                       //

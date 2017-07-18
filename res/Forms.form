@@ -212,6 +212,17 @@ form Settings
 		valueTextPrecision = 4 
 	}
 	
+	slider miniMap
+	{
+		text = MiniMap Size
+		width = 50%
+		min =  0
+		max =  512
+		value = 512
+		step = 128
+		valueTextVisible = true 
+	}
+	
 	button return
 	{
 		text = Save and Return 
