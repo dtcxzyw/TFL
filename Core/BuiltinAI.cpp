@@ -20,15 +20,11 @@ private:
     std::map<uint32_t, UnitSyncInfo> mMine;
     std::map<uint32_t, UnitSyncInfo> mArmies;
     uint32_t mGroup;
-    Type mStep = Type::defense;
+    Type mStep = Type::discover;
     struct TeamInfo final {
-        std::set<uint32_t> current;
-        uint32_t size;
+        std::vector<uint32_t> current;
         Vector2 object;
     };
-    std::vector<TeamInfo> mTeams;
-    std::vector<uint32_t> mFree;
-    Vector2 mRoot;
 public:
     BuiltinAI() {
         std::vector<std::string> units;
@@ -52,10 +48,6 @@ public:
         mGroup = group;
     }
 
-    void setRoot(const Vector2 root) {
-        mRoot = root;
-    }
-
     void updateUnit(const UnitSyncInfo& info) {
         if (info.group == mGroup)
             mMine[info.id] = info;
@@ -65,8 +57,6 @@ public:
 
     void newUnit(const UnitSyncInfo& info) {
         updateUnit(info);
-        if (info.group == mGroup)
-            mFree.emplace_back(info.id);
     }
 
     void deleteUnit(uint32_t id) {
@@ -94,93 +84,49 @@ public:
         mSend(data, PacketPriority::IMMEDIATE_PRIORITY, PacketReliability::RELIABLE_ORDERED);
     }
 
-    void clearTeams() {
-        for (auto&& x : mTeams)
-            for (auto&& u : x.current)
-                if (mMine.find(u) != mMine.cend())
-                    mFree.emplace_back(u);
-        mTeams.clear();
-    }
-
     void update() {
 
-        auto old = mStep;
-
-        if (mArmies.empty())mStep = Type::discover;
-
-        if ((mArmies.size() && mArmies.size() < mMine.size())) mStep = Type::attack;
-
         if (mArmies.size() > mMine.size())mStep = Type::defense;
+        else if ((mArmies.size() && mArmies.size() < mMine.size())) mStep = Type::attack;
+        else mStep = Type::discover;
 
-        uint16_t id = 0;
-        for (auto&& x : mUnits) {
-            if (x.second == mStep)
-                send(id, 1000);
-            else
-                send(id, 1);
-            ++id;
-        }
-        clearTeams();
-
-        switch (mStep) {
-        case Type::attack:
         {
-
-            for (auto&& x : mKeyPoint) {
-                TeamInfo team;
-                team.size = mFree.size() * 2 / mKeyPoint.size();
-                team.object = x;
-                mTeams.emplace_back(team);
+            uint16_t id = 0;
+            for (auto&& x : mUnits) {
+                if (x.second == mStep)
+                    send(id, 1000);
+                else
+                    send(id, 1);
+                ++id;
             }
         }
-        break;
-        case Type::defense:
-        {
+
+        std::vector<TeamInfo> teams;
+
+        for (auto&& k : mKeyPoint) {
             TeamInfo team;
-            team.object = mRoot;
-            team.size = std::numeric_limits<uint32_t>::max();
-            send(team);
-            mTeams.emplace_back(team);
+            team.object = k;
+            teams.emplace_back(team);
         }
-        break;
-        case Type::discover:
-        {
-            for (auto&& x : mKeyPoint) {
-                TeamInfo team;
-                team.size = mFree.size() * 2 / mKeyPoint.size();
-                team.object = x;
-                mTeams.emplace_back(team);
+
+        std::vector<uint32_t> free;
+
+        for (auto&& x : mMine)
+            free.emplace_back(x.first);
+
+        while (free.size())
+            for (auto&& t : teams) {
+                if (free.empty())break;
+                auto x = std::min_element(free.cbegin(), free.cend(), [&](auto&& a, auto&& b) {
+                    return t.object.distanceSquared({mMine[a].pos.x,mMine[a].pos.z }) <
+                        t.object.distanceSquared({ mMine[b].pos.x,mMine[b].pos.z });
+                });
+                t.current.emplace_back(*x);
+                free.erase(x);
             }
-        }
-        break;
-        default:
-            break;
-        }
 
-        std::remove_if(mFree.begin(), mFree.end(),
-            [this](uint32_t id) {return mMine.find(id) == mMine.cend(); });
-
-        std::shuffle(mTeams.begin(), mTeams.end(), mt);
-
-        for (auto&& x : mTeams) {
-            if (mFree.empty())continue;
-            std::set<uint32_t> deferred;
-            for (auto&& id : x.current)
-                if (mMine.find(id) == mMine.cend())
-                    deferred.insert(id);
-            for (auto&& y : deferred)
-                x.current.erase(y);
-            uint32_t size = std::min(mFree.size(), x.size - x.current.size());
-            std::partial_sort(mFree.begin(), mFree.begin() + size, mFree.end(),
-                [this, &x](uint32_t a, uint32_t b) {
-                return x.object.distanceSquared({ mMine[a].pos.x,mMine[a].pos.z }) >
-                    x.object.distanceSquared({ mMine[b].pos.x,mMine[b].pos.z });
-            });
-            for (auto i = 0; i < size; ++i)
-                x.current.insert(*(mFree.rbegin() + i));
-            mFree.resize(mFree.size() - size);
-            send(x);
-        }
+        for (auto&& t : teams)
+            send(t);
 
         std::map<uint32_t, uint32_t> attackMap;
         for (auto&& x : mMine) {
@@ -244,11 +190,7 @@ void AIMain(bool* flag) {
             *flag = true;
         }
         CheckHeader(ServerMessage::go) {
-            RakNet::BitStream data(packet->data, packet->length,false);
-            data.IgnoreBytes(1);
-            Vector2 p;
-            data.Read(p);
-            builtinAI.setRoot(p);
+            peer.DeallocatePacket(packet);
             goto p2;
         }
         }
