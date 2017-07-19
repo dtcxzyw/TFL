@@ -20,7 +20,6 @@ private:
     std::map<uint32_t, UnitSyncInfo> mMine;
     std::map<uint32_t, UnitSyncInfo> mArmies;
     uint32_t mGroup;
-    float mValue;
     Type mStep = Type::defense;
     struct TeamInfo final {
         std::set<uint32_t> current;
@@ -31,7 +30,7 @@ private:
     std::vector<uint32_t> mFree;
     Vector2 mRoot;
 public:
-    BuiltinAI() :mValue(0.0f) {
+    BuiltinAI() {
         std::vector<std::string> units;
         listDirs("res/units", units);
         for (auto&& x : units) {
@@ -66,16 +65,15 @@ public:
 
     void newUnit(const UnitSyncInfo& info) {
         updateUnit(info);
-        mValue += (info.group == mGroup) ? 1.0f : -1.0f;
         if (info.group == mGroup)
             mFree.emplace_back(info.id);
     }
 
     void deleteUnit(uint32_t id) {
         if (mMine.find(id) != mMine.cend())
-            mMine.erase(id), --mValue;
+            mMine.erase(id);
         else
-            mArmies.erase(id), ++mValue;
+            mArmies.erase(id);
     }
 
     void send(const TeamInfo& info) {
@@ -108,70 +106,61 @@ public:
 
         auto old = mStep;
 
-        if (mValue > -5.0f || mArmies.empty())mStep = Type::discover;
+        if (mArmies.empty())mStep = Type::discover;
 
-        if (mValue > 5.0f || (mArmies.size() &&
-            mArmies.size() < mMine.size())) mStep = Type::attack;
+        if ((mArmies.size() && mArmies.size() < mMine.size())) mStep = Type::attack;
 
-        if (mArmies.size()>mMine.size())mStep = Type::defense;
+        if (mArmies.size() > mMine.size())mStep = Type::defense;
 
-        if (old != mStep) {
-            uint16_t id = 0;
-            for (auto&& x : mUnits) {
-                if (x.second == mStep)
-                    send(id, 1000);
-                else
-                    send(id, 1);
-                ++id;
-            }
-            clearTeams();
+        uint16_t id = 0;
+        for (auto&& x : mUnits) {
+            if (x.second == mStep)
+                send(id, 1000);
+            else
+                send(id, 1);
+            ++id;
+        }
+        clearTeams();
 
-            switch (mStep) {
-            case Type::attack:{
-                clearTeams();
+        switch (mStep) {
+        case Type::attack:
+        {
 
-                for (auto&& x : mKeyPoint) {
-                    TeamInfo team;
-                    team.size = mFree.size() / mKeyPoint.size();
-                    team.object = x;
-                    mTeams.emplace_back(team);
-                }
-            }
-            break;
-            case Type::defense:
-            {
+            for (auto&& x : mKeyPoint) {
                 TeamInfo team;
-                team.object = mRoot;
-                team.size = std::numeric_limits<uint32_t>::max();
-                send(team);
+                team.size = mFree.size() * 2 / mKeyPoint.size();
+                team.object = x;
                 mTeams.emplace_back(team);
-                uint16_t id = 0;
-                for (auto&& x : mUnits) {
-                    if (x.second != Type::defense)
-                        send(id, 1);
-                    ++id;
-                }
             }
+        }
+        break;
+        case Type::defense:
+        {
+            TeamInfo team;
+            team.object = mRoot;
+            team.size = std::numeric_limits<uint32_t>::max();
+            send(team);
+            mTeams.emplace_back(team);
+        }
+        break;
+        case Type::discover:
+        {
+            for (auto&& x : mKeyPoint) {
+                TeamInfo team;
+                team.size = mFree.size() * 2 / mKeyPoint.size();
+                team.object = x;
+                mTeams.emplace_back(team);
+            }
+        }
+        break;
+        default:
             break;
-            case Type::discover:
-            {
-                for (auto&& x : mKeyPoint) {
-                    TeamInfo team;
-                    team.size = mFree.size() / mKeyPoint.size() / 3 + 2;
-                    team.object = x;
-                    mTeams.emplace_back(team);
-                }
-            }
-            break;
-            default:
-                break;
-            }
         }
 
         std::remove_if(mFree.begin(), mFree.end(),
             [this](uint32_t id) {return mMine.find(id) == mMine.cend(); });
 
-       // std::shuffle(mTeams.begin(), mTeams.end(), mt);
+        std::shuffle(mTeams.begin(), mTeams.end(), mt);
 
         for (auto&& x : mTeams) {
             if (mFree.empty())continue;
@@ -203,6 +192,7 @@ public:
             }
             if (maxwell) attackMap[x.first] = maxwell;
         }
+
         if (attackMap.size()) {
             RakNet::BitStream data;
             data.Write(ClientMessage::setAttackTarget);
@@ -293,7 +283,7 @@ p2:
         }
         }
 
-        if (isStop ||
+            if (isStop ||
                 peer.GetConnectionState(server) != RakNet::ConnectionState::IS_CONNECTED)break;
         if (latestData.empty())continue;
 

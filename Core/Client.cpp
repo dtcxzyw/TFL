@@ -383,18 +383,18 @@ bool Client::update(float delta) {
         data.Write(ClientMessage::setAttackTarget);
 
         for (auto&& x : mine) {
+            if (mUnits.find(x) == mUnits.cend())continue;
+            auto p = mUnits[x].getNode()->getTranslation();
             float md = std::numeric_limits<float>::max();
             uint32_t maxwell = 0;
             for (auto&& y : others) {
-                auto dis = mUnits[x].getNode()->getTranslation().
-                    distanceSquared(mUnits[y].getNode()->getTranslation());
+                if (mUnits.find(y) == mUnits.cend())continue;
+                auto dis = p.distanceSquared(mUnits[y].getNode()->getTranslation());
                 if (dis < md)
                     md = dis, maxwell = y;
             }
-            if (md < mUnits[x].getKind().getFOV()) {
-                data.Write(x);
-                data.Write(maxwell);
-            }
+            data.Write(x);
+            data.Write(maxwell);
         }
 
         mPeer->Send(&data, PacketPriority::HIGH_PRIORITY,
@@ -519,7 +519,7 @@ void Client::render() {
             float x1 = p1.x, y1 = p1.z, x2 = p2.x, y2 = p2.z;
             if (x1 > x2)std::swap(x1, x2);
             if (y1 > y2)std::swap(y1, y2);
-            gameplay::Rectangle range{base.x + x1,base.y+y1,std::max(x2 - x1,16.0f),std::max(y2 - y1,16.0f) };
+            gameplay::Rectangle range{ base.x + x1,base.y + y1,std::max(x2 - x1,16.0f),std::max(y2 - y1,16.0f) };
             mRECT->start();
             mRECT->draw(range, { 32,32 });
             mRECT->finish();
