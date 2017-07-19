@@ -259,6 +259,17 @@ form Server
 		checked = true
 	}
 	
+	slider level
+	{
+		text = AI Level
+		width = 80%
+		min =  0
+		max =  10
+		value = 0
+		step = 1
+		valueTextVisible = true 
+	}
+	
 	button run
 	{
 		text = Go

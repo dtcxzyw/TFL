@@ -105,7 +105,7 @@ void Client::move(int x, int y) {
 
 Client::Client(const std::string & server, bool& res) :
     mPeer(RakNet::RakPeerInterface::GetInstance()), mServer(server.c_str(), 23333),
-    mState(false), mWeight(globalUnits.size(), 1), mCnt(0.0f), mSpeed(1.0f) {
+    mState(false), mWeight(globalUnits.size(), 1), mSpeed(1.0f) {
 
     RakNet::SocketDescriptor SD;
     mPeer->Startup(1, &SD, 1);
@@ -176,9 +176,11 @@ Client::WaitResult Client::wait() {
             }
             RakNet::RakString str;
             data.Read(str);
+            INFO("Loading map ", str.C_String());
             mMap = std::make_unique<Map>(str.C_String());
             mMiniMap = SpriteBatch::create(("res/maps/"s + str.C_String() + "/view.png").c_str());
-            INFO("Load map ", str.C_String());
+
+            std::fill(mWeight.begin(), mWeight.end(), 1);
         }
         CheckHeader(ServerMessage::changeSpeed) {
             data.Read(mSpeed);
@@ -376,32 +378,26 @@ bool Client::update(float delta) {
     }
 
     //control
-    mCnt += delta;
-    if (mCnt > 500.0f) {
+    RakNet::BitStream data;
+    data.Write(ClientMessage::setAttackTarget);
 
-        RakNet::BitStream data;
-        data.Write(ClientMessage::setAttackTarget);
-
-        for (auto&& x : mine) {
-            if (mUnits.find(x) == mUnits.cend())continue;
-            auto p = mUnits[x].getNode()->getTranslation();
-            float md = std::numeric_limits<float>::max();
-            uint32_t maxwell = 0;
-            for (auto&& y : others) {
-                if (mUnits.find(y) == mUnits.cend())continue;
-                auto dis = p.distanceSquared(mUnits[y].getNode()->getTranslation());
-                if (dis < md)
-                    md = dis, maxwell = y;
-            }
-            data.Write(x);
-            data.Write(maxwell);
+    for (auto&& x : mine) {
+        if (mUnits.find(x) == mUnits.cend())continue;
+        auto p = mUnits[x].getNode()->getTranslation();
+        float md = std::numeric_limits<float>::max();
+        uint32_t maxwell = 0;
+        for (auto&& y : others) {
+            if (mUnits.find(y) == mUnits.cend())continue;
+            auto dis = p.distanceSquared(mUnits[y].getNode()->getTranslation());
+            if (dis < md)
+                md = dis, maxwell = y;
         }
-
-        mPeer->Send(&data, PacketPriority::HIGH_PRIORITY,
-            PacketReliability::RELIABLE_ORDERED, 0, mServer, false);
-
-        mCnt = 0.0f;
+        data.Write(x);
+        data.Write(maxwell);
     }
+
+    mPeer->Send(&data, PacketPriority::HIGH_PRIORITY,
+        PacketReliability::RELIABLE_ORDERED, 0, mServer, false);
 
     return true;
 }

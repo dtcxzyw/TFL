@@ -297,7 +297,8 @@ void ServerMenu::event(Control * control, Event evt) {
     if (evt == Event::PRESS && CMPID("run")) {
         if (get<CheckBox>("ai")->isChecked()) {
             bool flag = false;
-            aiFuture = std::make_unique<std::future<void>>(std::async(std::launch::async, AIMain, &flag));
+            aiFuture = std::make_unique<std::future<void>>(std::async(std::launch::async,
+                AIMain, &flag,static_cast<uint8_t>(get<Slider>("level")->getValue())));
             while (!flag) localServer->waitClient();
         }
         localServer->run();

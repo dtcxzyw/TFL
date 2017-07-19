@@ -153,7 +153,7 @@ public:
 
 #define FORNET for (auto packet = peer.Receive(); packet; peer.DeallocatePacket(packet), packet = peer.Receive())
 
-void AIMain(bool* flag) {
+void AIMain(bool* flag,uint8_t level) {
     constexpr uint8_t group = 5;
     BuiltinAI builtinAI;
     RakNet::RakPeer peer;
@@ -260,7 +260,7 @@ p2:
 
         builtinAI.update();
 
-        std::this_thread::sleep_for(100ms);
+        std::this_thread::sleep_for(50ms*(10-level));
     }
     peer.Shutdown(500, 0, IMMEDIATE_PRIORITY);
 }

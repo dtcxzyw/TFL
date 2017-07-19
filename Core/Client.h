@@ -42,7 +42,6 @@ private:
 
     void drawNode(Node* node, bool shadow = false);
     Vector3 getPoint(int x, int y) const;
-    float mCnt;
     //control
     int mX, mY,mBX,mBY;
     bool checkCamera();
