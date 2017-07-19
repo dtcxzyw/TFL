@@ -46,14 +46,15 @@ int main(int argc,char** argv) {
     out.open(argv[2], ios::trunc | ios::binary);
     if (!out.is_open())return -1;
     std::mt19937_64 mt(std::chrono::high_resolution_clock::now().time_since_epoch().count());
+    bool local = argv[3] == "local"s;
+    out.write(reinterpret_cast<const char*>(&local), sizeof(local));
     auto key = mt();
     out.write(reinterpret_cast<const char*>(&key), sizeof(key));
-    uint8_t depNum=argc - 3;
-    std::cout << depNum<<std::endl;
+    uint8_t depNum=argc - 4;
     out.write(reinterpret_cast<const char*>(&depNum), sizeof(depNum));
     char depName[32];
     for (uint8_t i = 0; i < depNum; ++i) {
-        strcpy(depName, argv[i+3]);
+        strcpy(depName, argv[i+4]);
         out.write(depName, 32);
     }
     find(argv[1]);
