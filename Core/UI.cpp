@@ -289,7 +289,7 @@ window
 
 ServerMenu::ServerMenu() :UI("Server") {
     get<Label>("IP")->setText(("Your local IP is " + localServer->getIP()).c_str());
-    get<Label>("IP")->setTextColor({ 0.0f,1.0f,0.0f,1.0f });
+    get<Label>("IP")->setTextColor({ 1.0f,0.0f,0.0f,1.0f });
 }
 
 void ServerMenu::event(Control * control, Event evt) {
