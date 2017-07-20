@@ -140,8 +140,9 @@ Client::Client(const std::string & server, bool& res) :
     auto f = -Vector3::one();
     correctVector(mLight.get(), &Node::getForwardVector, f.normalize(), M_PI, M_PI, 0.0f);
 
-    uniqueRAII<Scene> model = Scene::load("res/common/flag.scene");
-    mFlagModel = model->findNode("root")->clone();
+    uniqueRAII<Scene> model = Scene::load("res/common/common.scene");
+    mFlagModel = model->findNode("flag")->clone();
+    mWaterPlane = model->findNode("plane")->clone();
 }
 
 Client::~Client() {
@@ -181,6 +182,9 @@ Client::WaitResult Client::wait() {
             INFO("Loading map ", str.C_String());
             mMap = std::make_unique<Map>(str.C_String());
             mMiniMap = SpriteBatch::create(("res/maps/"s + str.C_String() + "/view.png").c_str());
+            uniqueRAII<Scene> sky = Scene::load(("res/maps/"s + str.C_String() + "/sky.scene").c_str());
+            mSky = sky->findNode("sky")->clone();
+            mScene->addNode(mSky.get());
         }
         CheckHeader(ServerMessage::changeSpeed) {
             data.Read(mSpeed);
@@ -384,6 +388,8 @@ bool Client::update(float delta) {
             x.second.updateClient(delta);
     }
 
+    mSky->setTranslation(mCamera->getNode()->getTranslation());
+
     //control
     RakNet::BitStream data;
     data.Write(ClientMessage::setAttackTarget);
@@ -469,6 +475,8 @@ void Client::render() {
         }
 
         drawNode(mScene->findNode("terrain"));
+
+        drawNode(mSky.get());
 
         for (auto&& x : mBullets)
             drawNode(x.second.getNode());

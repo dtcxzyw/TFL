@@ -1,0 +1,30 @@
+material sky
+{
+    u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
+
+    sampler u_diffuseTexture
+    {
+        path = res/maps/test/sky.png
+        mipmap = true
+        wrapS = REPEAT
+        wrapT = REPEAT
+        minFilter = LINEAR_MIPMAP_LINEAR
+        magFilter = LINEAR
+    }
+
+    renderState
+    {
+        cullFace = true
+        depthTest = true
+		depthFunc = LEQUAL
+    }
+
+    technique
+    {
+        pass
+        {
+            vertexShader = res/shaders/sky.vert
+            fragmentShader = res/shaders/sky.frag
+        }
+    }
+}

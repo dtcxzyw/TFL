@@ -41,6 +41,8 @@ private:
         MaterialParameter* parameter) override;
     Matrix getMat() const;
     uniqueRAII<Node> mLight;
+    uniqueRAII<Node> mSky;
+    uniqueRAII<Node> mWaterPlane;
 
     void drawNode(Node* node, bool shadow = false);
     Vector3 getPoint(int x, int y) const;

@@ -1,0 +1,11 @@
+scene sky
+{
+	node sky
+	{
+		url = res/maps/test/sky.gpb#sphere
+
+		material = res/maps/test/sky.material
+
+		scale = 30000,30000,30000
+	}
+}
