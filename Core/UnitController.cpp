@@ -189,7 +189,7 @@ struct Tank final :public UnitController {
                 && checkRay(t->getTranslationWorld(), point) == point) {
 
                 auto iter = fireUnits.begin();
-                for (;iter!=fireUnits.end();++iter)
+                for (; iter != fireUnits.end(); ++iter)
                     if (iter->z >= time) {
                         iter->z = 0.0f;
                         break;
@@ -197,14 +197,11 @@ struct Tank final :public UnitController {
 
                 if (iter != fireUnits.end()) {
                     if (mIsServer) {
-                        for (auto&& x : fireUnits)
-                            if (x.z >= time) {
-                                auto f = t->getForwardVectorWorld().normalize();
-                                auto u = t->getUpVectorWorld().normalize();
-                                auto r = t->getRightVectorWorld().normalize();
-                                localServer->newBullet(BulletInstance(bullet, t->getTranslationWorld() +
-                                    offset*f+u*iter->y+r*iter->x, point, speed, harm, range, instance.getGroup()));
-                            }
+                        auto f = t->getForwardVectorWorld().normalize();
+                        auto u = t->getUpVectorWorld().normalize();
+                        auto r = t->getRightVectorWorld().normalize();
+                        localServer->newBullet(BulletInstance(bullet, t->getTranslationWorld() +
+                            offset*f + u*iter->y + r*iter->x, point, speed, harm, range, instance.getGroup()));
                     }
                     t->translateForward(bt);
                     t->translateForward(-(bt = 15.0f));
