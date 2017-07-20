@@ -82,7 +82,7 @@ void BulletInstance::update(float delta) {
 
     if (mObject) {
         auto p = localServer->getUnitPos(mObject);
-        if (p.isZero())mCnt = 1e10f;
+        if (p.isZero())mHitRadius = 1e10f;
         else {
             auto mp= mNode->getTranslation();
             auto hl = localClient->getHeight(mp.x, mp.z) + 300.0f;
@@ -101,8 +101,8 @@ void BulletInstance::update(float delta) {
     }
     else {
         mCnt += delta;
-        if (mCnt > 0.6f*mTime) {
-            constexpr auto angle = 0.001f;
+        if (mCnt > 0.3f*mTime) {
+            constexpr auto angle = 0.01f;
             auto f =mEnd-mNode->getTranslation();
             correctVector(mNode.get(), &Node::getForwardVector, f.normalize(),
                 angle*delta,angle*delta , 0.0f);

@@ -182,12 +182,12 @@ struct Tank final :public UnitController {
             sample = 0.0f;
         }
 
-        if (mObject && !point.isZero() && abs(point.y - now.y) <= 100.0f) {
+        if (mObject && !point.isZero() && abs(point.y - now.y) <= 100.0f && bt<=15.0f) {
             auto obj = Vector2{ point.x,point.z } -np;
             obj.normalize();
             auto d = dot(t, obj);
             auto f = t->getForwardVectorWorld().normalize();
-            auto top =now+ f*obj.length();
+            auto top =now+ f*now.distance(point)/speed*0.3f;
             if (d > 0.999f && obj.lengthSquared() <= dis
                 && checkRay(now, top) == top) {
 
@@ -326,7 +326,6 @@ struct CBM final :public UnitController {
         , Init(angle) {
         v /= 1000.0f;
         time *= 1000.0f;
-        speed /= 1000.0f;
     }
     bool update(UnitInstance& instance, float delta) override {
 
@@ -399,7 +398,6 @@ struct PBM final :public UnitController {
         , Init(v), Init(dis), missile(info->getString("missile")), Init(range), Init(harm), Init(speed), Init(angle) {
         v /= 1000.0f;
         time *= 1000.0f;
-        speed /= 1000.0f;
     }
     bool update(UnitInstance& instance, float delta) override {
 
