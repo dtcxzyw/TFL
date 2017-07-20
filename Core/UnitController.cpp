@@ -131,16 +131,27 @@ void scale(UnitInstance& instance, float& sy, float& x, float delta, float m = 0
 
 #define Init(name) name(info->getFloat(#name))
 struct Tank final :public UnitController {
-    float RST, RSC, v, time, harm, dis, count, rfac, sample, range, offset, speed, fcnt, x, sy, bt;
+    float RST, RSC, v, time, harm, dis, rfac, sample, range, offset, speed, fcnt, x, sy, bt;
     Vector2 last;
     std::string bullet;
     bool onBack;
+    std::vector<Vector3> fireUnits;
     Tank(const Properties* info) : Init(RST), Init(RSC), Init(v), Init(time), Init(harm), Init(dis), Init(rfac),
-        Init(range), count(0.0f), sample(0.0f), bullet(info->getString("bullet")), Init(offset), Init(speed),
+        Init(range), sample(0.0f), bullet(info->getString("bullet")), Init(offset), Init(speed),
         x(10000.0f), sy(0.0f), bt(0.0f), onBack(false), fcnt(0.0f) {
         v /= 1000.0f;
         time *= 1000.0f;
         dis *= dis;
+        Vector3 mat;
+        info->getVector3("mat", &mat);
+        if (mat.isZero()) fireUnits.emplace_back();
+        else {
+            Vector2 offset(mat.z*mat.x, mat.z*mat.y);
+            offset *= -0.5f;
+            for (uint8_t i = 0; i < mat.x; ++i)
+                for (uint8_t j = 0; j < mat.y; ++j)
+                    fireUnits.emplace_back(offset.x + i*mat.z, offset.y + j*mat.z, 0.0f);
+        }
     }
 
     bool update(UnitInstance& instance, float delta) override {
@@ -152,8 +163,10 @@ struct Tank final :public UnitController {
             return false;
         }
         auto node = instance.getNode();
-        count += delta;
-        count = std::min(count, time + 0.1f);
+        for (auto&& x : fireUnits) {
+            x.z += delta;
+            x.z = std::min(x.z, time + 0.1f);
+        }
 
         auto c = node;
         auto t = node->findNode("turret");
@@ -168,20 +181,35 @@ struct Tank final :public UnitController {
             sample = 0.0f;
         }
 
-        if (mObject && !point.isZero() && abs(point.y-now.y)<=100.0f) {
+        if (mObject && !point.isZero() && abs(point.y - now.y) <= 100.0f) {
             auto obj = Vector2{ point.x,point.z } -np;
             obj.normalize();
             auto d = dot(t, obj);
-            if (d > 0.999f && count > time && obj.lengthSquared() <= dis) {
-                if (mIsServer && checkRay(t->getTranslationWorld(), point) == point) {
-                    auto f = t->getForwardVectorWorld();
-                    f.normalize();
-                    localServer->newBullet(BulletInstance(bullet, t->getTranslationWorld() +
-                        offset*f, point, speed, harm, range, instance.getGroup()));
+            if (d > 0.999f && obj.lengthSquared() <= dis
+                && checkRay(t->getTranslationWorld(), point) == point) {
+
+                auto iter = fireUnits.begin();
+                for (;iter!=fireUnits.end();++iter)
+                    if (iter->z >= time) {
+                        iter->z = 0.0f;
+                        break;
+                    }
+
+                if (iter != fireUnits.end()) {
+                    if (mIsServer) {
+                        for (auto&& x : fireUnits)
+                            if (x.z >= time) {
+                                auto f = t->getForwardVectorWorld().normalize();
+                                auto u = t->getUpVectorWorld().normalize();
+                                auto r = t->getRightVectorWorld().normalize();
+                                localServer->newBullet(BulletInstance(bullet, t->getTranslationWorld() +
+                                    offset*f+u*iter->y+r*iter->x, point, speed, harm, range, instance.getGroup()));
+                            }
+                    }
+                    t->translateForward(bt);
+                    t->translateForward(-(bt = 15.0f));
+                    onBack = true;
                 }
-                t->translateForward(-(bt = 15.0f));
-                onBack = true;
-                count = 0.0f;
             }
             else if (!onBack) {
                 auto dest = point - now;
@@ -202,6 +230,7 @@ struct Tank final :public UnitController {
             if (bt < 0.0f) {
                 onBack = false;
                 t->translateForward(bt);
+                bt = 0.0f;
             }
         }
 
@@ -347,14 +376,14 @@ struct CBM final :public UnitController {
 void fly(UnitInstance& instance, Vector2 dest, float h, float v, float delta, float RSC, Vector3 now) {
     h += localClient->getHeight(now.x, now.z);
 
-    if (now.y < h-50.0f && dest.isZero()) 
-        dest = { now.x,now.z};
+    if (now.y < h - 50.0f && dest.isZero())
+        dest = { now.x,now.z };
 
     if (!dest.isZero()) {
         Vector3 obj(dest.x, h, dest.y);
         auto f = obj - now;
         correctVector(instance.getNode(), &Node::getForwardVector, f.normalize()
-            ,RSC*delta, RSC*delta, 0.0f);
+            , RSC*delta, RSC*delta, 0.0f);
         instance.getNode()->translateForward(v*delta);
     }
     else {
@@ -363,7 +392,7 @@ void fly(UnitInstance& instance, Vector2 dest, float h, float v, float delta, fl
     }
     auto f = Vector3::unitY();
     correctVector(instance.getNode(), &Node::getUpVector, f.normalize()
-        ,dest.isZero()?RSC*delta:0.0f, 0.0f, RSC*delta);
+        , dest.isZero() ? RSC*delta : 0.0f, 0.0f, RSC*delta);
 }
 
 struct PBM final :public UnitController {

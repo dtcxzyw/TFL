@@ -1,0 +1,23 @@
+HP = 200
+cost = 40
+FOV = 1000
+plane= 10,10
+offset=0,-10,0
+radius=40
+AIType=attack
+control
+{
+	type=Tank
+	RST = 0.001
+	RSC = 0.001
+	v=30
+	dis = 4000
+	time = 5
+	harm = 200
+	rfac = 0.4
+	range = 100
+	offset = 6
+	bullet = rocket
+	speed = 5
+	mat=5,5,1
+}
