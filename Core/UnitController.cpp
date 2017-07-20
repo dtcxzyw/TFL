@@ -403,7 +403,9 @@ struct CBR final :public UnitController {
 
         if (mObject && !point.isZero() && mIsServer) {
             auto d = now.distanceSquared(point);
-            localServer->attack(mObject,delta*harm*d/instance.getKind().getFOV());
+            auto fov = instance.getKind().getFOV();
+            localServer->attack(mObject,delta*harm*fov/d);
+            INFO(delta*harm*fov / d);
         }
 
         node->findNode("radar")->rotateY(M_PI*2.0f/1000.0f*delta);
@@ -485,6 +487,7 @@ void UnitController::initAllController() {
     Model(DET);
     Model(CBM);
     Model(PBM);
+    Model(CBR);
 #undef Model
 }
 
