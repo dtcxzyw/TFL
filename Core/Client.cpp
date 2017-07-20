@@ -125,6 +125,8 @@ Client::Client(const std::string & server, bool& res) :
 
     mRECT = SpriteBatch::create("res/common/rect.png");
     mMiniMapUnit = SpriteBatch::create("res/common/white.png");
+    mHot = SpriteBatch::create("res/common/hot.png");
+
     res = mPeer->NumberOfConnections();
     mDepth = FrameBuffer::create("depth", shadowSize, shadowSize, Texture::Format::RGBA8888);
 
@@ -218,6 +220,7 @@ void Client::stop() {
     mUnits.clear();
     mDuang.clear();
     mChoosed.clear();
+    mHotPoint.clear();
     RakNet::BitStream stream;
     stream.Write(ClientMessage::exit);
     mPeer->Send(&stream, PacketPriority::IMMEDIATE_PRIORITY, PacketReliability::RELIABLE_ORDERED
@@ -347,6 +350,9 @@ bool Client::update(float delta) {
                 iter->emitter->setTranslation(info.pos);
                 auto p = dynamic_cast<ParticleEmitter*>(iter->emitter->getDrawable());
                 p->start();
+                mHotPoint.push_back({ info.pos.x,info.pos.z });
+                if (mHotPoint.size() > 4)
+                    mHotPoint.pop_front();
             }
         }
     }
@@ -509,6 +515,17 @@ void Client::render() {
                     mMiniMapUnit->draw(range, { 1,1 }, x.second.getGroup() == mGroup ? red : blue);
                 }
             mMiniMapUnit->finish();
+
+            if (mHotPoint.size()) {
+                mHot->start();
+                for (auto&& x : mHotPoint) {
+                    auto dp = base + x*fac;
+                    gameplay::Rectangle range{ dp.x - miniMapSize / 32.0f,dp.y - miniMapSize / 32.0f
+                        ,miniMapSize / 16.0f,miniMapSize / 16.0f };
+                    mHot->draw(range, { 32,32 });
+                }
+                mHot->finish();
+            }
 
             auto p1 = getPoint(0, 0)*fac,
                 p2 = getPoint(rect.width, rect.height)*fac;

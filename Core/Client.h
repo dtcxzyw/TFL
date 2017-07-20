@@ -3,6 +3,7 @@
 #include <RakPeer.h>
 #include "Map.h"
 #include "Unit.h"
+#include <list>
 
 struct DuangInfo final {
     uniqueRAII<Node> emitter;
@@ -20,7 +21,8 @@ private:
     uniqueRAII<Scene> mScene;
     uint32_t mRight;
     uniqueRAII<Camera> mCamera;
-    uniqueRAII<SpriteBatch> mRECT,mMiniMap,mMiniMapUnit;
+    uniqueRAII<SpriteBatch> mRECT,mMiniMap,mMiniMapUnit,mHot;
+    std::list<Vector2> mHotPoint;
     std::unique_ptr<Map> mMap;
     std::vector<uint16_t> mWeight;
     std::map<uint32_t, UnitInstance> mUnits;

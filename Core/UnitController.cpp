@@ -181,7 +181,7 @@ struct Tank final :public UnitController {
             sample = 0.0f;
         }
 
-        if (mObject && !point.isZero() && abs(point.y - now.y) <= 100.0f) {
+        if (mObject && !point.isZero() && abs(point.y - now.y) <= 100.0f && bt<=10.0f) {
             auto obj = Vector2{ point.x,point.z } -np;
             obj.normalize();
             auto d = dot(t, obj);
@@ -204,7 +204,7 @@ struct Tank final :public UnitController {
                             offset*f + u*iter->y + r*iter->x, point, speed, harm, range, instance.getGroup()));
                     }
                     t->translateForward(bt);
-                    t->translateForward(-(bt = 15.0f));
+                    t->translateForward(-(bt = 20.0f));
                     onBack = true;
                 }
             }

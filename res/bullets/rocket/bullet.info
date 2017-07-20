@@ -33,9 +33,9 @@ particle boom
     colorEndVar = 0, 0, 0, 0
     position = 0, 10, 0
     positionVar = 0, 0, 0
-    velocity = 0, 20, 0
-    velocityVar = 20, 0, 20
-    acceleration = 0, 5, 0
+    velocity = 0, 0, 0
+    velocityVar = 20, 20, 20
+    acceleration = 0, 0, 0
     accelerationVar = 5, 5, 5
     rotationPerParticleSpeedMin = -1.5
     rotationPerParticleSpeedMax = 1.5
