@@ -55,15 +55,17 @@ uint32_t BulletInstance::askID() {
     return ++cnt;
 }
 
-BulletInstance::BulletInstance(const std::string & kind, Vector3 begin, Vector3 end,
+BulletInstance::BulletInstance(const std::string & kind, Vector3 begin, Vector3 end,Vector3 forward,
     float speed, float harm, float radius, uint8_t group, uint32_t obj, float angle)
     :BulletInstance(std::distance(globalBullets.begin(), globalBullets.find(kind)),
-        begin, end, speed, harm, radius, group, obj, angle) {}
+        begin, end, speed, harm, radius, group, obj, angle) {
+    correctVector(mNode.get(), &Node::getForwardVector, forward, M_PI, M_PI, M_PI);
+}
 
 BulletInstance::BulletInstance(uint16_t kind, Vector3 begin, Vector3 end,
     float speed, float harm, float radius, uint8_t group, uint32_t object, float angle)
-    : mHarm(harm), mBegin(begin), mEnd(end), mCnt(0.0f),
-    mTime(begin.distance(end) / speed), mRadius(radius), mKind(kind)
+    : mHarm(harm), mEnd(end), mCnt(0.0f),
+    mSpeed(speed), mRadius(radius), mKind(kind),mTime(0.0f)
     , mGroup(group), mObject(object), mAngle(angle) {
     auto i = globalBullets.begin();
     std::advance(i, kind);
@@ -71,15 +73,12 @@ BulletInstance::BulletInstance(uint16_t kind, Vector3 begin, Vector3 end,
     mHitRadius = i->second.getRadius();
     mNode->setTranslation(begin);
 
-    if (mObject) {
-        correctVector(mNode.get(), &Node::getForwardVector, end, M_PI, M_PI, M_PI);
-        mTime = speed;
-    }
-    else {
+    if (!mObject){
         auto obj = end - begin;
         obj.normalize();
 
         correctVector(mNode.get(), &Node::getForwardVector, obj, M_PI, M_PI, M_PI);
+        mTime = obj.length() / mSpeed*1.5f;
     }
 }
 
@@ -101,13 +100,19 @@ void BulletInstance::update(float delta) {
             else f = Vector3{ 0.0f,hl - mp.y,0.0f };
             correctVector(mNode.get(), &Node::getForwardVector, f.normalize(),
                 mAngle*delta, mAngle*delta, 0.0f);
-            mNode->translateForward(mTime*delta);
+            mNode->translateForward(mSpeed*delta);
         }
     }
     else {
         mCnt += delta;
-        Vector3 pos = mBegin + (mEnd - mBegin)*std::min(mCnt, mTime) / mTime;
-        mNode->setTranslation(pos);
+        if (mCnt > 0.6f*mTime) {
+            constexpr auto angle = 0.001f;
+            auto f =mEnd-mNode->getTranslation();
+            correctVector(mNode.get(), &Node::getForwardVector, f.normalize(),
+                angle*delta,angle*delta , 0.0f);
+        }
+
+        mNode->translateForward(mSpeed*delta);
     }
 }
 

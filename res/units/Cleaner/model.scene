@@ -10,10 +10,13 @@ scene Cleaner
 			material = res/shared/Core/green.material
 		}
 		
-		node turret
+		node yr
 		{
-			url = res/units/Cleaner/model.gpb#turret
-			material = res/shared/Core/green.material
+			node turret
+			{
+				url = res/units/Cleaner/model.gpb#turret
+				material = res/shared/Core/green.material
+			}
 		}
 	}
 }

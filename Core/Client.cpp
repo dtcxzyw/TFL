@@ -500,21 +500,12 @@ void Client::render() {
                 mMiniMap->finish();
             }
 
+
             static const Vector4 red = { 1.0f,0.0f,0.0f,1.0f };
             static const Vector4 blue = { 0.0f,0.0f,1.0f,1.0f };
 
             auto fac = miniMapSize / mapSizeF;
             Vector2 base{ rect.width - miniMapSize / 2.0f,miniMapSize / 2.0f };
-            mMiniMapUnit->start();
-            for (auto&& x : mUnits)
-                if (!x.second.isDied()) {
-                    auto p = x.second.getRoughPos();
-                    auto dp = base + Vector2(p.x, p.z)*fac;
-                    gameplay::Rectangle range{ dp.x - miniMapSize / 128.0f,dp.y - miniMapSize / 128.0f
-                        ,miniMapSize / 64.0f,miniMapSize / 64.0f };
-                    mMiniMapUnit->draw(range, { 1,1 }, x.second.getGroup() == mGroup ? red : blue);
-                }
-            mMiniMapUnit->finish();
 
             if (mHotPoint.size()) {
                 mHot->start();
@@ -526,6 +517,17 @@ void Client::render() {
                 }
                 mHot->finish();
             }
+
+            mMiniMapUnit->start();
+            for (auto&& x : mUnits)
+                if (!x.second.isDied()) {
+                    auto p = x.second.getRoughPos();
+                    auto dp = base + Vector2(p.x, p.z)*fac;
+                    gameplay::Rectangle range{ dp.x - miniMapSize / 128.0f,dp.y - miniMapSize / 128.0f
+                        ,miniMapSize / 64.0f,miniMapSize / 64.0f };
+                    mMiniMapUnit->draw(range, { 1,1 }, x.second.getGroup() == mGroup ? red : blue);
+                }
+            mMiniMapUnit->finish();
 
             auto p1 = getPoint(0, 0)*fac,
                 p2 = getPoint(rect.width, rect.height)*fac;

@@ -169,7 +169,8 @@ struct Tank final :public UnitController {
         }
 
         auto c = node;
-        auto t = node->findNode("turret");
+        auto yr = node->findNode("yr");
+        auto t = yr->findNode("turret");
         auto point = localClient->getPos(mObject);
         auto now = node->getTranslation();
         Vector2 np{ now.x,now.z };
@@ -185,8 +186,10 @@ struct Tank final :public UnitController {
             auto obj = Vector2{ point.x,point.z } -np;
             obj.normalize();
             auto d = dot(t, obj);
+            auto f = t->getForwardVectorWorld().normalize();
+            auto top = f*obj.length();
             if (d > 0.999f && obj.lengthSquared() <= dis
-                && checkRay(t->getTranslationWorld(), point) == point) {
+                && checkRay(t->getTranslationWorld(), top) == top) {
 
                 auto iter = fireUnits.begin();
                 for (; iter != fireUnits.end(); ++iter)
@@ -197,11 +200,10 @@ struct Tank final :public UnitController {
 
                 if (iter != fireUnits.end()) {
                     if (mIsServer) {
-                        auto f = t->getForwardVectorWorld().normalize();
                         auto u = t->getUpVectorWorld().normalize();
                         auto r = t->getRightVectorWorld().normalize();
                         localServer->newBullet(BulletInstance(bullet, t->getTranslationWorld() +
-                            offset*f + u*iter->y + r*iter->x, point, speed, harm, range, instance.getGroup()));
+                            offset*f + u*iter->y + r*iter->x, point,f, speed, harm, range, instance.getGroup()));
                     }
                     t->translateForward(bt);
                     t->translateForward(-(bt = 20.0f));
@@ -211,14 +213,14 @@ struct Tank final :public UnitController {
             else if (!onBack) {
                 auto dest = point - now;
                 dest.normalize();
-                correctVector(t, &Node::getForwardVectorWorld, dest, 0.0f, RST*delta, 0.0f);
+                correctVector(yr, &Node::getForwardVectorWorld, dest, 0.0f, RST*delta, 0.0f);
             }
         }
         else if (!onBack) {
             mObject = 0;
             auto f = node->getForwardVectorWorld();
             f.normalize();
-            correctVector(t, &Node::getForwardVectorWorld, f, 0.0f, RST*delta, 0.0f);
+            correctVector(yr, &Node::getForwardVectorWorld, f, 0.0f, RST*delta, 0.0f);
         }
 
         if (onBack) {
@@ -359,7 +361,7 @@ struct CBM final :public UnitController {
         if (mObject && !point.isZero() && count >= time) {
             if (mIsServer) {
                 auto m = node->findNode("missile");
-                localServer->newBullet(BulletInstance(missile, m->getTranslationWorld(),
+                localServer->newBullet(BulletInstance(missile, m->getTranslationWorld(),Vector3::zero(),
                     m->getForwardVectorWorld().normalize(), speed, harm, range, instance.getGroup()
                     , mObject, angle));
             }
@@ -419,8 +421,8 @@ struct PBM final :public UnitController {
 
         if (mIsServer && mObject && !point.isZero() && count >= time) {
             localServer->newBullet(BulletInstance(missile, now + instance.getKind().getOffset(),
-                node->getForwardVectorWorld().normalize(), speed, harm, range, instance.getGroup()
-                , mObject, angle));
+                Vector3::zero(),node->getForwardVectorWorld().normalize(), speed, harm, range,
+                instance.getGroup(), mObject, angle));
             count = 0.0f;
         }
 

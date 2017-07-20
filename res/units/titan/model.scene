@@ -10,10 +10,13 @@ scene Titan
 			material = res/shared/Core/green.material
 		}
 		
-		node turret
+		node yr
 		{
-			url = res/units/Titan/model.gpb#turret
-			material = res/shared/Core/green.material
+			node turret
+			{
+				url = res/units/Titan/model.gpb#turret
+				material = res/shared/Core/green.material
+			}
 		}
 	}
 }
