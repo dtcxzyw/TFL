@@ -405,7 +405,7 @@ struct CBR final :public UnitController {
             auto d = now.distanceSquared(point);
             auto fov = instance.getKind().getFOV();
             localServer->attack(mObject,delta*harm*fov/d);
-            INFO(delta*harm*fov / d);
+            INFO(fov / d*harm*1000.0f);
         }
 
         node->findNode("radar")->rotateY(M_PI*2.0f/1000.0f*delta);

@@ -8,7 +8,7 @@ AIType=defense
 control
 {
 	type=CBR
-	harm=1
+	harm=0.03
 	rfac=0.5
 	RSC=0.001
 	v=80
