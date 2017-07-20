@@ -369,6 +369,49 @@ struct CBM final :public UnitController {
     }
 };
 
+struct CBR final :public UnitController {
+    float RSC, rfac, sy, x, fcnt, sample, v, harm;
+    Vector2 last;
+    std::string missile;
+    CBR(const Properties* info) :Init(RSC), Init(rfac), sy(0.0f), x(0.0f), fcnt(0.0f),
+        sample(0.0f), Init(v), Init(harm) {
+        v /= 1000.0f;
+        harm /= 1000.0f;
+    }
+    bool update(UnitInstance& instance, float delta) override {
+
+        scale(instance, sy, x, delta, 0.9f);
+
+        if (instance.isDied()) {
+            correct(instance, delta, fcnt, x);
+            return false;
+        }
+
+        auto node = instance.getNode();
+
+        auto c = node;
+        auto point = localClient->getPos(mObject);
+        auto now = node->getTranslation();
+        Vector2 np{ now.x,now.z };
+
+        if (sample > 100.0f && !mDest.isZero()) {
+            if (last.distanceSquared(np) < 10.0f*v && np.distanceSquared(mDest) < 10000.0f)
+                mDest = Vector2::zero();
+            last = np;
+            sample = 0.0f;
+        }
+
+        if (mObject && !point.isZero() && mIsServer) {
+            auto d = now.distanceSquared(point);
+            localServer->attack(mObject,delta*harm*d/instance.getKind().getFOV());
+        }
+
+        node->findNode("radar")->rotateY(M_PI*2.0f/1000.0f*delta);
+
+        return move(instance, mDest, np, c, RSC, delta, rfac, v, sample, fcnt, x, -1.0f);
+    }
+};
+
 void fly(UnitInstance& instance, Vector2 dest, float h, float v, float delta, float RSC, Vector3 now) {
     h += localClient->getHeight(now.x, now.z);
 
@@ -429,6 +472,7 @@ struct PBM final :public UnitController {
         return true;
     }
 };
+
 
 #undef Init
 

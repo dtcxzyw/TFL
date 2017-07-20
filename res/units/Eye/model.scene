@@ -1,0 +1,19 @@
+scene Eye
+{
+	node root
+	{
+		scale = 0.05,0.05,0.05
+		
+		node base
+		{
+			url = res/units/Eye/model.gpb#base 
+			material = res/shared/Core/green.material
+		}
+		
+		node radar
+		{
+			url = res/units/Eye/model.gpb#radar
+			material = res/shared/Core/green.material
+		}
+	}
+}
