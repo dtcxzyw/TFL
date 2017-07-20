@@ -181,8 +181,6 @@ Client::WaitResult Client::wait() {
             INFO("Loading map ", str.C_String());
             mMap = std::make_unique<Map>(str.C_String());
             mMiniMap = SpriteBatch::create(("res/maps/"s + str.C_String() + "/view.png").c_str());
-
-            std::fill(mWeight.begin(), mWeight.end(), 1);
         }
         CheckHeader(ServerMessage::changeSpeed) {
             data.Read(mSpeed);
@@ -203,7 +201,9 @@ Client::WaitResult Client::wait() {
             c->setTranslation(mCameraPos);
             mScene->addNode(mLight.get());
             mX = mY = mBX = mBY = 0;
+            std::fill(mWeight.begin(), mWeight.end(), 1);
             mState = true;
+
             mPeer->DeallocatePacket(packet);
             return WaitResult::Go;
         }
@@ -244,7 +244,8 @@ bool Client::update(float delta) {
         float m = unit*delta;
         float mx = (std::abs(vx) <= 0.5 && std::abs(vx) >= 0.4) ? (vx > 0.0f ? m : -m) : 0.0f;
         float my = (std::abs(vy) <= 0.5 && std::abs(vy) >= 0.4) ? (vy > 0.0f ? m : -m) : 0.0f;
-        moveEvent(mx, my);
+        moveEvent(mx, 0.0f);
+        moveEvent(0.0f, my);
     }
 #endif // WIN32
 

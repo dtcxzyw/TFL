@@ -392,6 +392,13 @@ void Server::update(float delta) {
         size_t idx = 0;
         for (auto&& x : mBullets) {
             auto bb = vbs[idx];
+            if (bb.center.x<-mapSizeHF || bb.center.x>mapSizeHF
+                || bb.center.z<-mapSizeHF || bb.center.z>mapSizeHF) {
+                deferred.insert(x.first);
+                ++idx;
+                continue;
+            }
+
             bool boom = false;
             for (auto&& g : mGroups)
                 for (auto&& u : g.second.units)
@@ -413,9 +420,7 @@ void Server::update(float delta) {
                     goto point;
                 }
 
-            if ((bb.center.y < 0.0f || bb.center.x<-mapSizeHF || bb.center.x>mapSizeHF
-                || bb.center.z<-mapSizeHF || bb.center.z>mapSizeHF)
-                || (bb.center.y - bb.radius < mMap.getHeight(bb.center.x, bb.center.z)))
+            if ((bb.center.y - bb.radius < mMap.getHeight(bb.center.x, bb.center.z)))
                 boom = true;
 
         point:
@@ -436,7 +441,6 @@ void Server::update(float delta) {
                 deferred.insert(x.first);
                 info[x.first] = { x.second.getKind(), b.center };
             }
-
             ++idx;
         }
 

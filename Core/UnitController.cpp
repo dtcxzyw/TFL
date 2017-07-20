@@ -182,14 +182,14 @@ struct Tank final :public UnitController {
             sample = 0.0f;
         }
 
-        if (mObject && !point.isZero() && abs(point.y - now.y) <= 100.0f && bt<=10.0f) {
+        if (mObject && !point.isZero() && abs(point.y - now.y) <= 100.0f) {
             auto obj = Vector2{ point.x,point.z } -np;
             obj.normalize();
             auto d = dot(t, obj);
             auto f = t->getForwardVectorWorld().normalize();
-            auto top = f*obj.length();
+            auto top =now+ f*obj.length();
             if (d > 0.999f && obj.lengthSquared() <= dis
-                && checkRay(t->getTranslationWorld(), top) == top) {
+                && checkRay(now, top) == top) {
 
                 auto iter = fireUnits.begin();
                 for (; iter != fireUnits.end(); ++iter)
@@ -212,15 +212,13 @@ struct Tank final :public UnitController {
             }
             else if (!onBack) {
                 auto dest = point - now;
-                dest.normalize();
-                correctVector(yr, &Node::getForwardVectorWorld, dest, 0.0f, RST*delta, 0.0f);
+                correctVector(yr, &Node::getForwardVectorWorld, dest.normalize(), 0.0f, RST*delta, 0.0f);
             }
         }
         else if (!onBack) {
             mObject = 0;
-            auto f = node->getForwardVectorWorld();
-            f.normalize();
-            correctVector(yr, &Node::getForwardVectorWorld, f, 0.0f, RST*delta, 0.0f);
+            auto f = node->getForwardVector();
+            correctVector(yr, &Node::getForwardVectorWorld, f.normalize(), 0.0f, RST*delta, 0.0f);
         }
 
         if (onBack) {

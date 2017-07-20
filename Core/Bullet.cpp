@@ -65,21 +65,17 @@ BulletInstance::BulletInstance(const std::string & kind, Vector3 begin, Vector3 
 BulletInstance::BulletInstance(uint16_t kind, Vector3 begin, Vector3 end,
     float speed, float harm, float radius, uint8_t group, uint32_t object, float angle)
     : mHarm(harm), mEnd(end), mCnt(0.0f),
-    mSpeed(speed), mRadius(radius), mKind(kind),mTime(0.0f)
+    mSpeed(speed), mRadius(radius), mKind(kind),mTime(1e5f)
     , mGroup(group), mObject(object), mAngle(angle) {
     auto i = globalBullets.begin();
     std::advance(i, kind);
     mNode = i->second.getModel();
     mHitRadius = i->second.getRadius();
     mNode->setTranslation(begin);
+    mSpeed /= 1000.0f;
 
-    if (!mObject){
-        auto obj = end - begin;
-        obj.normalize();
-
-        correctVector(mNode.get(), &Node::getForwardVector, obj, M_PI, M_PI, M_PI);
-        mTime = obj.length() / mSpeed*1.5f;
-    }
+    if (!mObject)
+        mTime = begin.distance(end) / mSpeed*1.5f;
 }
 
 void BulletInstance::update(float delta) {
