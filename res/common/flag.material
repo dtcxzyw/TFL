@@ -65,7 +65,6 @@ material gray:shared
     { 
         renderState
         {
-            cullFace = true
             depthTest = true
         }
         

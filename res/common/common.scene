@@ -20,6 +20,7 @@ scene common
 	node plane
 	{
 		url= res/common/plane.gpb#plane
-		material = res/common/water.material
+		material = res/common/water.material#water
+		scale = 30000,1,30000
 	}
 }

@@ -37,5 +37,5 @@ const std::vector<Vector2>& Map::getKey() const {
 }
 
 float Map::getHeight(float x, float z) const {
-    return mTerrain->getHeight(x, z);
+    return mTerrain->getHeight(x, z)-mSeaLevel;
 }

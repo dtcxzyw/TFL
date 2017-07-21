@@ -26,33 +26,24 @@ Matrix Client::getMat() const {
     return mLightSpace;
 }
 
-void Client::drawNode(Node * node, bool shadow) {
+void Client::drawNode(Node * node, const char* effect) {
     if (node->isEnabled() && node->getDrawable() &&
         node->getBoundingSphere().intersects(mScene->getActiveCamera()->getFrustum())) {
         auto m = dynamic_cast<Model*>(node->getDrawable());
         auto t = dynamic_cast<Terrain*>(node->getDrawable());
 
-        if (shadow) {
-            if (m) m->getMaterial()->setTechnique("depth");
-            else if (t) {
-                for (unsigned int i = 0; i < t->getPatchCount(); ++i)
-                    t->getPatch(i)->getMaterial(0)->setTechnique("depth");
-            }
-        }
-        else {
-            if (m) m->getMaterial()->setTechnique("shadow");
-            else if (t) {
-                for (unsigned int i = 0; i < t->getPatchCount(); ++i)
-                    t->getPatch(i)->getMaterial(0)->setTechnique("shadow");
-            }
+        if (m) m->getMaterial()->setTechnique(effect);
+        else if (t) {
+            for (unsigned int i = 0; i < t->getPatchCount(); ++i)
+                t->getPatch(i)->getMaterial(0)->setTechnique(effect);
         }
 
-        if (!shadow || m || t)
+        if (effect[0]!='d' || m || t)
             node->getDrawable()->draw();
     }
 
     for (auto i = node->getFirstChild(); i; i = i->getNextSibling())
-        drawNode(i, shadow);
+        drawNode(i, effect);
 }
 
 Vector3 Client::getPoint(int x, int y) const {
@@ -423,6 +414,7 @@ void Client::render() {
         auto rect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
 
         if (shadowSize > 1) {
+            static const char* depth = "depth";
             mDepth->bind();
             game->setViewport(gameplay::Rectangle(shadowSize, shadowSize));
             game->clear(Game::CLEAR_COLOR_DEPTH, Vector4::one(), 1.0f, 1.0f);
@@ -436,16 +428,19 @@ void Client::render() {
             mLightSpace = mLight->getCamera()->getViewProjectionMatrix();
             mScene->setActiveCamera(mLight->getCamera());
             for (auto&& x : mUnits)
-                drawNode(x.second.getNode(), true);
+                drawNode(x.second.getNode(), depth);
             for (auto&& x : mBullets)
-                drawNode(x.second.getNode(), true);
+                drawNode(x.second.getNode(), depth);
 
             for (auto&& p : mMap->getKey()) {
                 mFlagModel->setTranslation(p.x, mMap->getHeight(p.x, p.y), p.y);
-                drawNode(mFlagModel.get(), true);
+                drawNode(mFlagModel.get(), depth);
             }
 
-            drawNode(mScene->findNode("terrain"), true);
+            drawNode(mScene->findNode("terrain"), depth);
+
+            drawNode(mWaterPlane.get(), depth);
+
             mScene->setActiveCamera(mCamera.get());
             FrameBuffer::bindDefault();
         }
@@ -456,10 +451,23 @@ void Client::render() {
         for (auto&& x : mUnits)
             if (x.second.isDied())
                 drawNode(x.second.getNode());
-        mScene->setAmbientColor(0.0f, 0.3f, 0.0f);
-        for (auto&& x : mUnits)
-            if (!x.second.isDied() && mChoosed.find(x.first) != mChoosed.cend())
-                drawNode(x.second.getNode());
+        {
+            game->clear(Game::CLEAR_STENCIL, {}, 0.0f, 0);
+            std::vector<Node*> list;
+            for (auto&& x : mUnits)
+                if (!x.second.isDied() && mChoosed.find(x.first) != mChoosed.cend())
+                    list.emplace_back(x.second.getNode());
+
+            for (auto&& x : list)
+                drawNode(x);
+
+            for (auto&& x : list) {
+                auto s=x->getScale();
+                x->scale(1.1f);
+                drawNode(x, "choosed");
+                x->setScale(s);
+            }
+        }
         mScene->setAmbientColor(0.3f, 0.0f, 0.0f);
         for (auto&& x : mUnits)
             if (!x.second.isDied() && mChoosed.find(x.first) == mChoosed.cend()
@@ -478,9 +486,11 @@ void Client::render() {
 
         drawNode(mScene->findNode("terrain"));
 
-        mWaterPlane->getDrawable()->draw();
+        drawNode(mWaterPlane.get());
 
         mSky->getDrawable()->draw();
+
+        drawNode(mWaterPlane.get());
 
         for (auto&& x : mBullets)
             drawNode(x.second.getNode());

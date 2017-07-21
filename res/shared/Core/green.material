@@ -24,6 +24,12 @@ material green
         {
             cullFace = true
             depthTest = true
+			stencilOpSfail = KEEP 
+			stencilOpDpfail = KEEP 
+			stencilOpDppass = REPLACE 
+			stencilFunc = ALWAYS
+			stencilFuncRef =1
+			stencilTest = true
         }
         
         pass
@@ -56,4 +62,25 @@ material green
             }
         }
     }
+	
+	technique choosed
+	{
+		renderState
+		{
+		    cullFace = true
+            depthTest = false
+			stencilFunc = NOTEQUAL
+			stencilFuncRef = 1
+			stencilWrite = 0
+			stencilTest = true
+		}
+		
+		pass
+        {
+            u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
+            
+            vertexShader = res/shaders/choosed.vert
+            fragmentShader = res/shaders/choosed.frag
+        }
+	}
 }

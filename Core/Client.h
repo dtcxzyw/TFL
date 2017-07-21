@@ -44,7 +44,8 @@ private:
     uniqueRAII<Node> mSky;
     uniqueRAII<Node> mWaterPlane;
 
-    void drawNode(Node* node, bool shadow = false);
+    void drawNode(Node* node, const char* effect="shadow");
+
     Vector3 getPoint(int x, int y) const;
     //control
     int mX, mY,mBX,mBY;

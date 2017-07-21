@@ -1,4 +1,60 @@
 material water
-{
+{       
+    technique depth
+    {
+    
+        u_matrix = WORLD_VIEW_PROJECTION_MATRIX
 
+        renderState
+        {
+            depthTest = true
+            cullFace = true
+        }
+        
+        pass
+        {
+            vertexShader = res/shaders/depth.vert
+            fragmentShader = res/shaders/depth.frag
+        }
+    }
+
+    technique shadow
+    { 
+        renderState
+        {
+            cullFace = true
+            depthTest = true
+			blend = true
+			blendSrc = SRC_ALPHA
+			blendDst = ONE_MINUS_SRC_ALPHA
+        }
+        
+        pass
+        {
+            u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
+            u_inverseTransposeWorldViewMatrix = INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX
+            u_directionalLightDirection[0] = LIGHT_DIRECTION
+            u_directionalLightColor[0] = LIGHT_COLOR
+            
+            u_shadowMap=SHADOW_MAP
+            u_matrix = LIGHT_MATRIX
+            u_model= WORLD_MATRIX 
+            u_mapSize =MAP_SIZE
+            u_bias = BIAS
+            
+            vertexShader = res/shaders/textured.vert
+            fragmentShader = res/shaders/textured.frag
+            defines = DIRECTIONAL_LIGHT_COUNT 1
+
+            sampler u_diffuseTexture
+            {
+                path = res/common/alpha.png
+                mipmap = false
+                wrapS = REPEAT
+                wrapT = REPEAT
+                minFilter = NEAREST
+                magFilter = NEAREST
+            }
+        }
+    }
 }

@@ -7,7 +7,6 @@ terrain
 
 	size = 6000, 300, 6000
 	patchSize = 32
-	seaLevel = 50
 
     layer grass
 	{
@@ -20,3 +19,5 @@ terrain
 		index =0
 	}
 }
+
+seaLevel = 50
