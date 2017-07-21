@@ -1,6 +1,6 @@
 scene common
 {
-	node flag
+	node key
 	{
 		scale = 0.05,0.05,0.05
 		

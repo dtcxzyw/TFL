@@ -141,7 +141,7 @@ Client::Client(const std::string & server, bool& res) :
     correctVector(mLight.get(), &Node::getForwardVector, f.normalize(), M_PI, M_PI, 0.0f);
 
     uniqueRAII<Scene> model = Scene::load("res/common/common.scene");
-    mFlagModel = model->findNode("flag")->clone();
+    mFlagModel = model->findNode("key")->clone();
     mWaterPlane = model->findNode("plane")->clone();
 }
 
@@ -206,6 +206,8 @@ Client::WaitResult Client::wait() {
             mScene->addNode(mLight.get());
             mX = mY = mBX = mBY = 0;
             std::fill(mWeight.begin(), mWeight.end(), 1);
+            mScene->addNode(mSky.get());
+            mScene->addNode(mWaterPlane.get());
             mState = true;
 
             mPeer->DeallocatePacket(packet);
@@ -476,7 +478,9 @@ void Client::render() {
 
         drawNode(mScene->findNode("terrain"));
 
-        drawNode(mSky.get());
+        mWaterPlane->getDrawable()->draw();
+
+        mSky->getDrawable()->draw();
 
         for (auto&& x : mBullets)
             drawNode(x.second.getNode());

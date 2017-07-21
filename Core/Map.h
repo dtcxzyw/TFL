@@ -3,9 +3,9 @@
 
 class Map final {
 private:
-    uint16_t mWidth, mHeight;
     uniqueRAII<Terrain> mTerrain;
     std::vector<Vector2> mKeyPoint;
+    float mSeaLevel;
 public:
     Map(const std::string& name);
     void set(Node* node);

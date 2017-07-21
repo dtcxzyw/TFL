@@ -7,7 +7,9 @@
 Map::Map(const std::string & name) {
     std::string full = "/res/maps/" + name + "/";
     std::string map = full + "map.terrain";
-    mTerrain = Terrain::create(map.c_str());
+    uniqueRAII<Properties> terrain = Properties::create(map.c_str());
+    mTerrain = Terrain::create(terrain.get());
+    mSeaLevel = terrain->getFloat("seaLevel");
 
     mTerrain->setFlag(Terrain::Flags::FRUSTUM_CULLING, true);
     mTerrain->setFlag(Terrain::Flags::LEVEL_OF_DETAIL, false);
@@ -27,6 +29,7 @@ Map::Map(const std::string & name) {
 
 void Map::set(Node* node) {
     node->setDrawable(mTerrain.get());
+    node->setTranslationY(-mSeaLevel);
 }
 
 const std::vector<Vector2>& Map::getKey() const {

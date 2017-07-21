@@ -3,9 +3,11 @@ terrain
 	material = res/common/terrain.material
 	
 	heightmap = res/maps/test/height.png 
+    normalMap = res/maps/test/normal.png
 
 	size = 6000, 300, 6000
 	patchSize = 32
+	seaLevel = 50
 
     layer grass
 	{
