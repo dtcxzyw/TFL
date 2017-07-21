@@ -318,11 +318,11 @@ struct DET final :public UnitController {
 };
 
 struct CBM final :public UnitController {
-    float RSC, rfac, time, sy, x, fcnt, count, sample, v, dis, range, harm, speed, angle;
+    float RSC, rfac, time, sy, x, fcnt, count, sample, v, range, harm, speed, angle;
     Vector2 last;
     std::string missile;
     CBM(const Properties* info) :Init(RSC), Init(rfac), Init(time), sy(0.0f), x(0.0f), fcnt(0.0f), count(0.0f),
-        sample(0.0f), Init(v), Init(dis), missile(info->getString("missile")), Init(range), Init(harm), Init(speed)
+        sample(0.0f), Init(v), missile(info->getString("missile")), Init(range), Init(harm), Init(speed)
         , Init(angle) {
         v /= 1000.0f;
         time *= 1000.0f;

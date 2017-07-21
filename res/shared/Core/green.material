@@ -30,6 +30,7 @@ material green
 			stencilFunc = ALWAYS
 			stencilFuncRef =1
 			stencilTest = true
+			stencilWrite = 4294967295 
         }
         
         pass
@@ -73,6 +74,9 @@ material green
 			stencilFuncRef = 1
 			stencilWrite = 0
 			stencilTest = true
+			stencilOpSfail = KEEP 
+			stencilOpDpfail = KEEP 
+			stencilOpDppass = KEEP 
 		}
 		
 		pass

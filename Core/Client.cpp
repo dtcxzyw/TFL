@@ -451,8 +451,23 @@ void Client::render() {
         for (auto&& x : mUnits)
             if (x.second.isDied())
                 drawNode(x.second.getNode());
+
+        mScene->setAmbientColor(0.3f, 0.0f, 0.0f);
+        for (auto&& x : mUnits)
+            if (!x.second.isDied() && mChoosed.find(x.first) == mChoosed.cend()
+                && x.second.getGroup() == mGroup)
+                drawNode(x.second.getNode());
+
+        mScene->setAmbientColor(0.0f, 0.0f, 0.3f);
+        for (auto&& x : mUnits)
+            if (!x.second.isDied() && x.second.getGroup() != mGroup)
+                drawNode(x.second.getNode());
+
+        mScene->setAmbientColor(0.0f, 0.0f, 0.0f);
         {
-            game->clear(Game::CLEAR_STENCIL, {}, 0.0f, 0);
+            glClearStencil(0);
+            glClear(GL_STENCIL_BUFFER_BIT);
+
             std::vector<Node*> list;
             for (auto&& x : mUnits)
                 if (!x.second.isDied() && mChoosed.find(x.first) != mChoosed.cend())
@@ -463,21 +478,11 @@ void Client::render() {
 
             for (auto&& x : list) {
                 auto s=x->getScale();
-                x->scale(1.1f);
+                x->scale(2.0f);
                 drawNode(x, "choosed");
                 x->setScale(s);
             }
         }
-        mScene->setAmbientColor(0.3f, 0.0f, 0.0f);
-        for (auto&& x : mUnits)
-            if (!x.second.isDied() && mChoosed.find(x.first) == mChoosed.cend()
-                && x.second.getGroup() == mGroup)
-                drawNode(x.second.getNode());
-        mScene->setAmbientColor(0.0f, 0.0f, 0.3f);
-        for (auto&& x : mUnits)
-            if (!x.second.isDied() && x.second.getGroup() != mGroup)
-                drawNode(x.second.getNode());
-        mScene->setAmbientColor(0.0f, 0.0f, 0.0f);
 
         for (auto&& p : mMap->getKey()) {
             mFlagModel->setTranslation(p.x, mMap->getHeight(p.x, p.y), p.y);

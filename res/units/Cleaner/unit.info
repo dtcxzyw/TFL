@@ -11,7 +11,7 @@ control
 	RST = 0.001
 	RSC = 0.001
 	v=30
-	dis = 4000
+	dis = 40000
 	time = 5
 	harm = 200
 	rfac = 0.4
