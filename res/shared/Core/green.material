@@ -41,6 +41,8 @@ material green
             u_directionalLightColor[0] = LIGHT_COLOR
             u_ambientColor = SCENE_AMBIENT_COLOR
             u_specularExponent = 32
+			u_worldViewMatrix = WORLD_VIEW_MATRIX
+			u_cameraPosition = CAMERA_WORLD_POSITION 
             
             u_shadowMap=SHADOW_MAP
             u_matrix = LIGHT_MATRIX

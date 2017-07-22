@@ -31,12 +31,12 @@ material water
 
             sampler u_diffuseTexture
             {
-                path = res/common/gray.png
-                mipmap = false
+                path = res/common/water.png
+                mipmap = true
                 wrapS = REPEAT
                 wrapT = REPEAT
-                minFilter = NEAREST
-                magFilter = NEAREST
+                minFilter = LINEAR_MIPMAP_LINEAR
+                magFilter = LINEAR
             }
         }
     }

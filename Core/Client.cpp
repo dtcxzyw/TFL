@@ -134,6 +134,7 @@ Client::Client(const std::string & server, bool& res) :
     uniqueRAII<Scene> model = Scene::load("res/common/common.scene");
     mFlagModel = model->findNode("key")->clone();
     mWaterPlane = model->findNode("plane")->clone();
+    mWaterPlane->scale(1.4f*mapSizeHF /mWaterPlane->getBoundingSphere().radius);
 
     glBlendColor(1.0f, 1.0f, 1.0f, waterAlpha);
 }
