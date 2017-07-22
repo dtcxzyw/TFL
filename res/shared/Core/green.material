@@ -27,7 +27,7 @@ material green
 			stencilOpSfail = KEEP 
 			stencilOpDpfail = KEEP 
 			stencilOpDppass = REPLACE 
-			stencilFunc = ALWAYS
+			stencilFunc = GEQUAL
 			stencilFuncRef =1
 			stencilTest = true
 			stencilWrite = 4294967295 

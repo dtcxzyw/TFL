@@ -38,7 +38,7 @@ void Client::drawNode(Node * node, const char* effect) {
                 t->getPatch(i)->getMaterial(0)->setTechnique(effect);
         }
 
-        if (effect[0]!='d' || m || t)
+        if (effect[0] != 'd' || m || t)
             node->getDrawable()->draw();
     }
 
@@ -134,7 +134,7 @@ Client::Client(const std::string & server, bool& res) :
     uniqueRAII<Scene> model = Scene::load("res/common/common.scene");
     mFlagModel = model->findNode("key")->clone();
     mWaterPlane = model->findNode("plane")->clone();
-    mWaterPlane->scale(1.4f*mapSizeHF /mWaterPlane->getBoundingSphere().radius);
+    mWaterPlane->scale(1.4f*mapSizeHF / mWaterPlane->getBoundingSphere().radius);
 
     glBlendColor(1.0f, 1.0f, 1.0f, waterAlpha);
 }
@@ -448,53 +448,75 @@ void Client::render() {
 
         game->setViewport(rect);
         mCamera->setAspectRatio(rect.width / rect.height);
-        mScene->setAmbientColor(-0.8f, -0.8f, -0.8f);
-        for (auto&& x : mUnits)
-            if (x.second.isDied())
-                drawNode(x.second.getNode());
 
-        mScene->setAmbientColor(0.3f, 0.0f, 0.0f);
-        for (auto&& x : mUnits)
-            if (!x.second.isDied() && mChoosed.find(x.first) == mChoosed.cend()
-                && x.second.getGroup() == mGroup)
-                drawNode(x.second.getNode());
-
-        mScene->setAmbientColor(0.0f, 0.0f, 0.3f);
-        for (auto&& x : mUnits)
-            if (!x.second.isDied() && x.second.getGroup() != mGroup)
-                drawNode(x.second.getNode());
-
-        mScene->setAmbientColor(0.0f, 0.0f, 0.0f);
-        {
-            glClearStencil(0);
-            glClear(GL_STENCIL_BUFFER_BIT);
-
-            std::vector<Node*> list;
+        auto draw = [&](bool drawChoosed) {
+            mScene->setAmbientColor(-0.8f, -0.8f, -0.8f);
             for (auto&& x : mUnits)
-                if (!x.second.isDied() && mChoosed.find(x.first) != mChoosed.cend())
-                    list.emplace_back(x.second.getNode());
+                if (x.second.isDied())
+                    drawNode(x.second.getNode());
 
-            for (auto&& x : list)
-                drawNode(x);
+            mScene->setAmbientColor(0.3f, 0.0f, 0.0f);
+            for (auto&& x : mUnits)
+                if (!x.second.isDied() && mChoosed.find(x.first) == mChoosed.cend()
+                    && x.second.getGroup() == mGroup)
+                    drawNode(x.second.getNode());
 
-            for (auto&& x : list) {
-                auto s=x->getScale();
-                x->scale(1.2f);
-                drawNode(x, "choosed");
-                x->setScale(s);
+            mScene->setAmbientColor(0.0f, 0.0f, 0.3f);
+            for (auto&& x : mUnits)
+                if (!x.second.isDied() && x.second.getGroup() != mGroup)
+                    drawNode(x.second.getNode());
+
+            mScene->setAmbientColor(0.0f, 0.0f, 0.0f);
+            {
+
+                if(drawChoosed)
+                    game->clear(Game::CLEAR_STENCIL, {}, 0.0f, 0);
+
+                std::vector<Node*> list;
+                for (auto&& x : mUnits)
+                    if (!x.second.isDied() && mChoosed.find(x.first) != mChoosed.cend())
+                        list.emplace_back(x.second.getNode());
+
+                for (auto&& x : list)
+                    drawNode(x);
+
+                if (drawChoosed)
+                    for (auto&& x : list) {
+                        auto s = x->getScale();
+                        x->scale(1.2f);
+                        drawNode(x, "choosed");
+                        x->setScale(s);
+                    }
             }
-        }
 
-        for (auto&& p : mMap->getKey()) {
-            mFlagModel->setTranslation(p.x, mMap->getHeight(p.x, p.y), p.y);
-            drawNode(mFlagModel.get());
-        }
+            for (auto&& p : mMap->getKey()) {
+                mFlagModel->setTranslation(p.x, mMap->getHeight(p.x, p.y), p.y);
+                drawNode(mFlagModel.get());
+            }
 
-        drawNode(mScene->findNode("terrain"));
+            drawNode(mScene->findNode("terrain"));
+
+            mSky->getDrawable()->draw();
+        };
+
+        draw(true);
+
+        if (true)
+            game->clear(Game::CLEAR_STENCIL, {}, 0.0f, 0);
 
         drawNode(mWaterPlane.get());
 
-        mSky->getDrawable()->draw();
+        if (true) {
+            auto cn = mCamera->getNode();
+            cn->setTranslationY(-cn->getTranslationY());
+            auto f = cn->getForwardVector().normalize();
+            f.y = -f.y;
+            correctVector(cn, &Node::getForwardVector, f, M_PI, 0.0f, 0.0f);
+            draw(false);
+            cn->setTranslationY(-cn->getTranslationY());
+            f.y = -f.y;
+            correctVector(cn, &Node::getForwardVector, f, M_PI, 0.0f, 0.0f);
+        }
 
         for (auto&& x : mBullets)
             drawNode(x.second.getNode());
