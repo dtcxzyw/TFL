@@ -442,8 +442,6 @@ void Client::render() {
 
             drawNode(mScene->findNode("terrain"), depth);
 
-            //drawNode(mWaterPlane.get(), depth);
-
             mScene->setActiveCamera(mCamera.get());
             FrameBuffer::bindDefault();
         }
@@ -497,8 +495,6 @@ void Client::render() {
         drawNode(mWaterPlane.get());
 
         mSky->getDrawable()->draw();
-
-        drawNode(mWaterPlane.get());
 
         for (auto&& x : mBullets)
             drawNode(x.second.getNode());

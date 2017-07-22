@@ -105,8 +105,8 @@ bool move(UnitInstance& instance, Vector2 dest, Vector2 np, Node* c, float RSC, 
         auto base = -Vector3::unitY();
         auto fd = 1.0f + f.dot(base.normalize());
         if (d > turn) {
-            c->translateForward(std::min(delta*v*fd*fac, np.distance(dest)))
-                , sample += delta;
+            c->translateForward(std::min(delta*v*fd*fac, np.distance(dest)));
+            sample += delta;
             correct(instance, delta, fcnt, x);
             return true;
         }

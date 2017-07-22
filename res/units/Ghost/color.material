@@ -24,6 +24,13 @@ material green
         {
             cullFace = true
             depthTest = true
+			stencilOpSfail = KEEP 
+			stencilOpDpfail = KEEP 
+			stencilOpDppass = REPLACE 
+			stencilFunc = ALWAYS
+			stencilFuncRef =1
+			stencilTest = true
+			stencilWrite = 4294967295 
         }
         
         pass
@@ -34,6 +41,8 @@ material green
             u_directionalLightColor[0] = LIGHT_COLOR
             u_ambientColor = SCENE_AMBIENT_COLOR
             u_specularExponent = 32
+			u_worldViewMatrix = WORLD_VIEW_MATRIX
+			u_cameraPosition = CAMERA_WORLD_POSITION 
             
             u_shadowMap=SHADOW_MAP
             u_matrix = LIGHT_MATRIX
@@ -56,4 +65,29 @@ material green
             }
         }
     }
+	
+	technique choosed
+	{
+		renderState
+		{
+		    cullFace = true
+            depthTest = true
+			depthFunc = ALWAYS
+			stencilFunc = NOTEQUAL
+			stencilFuncRef = 1
+			stencilWrite = 0
+			stencilTest = true
+			stencilOpSfail = KEEP 
+			stencilOpDpfail = KEEP 
+			stencilOpDppass = KEEP 
+		}
+		
+		pass
+        {
+            u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
+            
+            vertexShader = res/shaders/choosed.vert
+            fragmentShader = res/shaders/choosed.frag
+        }
+	}
 }
