@@ -234,7 +234,8 @@ void writeSettings() {
     ss << "shadowSize=" << shadowSize << std::endl
         << "enableParticle=" << std::boolalpha << enableParticle << std::endl
         << "bias=" << bias << std::endl
-        << "miniMapSize=" << miniMapSize << std::endl;
+        << "miniMapSize=" << miniMapSize << std::endl
+        << "waterAlpha=" << waterAlpha << std::endl;
     auto str = ss.str();
     uniqueRAII<Stream> file = FileSystem::open("game.settings", FileSystem::WRITE);
     file->write(str.data(), str.size(), 1);
@@ -249,6 +250,7 @@ void SettingsMenu::read() {
     get<Slider>("shadow")->setValue(shadowSize - shadowSize % 512);
     get<Slider>("bias")->setValue(bias);
     get<Slider>("miniMap")->setValue(miniMapSize);
+    get<Slider>("waterAlpha")->setValue(waterAlpha);
 }
 
 SettingsMenu::~SettingsMenu() {
@@ -284,6 +286,7 @@ window
     if (!shadowSize)shadowSize = 1;
     bias = get<Slider>("bias")->getValue();
     miniMapSize = get<Slider>("miniMap")->getValue();
+    waterAlpha = get<Slider>("waterAlpha")->getValue();
     writeSettings();
 }
 

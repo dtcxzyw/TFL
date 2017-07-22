@@ -25,8 +25,8 @@ material water
             cullFace = true
             depthTest = true
 			blend = true
-			blendSrc = SRC_ALPHA
-			blendDst = ONE_MINUS_SRC_ALPHA
+			blendSrc = CONSTANT_ALPHA
+			blendDst = ONE_MINUS_CONSTANT_ALPHA
         }
         
         pass
@@ -48,7 +48,7 @@ material water
 
             sampler u_diffuseTexture
             {
-                path = res/common/alpha.png
+                path = res/common/gray.png
                 mipmap = false
                 wrapS = REPEAT
                 wrapT = REPEAT

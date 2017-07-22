@@ -102,3 +102,4 @@ extern uint16_t shadowSize;
 extern bool enableParticle;
 extern float bias;
 extern uint16_t miniMapSize;
+extern float waterAlpha;

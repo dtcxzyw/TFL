@@ -195,6 +195,7 @@ void readSettings() {
         enableParticle = info->getBool("enableParticle");
         bias = info->getFloat("bias");
         miniMapSize = info->getInt("miniMapSize");
+        waterAlpha = info->getFloat("waterAlpha");
     }
 }
 

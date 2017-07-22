@@ -439,7 +439,7 @@ void Client::render() {
 
             drawNode(mScene->findNode("terrain"), depth);
 
-            drawNode(mWaterPlane.get(), depth);
+            //drawNode(mWaterPlane.get(), depth);
 
             mScene->setActiveCamera(mCamera.get());
             FrameBuffer::bindDefault();
@@ -495,6 +495,7 @@ void Client::render() {
 
         mSky->getDrawable()->draw();
 
+        glBlendColor(1.0f,1.0f,1.0f,0.6f);
         drawNode(mWaterPlane.get());
 
         for (auto&& x : mBullets)
