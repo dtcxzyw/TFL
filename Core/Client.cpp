@@ -134,6 +134,8 @@ Client::Client(const std::string & server, bool& res) :
     uniqueRAII<Scene> model = Scene::load("res/common/common.scene");
     mFlagModel = model->findNode("key")->clone();
     mWaterPlane = model->findNode("plane")->clone();
+
+    glBlendColor(1.0f, 1.0f, 1.0f, waterAlpha);
 }
 
 Client::~Client() {
@@ -495,7 +497,6 @@ void Client::render() {
 
         mSky->getDrawable()->draw();
 
-        glBlendColor(1.0f,1.0f,1.0f,0.6f);
         drawNode(mWaterPlane.get());
 
         for (auto&& x : mBullets)

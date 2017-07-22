@@ -6,6 +6,7 @@
 #include <type_traits>
 #include <sstream>
 #include <random>
+#include <string>
 
 #ifdef WIN32
 #include <Windows.h>
@@ -18,6 +19,7 @@
 #endif
 
 using namespace gameplay;
+using namespace std::literals;
 
 extern bool isRunning;
 

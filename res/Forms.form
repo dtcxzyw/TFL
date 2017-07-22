@@ -137,8 +137,9 @@ form Settings
 	layout = LAYOUT_VERTICAL
 	alignment = ALIGN_VCENTER_HCENTER 
 	width = 80%
+	height = 100%
 	scroll = SCROLL_VERTICAL
-	scrollBarsAutoHide = true 
+	scrollBarsAutoHide = false 
 	
 	slider width
 	{
@@ -223,7 +224,7 @@ form Settings
 		valueTextVisible = true 
 	}
 	
-	slider water
+	slider waterAlpha
 	{
 		text = Water Alpha
 		width = 50%
@@ -232,6 +233,7 @@ form Settings
 		value = 0
 		step = 0.01
 		valueTextVisible = true 
+		valueTextPrecision = 2
 	}
 	
 	button return

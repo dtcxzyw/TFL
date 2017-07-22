@@ -1,22 +1,5 @@
 material water
-{       
-    technique depth
-    {
-    
-        u_matrix = WORLD_VIEW_PROJECTION_MATRIX
-
-        renderState
-        {
-            depthTest = true
-            cullFace = true
-        }
-        
-        pass
-        {
-            vertexShader = res/shaders/depth.vert
-            fragmentShader = res/shaders/depth.frag
-        }
-    }
+{
 
     technique shadow
     { 

@@ -15,7 +15,8 @@ void UI::addListener(Control* control) {
     extEvent |= (typeid(*control) == typeid(TextBox)) ? TEXT_CHANGED : 0;
     extEvent |= (typeid(*control) == typeid(Slider)) ? VALUE_CHANGED : 0;
     control->addListener(this, extEvent);
-    control->setConsumeInputEvents(dynamic_cast<Form*>(control) == nullptr);
+    control->setConsumeInputEvents(dynamic_cast<Form*>(control) == nullptr ||
+        control->getId()=="Settings"s);
     if (control->isContainer())
         for (auto child : dynamic_cast<Container*>(control)->getControls())
             addListener(child);
