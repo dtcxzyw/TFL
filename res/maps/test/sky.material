@@ -1,6 +1,6 @@
 material sky
 {
-    u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
+	u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
 
     sampler u_diffuseTexture
     {
@@ -11,16 +11,41 @@ material sky
         minFilter = LINEAR_MIPMAP_LINEAR
         magFilter = LINEAR
     }
-
-    renderState
+	
+    technique shadow
     {
-        cullFace = true
-        depthTest = true
-		depthFunc = LEQUAL
+
+		renderState
+		{
+			cullFace = true
+			depthTest = true
+			depthFunc = LEQUAL
+		}
+		
+        pass
+        {
+            vertexShader = res/shaders/sky.vert
+            fragmentShader = res/shaders/sky.frag
+        }
     }
-
-    technique
+	
+		
+    technique water
     {
+		renderState
+		{
+			cullFace = true
+			depthTest = true
+			depthFunc = LEQUAL
+			stencilOpSfail = KEEP 
+			stencilOpDpfail = KEEP 
+			stencilOpDppass = KEEP
+			stencilFunc = EQUAL
+			stencilFuncRef =2
+			stencilTest = true
+			stencilWrite = 0 
+		}
+		
         pass
         {
             vertexShader = res/shaders/sky.vert

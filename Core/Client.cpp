@@ -186,7 +186,7 @@ Client::WaitResult Client::wait() {
         CheckHeader(ServerMessage::go) {
             mScene = Scene::create();
             mCamera =
-                Camera::createPerspective(45.0f, Game::getInstance()->getAspectRatio(), 1.0f, 5000.0f);
+                Camera::createPerspective(45.0f, Game::getInstance()->getAspectRatio(), 0.0f, 10000.0f);
             mScene->addNode()->setCamera(mCamera.get());
             mScene->setActiveCamera(mCamera.get());
             mScene->addNode(mFlagModel.get());
@@ -491,7 +491,7 @@ void Client::render() {
 
         drawNode(mScene->findNode("terrain"));
 
-        mSky->getDrawable()->draw();
+        drawNode(mSky.get());
 
         if (true)
             game->clear(Game::CLEAR_STENCIL, {}, 0.0f, 0);
@@ -502,24 +502,30 @@ void Client::render() {
             auto cn = mCamera->getNode();
             cn->setTranslationY(-cn->getTranslationY());
             auto f = cn->getForwardVector().normalize();
-            f.y = -f.y;
+            auto base = Vector3{ f.x,0.0f,f.z }.normalize();
+            auto angle =acos(f.dot(base))*2.0f;
+            cn->rotateX(-angle);
 
-            correctVector(cn, &Node::getForwardVector, f, M_PI, 0.0f, 0.0f);
             game->clear(Game::CLEAR_DEPTH, {}, 1.0f, 0);
-            
+
+            static const char* water = "water";
+
             mScene->setAmbientColor(-0.8f, -0.8f, -0.8f);
             for (auto&& x : mUnits)
                 if (x.second.isDied())
-                    drawNode(x.second.getNode());
+                    drawNode(x.second.getNode(), water);
 
             mScene->setAmbientColor(0.3f, 0.0f, 0.0f);
             for (auto&& x : mUnits)
                 if (!x.second.isDied() && x.second.getGroup() == mGroup)
-                    drawNode(x.second.getNode());
+                    drawNode(x.second.getNode(), water);
+
+            drawNode(mScene->findNode("terrain"), water);
+
+            drawNode(mSky.get(), water);
 
             cn->setTranslationY(-cn->getTranslationY());
-            f.y = -f.y;
-            correctVector(cn, &Node::getForwardVector, f, M_PI, 0.0f, 0.0f);
+            cn->rotateX(angle);
         }
 
         for (auto&& x : mBullets)
