@@ -7,6 +7,6 @@ scene sky
 		material = res/maps/test/sky.material
 
         scale = 30000,30000,30000
-        translate = 0,25000,0
+		rotate =1,0,0,180
 	}
 }

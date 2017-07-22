@@ -186,7 +186,7 @@ Client::WaitResult Client::wait() {
         CheckHeader(ServerMessage::go) {
             mScene = Scene::create();
             mCamera =
-                Camera::createPerspective(45.0f, Game::getInstance()->getAspectRatio(), 0.0f, 10000.0f);
+                Camera::createPerspective(45.0f, Game::getInstance()->getAspectRatio(), 1.0f, 5000.0f);
             mScene->addNode()->setCamera(mCamera.get());
             mScene->setActiveCamera(mCamera.get());
             mScene->addNode(mFlagModel.get());
@@ -383,8 +383,6 @@ bool Client::update(float delta) {
         for (auto&& x : mBullets)
             x.second.updateClient(delta);
     }
-
-    mSky->setTranslation(mCamera->getNode()->getTranslation());
 
     //control
     RakNet::BitStream data;
