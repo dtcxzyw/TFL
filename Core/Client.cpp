@@ -478,7 +478,7 @@ void Client::render() {
 
             for (auto&& x : list) {
                 auto s=x->getScale();
-                x->scale(2.0f);
+                x->scale(1.2f);
                 drawNode(x, "choosed");
                 x->setScale(s);
             }

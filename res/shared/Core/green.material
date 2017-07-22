@@ -69,7 +69,8 @@ material green
 		renderState
 		{
 		    cullFace = true
-            depthTest = false
+            depthTest = true
+			depthFunc = ALWAYS
 			stencilFunc = NOTEQUAL
 			stencilFuncRef = 1
 			stencilWrite = 0
