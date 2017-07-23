@@ -38,7 +38,11 @@ attribute vec3 a_binormal;
 
 ///////////////////////////////////////////////////////////
 // Uniforms
+#ifdef WATER
+uniform mat4 u_viewProjectionMatrix;
+#else
 uniform mat4 u_worldViewProjectionMatrix;
+#endif
 uniform mat4 u_matrix;
 uniform mat4 u_model;
 

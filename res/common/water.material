@@ -15,7 +15,7 @@ material water
 			stencilOpDpfail = KEEP 
 			stencilOpDppass = REPLACE 
 			stencilFunc = ALWAYS
-			stencilFuncRef = 2
+			stencilFuncRef = 1
 			stencilTest = true
 			stencilWrite = 4294967295 
         }

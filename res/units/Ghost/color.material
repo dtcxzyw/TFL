@@ -141,12 +141,13 @@ material color
 			blendDst = CONSTANT_ALPHA
 		
             cullFace = true
+			frontFace =CW
             depthTest = true
 			stencilOpSfail = KEEP 
 			stencilOpDpfail = KEEP 
 			stencilOpDppass = KEEP 
 			stencilFunc = EQUAL
-			stencilFuncRef =2
+			stencilFuncRef =1
 			stencilTest = true
 			stencilWrite = 0 
         }

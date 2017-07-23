@@ -27,19 +27,22 @@ Matrix Client::getMat() const {
 }
 
 void Client::drawNode(Node * node, const char* effect) {
-    if (node->isEnabled() && node->getDrawable() &&
-        node->getBoundingSphere().intersects(mScene->getActiveCamera()->getFrustum())) {
-        auto m = dynamic_cast<Model*>(node->getDrawable());
-        auto t = dynamic_cast<Terrain*>(node->getDrawable());
+    if (node->isEnabled() && node->getDrawable()) {
+        auto bs = node->getBoundingSphere();
+        if (*effect == 'w')bs.center.y = -bs.center.y;
+        if (bs.intersects(mScene->getActiveCamera()->getFrustum())) {
+            auto m = dynamic_cast<Model*>(node->getDrawable());
+            auto t = dynamic_cast<Terrain*>(node->getDrawable());
 
-        if (m) m->getMaterial()->setTechnique(effect);
-        else if (t) {
-            for (unsigned int i = 0; i < t->getPatchCount(); ++i)
-                t->getPatch(i)->getMaterial(0)->setTechnique(effect);
+            if (m) m->getMaterial()->setTechnique(effect);
+            else if (t) {
+                for (unsigned int i = 0; i < t->getPatchCount(); ++i)
+                    t->getPatch(i)->getMaterial(0)->setTechnique(effect);
+            }
+
+            if (effect[0] != 'd' || m || t)
+                node->getDrawable()->draw();
         }
-
-        if (effect[0] != 'd' || m || t)
-            node->getDrawable()->draw();
     }
 
     for (auto i = node->getFirstChild(); i; i = i->getNextSibling())
@@ -498,14 +501,6 @@ void Client::render() {
 
         if (true) {
             auto cn = mCamera->getNode();
-            /*
-            cn->setTranslationY(-cn->getTranslationY());
-            auto f = cn->getForwardVector().normalize();
-            auto base = Vector3{ f.x,0.0f,f.z }.normalize();
-            auto angle =acos(f.dot(base))*2.0f;
-            cn->rotateZ(M_PI);
-            cn->rotateX(angle);
-            */
 
             game->clear(Game::CLEAR_DEPTH, {}, 1.0f, 0);
 
@@ -526,12 +521,6 @@ void Client::render() {
             drawNode(mScene->findNode("terrain"), water);
 
             drawNode(mSky.get(), water);
-
-            /*
-            cn->setTranslationY(-cn->getTranslationY());
-            cn->rotateX(-angle);
-            cn->rotateZ(M_PI);
-            */
 
         }
 
