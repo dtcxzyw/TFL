@@ -98,9 +98,16 @@ vec3 u_ambientColor=vec3(0.0,0.0,0.0);
 
 #include "shadow.frag"
 
+#ifdef WATER
+varying vec3 v_fragPos;
+#endif
+
 void main()
 {
-
+	#ifdef WATER
+	if(v_fragPos.y>=0.0)discard;
+	#endif
+	
     #if (LAYER_COUNT > 0)
     // Sample base texture
     _baseColor.rgb = texture2D(u_surfaceLayerMap, mod(v_texCoordLayer0, vec2(1,1))).rgb;

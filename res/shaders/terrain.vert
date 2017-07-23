@@ -21,7 +21,11 @@ attribute vec2 a_texCoord0;
 
 ///////////////////////////////////////////////////////////
 // Uniforms
+#ifdef WATER
+uniform mat4 u_viewProjectionMatrix;
+#else
 uniform mat4 u_worldViewProjectionMatrix;
+#endif
 uniform mat4 u_matrix;
 uniform mat4 u_model;
 
@@ -85,13 +89,24 @@ varying vec2 v_texCoordLayer1;
 varying vec2 v_texCoordLayer2;
 #endif
 
+#ifdef WATER
+varying vec3 v_fragPos;
+#endif
+
 void main()
 {
 
-    // Transform position to clip space.
+	#ifdef WATER
+	vec4 pos=u_model*a_position;
+	pos.y=-pos.y;
+	v_fragPos = pos.xyz;
+	gl_Position=u_viewProjectionMatrix*pos;
+	#else
     gl_Position = u_worldViewProjectionMatrix * a_position;
-    v_pos = u_matrix * u_model * a_position;
-    
+    #endif
+	
+	v_pos = u_matrix * u_model * a_position;
+	
     #if defined(LIGHTING)
 
     #if !defined(NORMAL_MAP) 

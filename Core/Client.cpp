@@ -498,11 +498,14 @@ void Client::render() {
 
         if (true) {
             auto cn = mCamera->getNode();
+            /*
             cn->setTranslationY(-cn->getTranslationY());
             auto f = cn->getForwardVector().normalize();
             auto base = Vector3{ f.x,0.0f,f.z }.normalize();
             auto angle =acos(f.dot(base))*2.0f;
-            cn->rotateX(-angle);
+            cn->rotateZ(M_PI);
+            cn->rotateX(angle);
+            */
 
             game->clear(Game::CLEAR_DEPTH, {}, 1.0f, 0);
 
@@ -518,12 +521,18 @@ void Client::render() {
                 if (!x.second.isDied() && x.second.getGroup() == mGroup)
                     drawNode(x.second.getNode(), water);
 
+            mScene->setAmbientColor(0.0f, 0.0f, 0.0f);
+
             drawNode(mScene->findNode("terrain"), water);
 
             drawNode(mSky.get(), water);
 
+            /*
             cn->setTranslationY(-cn->getTranslationY());
-            cn->rotateX(angle);
+            cn->rotateX(-angle);
+            cn->rotateZ(M_PI);
+            */
+
         }
 
         for (auto&& x : mBullets)

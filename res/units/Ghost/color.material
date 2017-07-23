@@ -136,6 +136,10 @@ material color
     { 
         renderState
         {
+			blend = true
+			blendSrc = ONE_MINUS_CONSTANT_ALPHA
+			blendDst = CONSTANT_ALPHA
+		
             cullFace = true
             depthTest = true
 			stencilOpSfail = KEEP 
@@ -149,7 +153,8 @@ material color
         
         pass
         {
-            u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
+            u_viewProjectionMatrix = VIEW_PROJECTION_MATRIX
+
             u_inverseTransposeWorldViewMatrix = INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX
             u_directionalLightDirection[0] = LIGHT_DIRECTION
             u_directionalLightColor[0] = LIGHT_COLOR
@@ -166,7 +171,7 @@ material color
             
             vertexShader = res/shaders/textured.vert
             fragmentShader = res/shaders/textured.frag
-            defines = DIRECTIONAL_LIGHT_COUNT 1;SPECULAR
+            defines = DIRECTIONAL_LIGHT_COUNT 1;SPECULAR;WATER
 
             sampler u_diffuseTexture
             {

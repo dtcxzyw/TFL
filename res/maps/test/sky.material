@@ -1,6 +1,5 @@
 material sky
 {
-	u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
 
     sampler u_diffuseTexture
     {
@@ -14,7 +13,8 @@ material sky
 	
     technique shadow
     {
-
+		u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
+		
 		renderState
 		{
 			cullFace = true
@@ -34,6 +34,10 @@ material sky
     {
 		renderState
 		{
+			blend = true
+			blendSrc = ONE_MINUS_CONSTANT_ALPHA
+			blendDst = CONSTANT_ALPHA
+		
 			cullFace = true
 			depthTest = true
 			depthFunc = LEQUAL
@@ -48,8 +52,11 @@ material sky
 		
         pass
         {
+			u_viewProjectionMatrix = VIEW_PROJECTION_MATRIX
+			u_model = WORLD_MATRIX
             vertexShader = res/shaders/sky.vert
             fragmentShader = res/shaders/sky.frag
+			defines=WATER
         }
     }
 }

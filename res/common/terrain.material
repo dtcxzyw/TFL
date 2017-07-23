@@ -54,6 +54,10 @@ material terrain
     {
         renderState
         {
+			blend = true
+			blendSrc = ONE_MINUS_CONSTANT_ALPHA
+			blendDst = CONSTANT_ALPHA
+		
             cullFace = true
             depthTest = true
             depthFunc = LEQUAL
@@ -67,7 +71,7 @@ material terrain
         }
         pass
         {
-            u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
+            u_viewProjectionMatrix = VIEW_PROJECTION_MATRIX
 
             u_normalMatrix = INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX
             u_directionalLightDirection[0] = LIGHT_DIRECTION
@@ -84,7 +88,7 @@ material terrain
                     
             vertexShader = res/shaders/terrain.vert
             fragmentShader = res/shaders/terrain.frag
-            defines = DIRECTIONAL_LIGHT_COUNT 1
+            defines = DIRECTIONAL_LIGHT_COUNT 1;WATER
         }
     }
 }
