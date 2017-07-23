@@ -82,7 +82,7 @@ MainMenu::MainMenu() :UI("Main") {}
 #define CHECKRET() if (evt == Event::PRESS && CMPID("return"))pop()
 
 void MainMenu::event(Control* control, Event evt) {
-    if (evt == Event::PRESS && CMPID("exit"))
+    if (evt == Event::PRESS && CMPID("exit")) 
         Game::getInstance()->exit();
     if (evt == Event::PRESS && CMPID("play"))
         push<PlayMenu>();
@@ -103,10 +103,10 @@ AboutMenu::AboutMenu() :UI("About") {
     copy << logtext.str();
     std::string s;
     while (std::getline(copy, s)) {
-        auto l = Label::create("");
+        uniqueRAII<Label> l = Label::create("");
         l->setText(s.c_str());
         l->setTextColor({ 1.0f,0.0f,0.0f,1.0f });
-        c->addControl(l);
+        c->addControl(l.get());
     }
 }
 
@@ -184,10 +184,10 @@ void PlayMenu::update(float flag) {
             auto c = get<Container>("servers");
             const_cast<std::vector<Control*>&>(c->getControls()).clear();
             for (auto&& x : mServers) {
-                auto button = Button::create(("@" + x).c_str());
+                uniqueRAII<Button> button = Button::create(("@" + x).c_str());
                 button->setText(x.c_str());
                 button->addListener(this, Event::PRESS);
-                c->addControl(button);
+                c->addControl(button.get());
             }
         }
         {
@@ -196,10 +196,10 @@ void PlayMenu::update(float flag) {
             auto c = get<Container>("maps");
             const_cast<std::vector<Control*>&>(c->getControls()).clear();
             for (auto&& x : maps) {
-                auto button = Button::create(("#" + x).c_str());
+                uniqueRAII<Button> button = Button::create(("#" + x).c_str());
                 button->setText(x.c_str());
                 button->addListener(this, Event::PRESS);
-                c->addControl(button);
+                c->addControl(button.get());
             }
         }
 
@@ -341,34 +341,34 @@ GameMain::GameMain() :UI("GameMain") {
     auto c = get<Container>("units");
 #ifdef ANDROID
     {
-        auto bs = Container::create("c");
+        uniqueRAII<Container> bs = Container::create("c");
         bs->setHeight(0.1f, true);
         bs->setWidth(1.0f, true);
         bs->setLayout(Layout::LAYOUT_ABSOLUTE);
-        auto u = Button::create("up"); u->setText("Up");
+        uniqueRAII<Button> u = Button::create("up"); u->setText("Up");
         u->addListener(this, PRESS); u->setHeight(1.0f, true);
         u->setWidth(0.5f, true); u->setAlignment(Control::Alignment::ALIGN_LEFT);
-        auto d = Button::create("down"); d->setText("Down");
+        uniqueRAII<Button> d = Button::create("down"); d->setText("Down");
         d->addListener(this, PRESS); d->setHeight(1.0f, true);
         d->setWidth(0.5f, true); d->setAlignment(Control::Alignment::ALIGN_RIGHT);
-        bs->addControl(u);
-        bs->addControl(d);
-        mForm->insertControl(bs, 2);
+        bs->addControl(u.get());
+        bs->addControl(d.get());
+        mForm->insertControl(bs.get(), 2);
         c->setHeight(0.4f, true);
-        auto b = Button::create("cancel");
+        uniqueRAII<Button> b = Button::create("cancel");
         b->setText("Cancel");
         b->setWidth(1.0f, true);
         b->setHeight(0.1f, true);
-        mForm->addControl(b);
+        mForm->addControl(b.get());
     }
 #endif // ANDROID
     for (auto&& u : globalUnits) {
-        auto button = Button::create("");
+        uniqueRAII<Button> button = Button::create("");
         button->setText(u.first.c_str());
         button->setWidth(1.0, true);
         button->setTextAlignment(Font::Justify::ALIGN_VCENTER_HCENTER);
         button->addListener(this, Event::PRESS);
-        c->addControl(button);
+        c->addControl(button.get());
     }
     mCurrent = globalUnits.cbegin()->first;
     get<Label>("weight")->setText(("Weight " + mCurrent).c_str());

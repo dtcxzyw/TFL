@@ -117,21 +117,27 @@ Client::Client(const std::string & server, bool& res) :
         || !wait())
         INFO("Failed to connect to the server.");
 
+    res = mPeer->NumberOfConnections();
+    if (!res)return;
+
     mRECT = SpriteBatch::create("res/common/rect.png");
     mMiniMapUnit = SpriteBatch::create("res/common/white.png");
     mHot = SpriteBatch::create("res/common/hot.png");
 
-    res = mPeer->NumberOfConnections();
     mDepth = FrameBuffer::create("depth", shadowSize, shadowSize, Texture::Format::RGBA8888);
-    /*
-    mDepth->setDepthStencilTarget(DepthStencilTarget::create("shadow",
-        DepthStencilTarget::DEPTH, shadowSize, shadowSize));
-        */
+
+    uniqueRAII<DepthStencilTarget> shadow = DepthStencilTarget::create("shadow",
+        DepthStencilTarget::DEPTH, shadowSize, shadowSize);
+    mDepth->setDepthStencilTarget(shadow.get());
+
     mShadowMap = Texture::Sampler::create(mDepth->getRenderTarget()->getTexture());
     mShadowMap->setFilterMode(Texture::LINEAR, Texture::LINEAR);
     mShadowMap->setWrapMode(Texture::CLAMP, Texture::CLAMP);
     mLight = Node::create();
-    mLight->setCamera(Camera::createOrthographic(1.0f, 1.0f, 1.0f, 1.0f, 2.0f));
+    
+    uniqueRAII<Camera> light = Camera::createOrthographic(1.0f, 1.0f, 1.0f, 1.0f, 2.0f);
+    mLight->setCamera(light.get());
+
     auto f = -Vector3::one();
     correctVector(mLight.get(), &Node::getForwardVector, f.normalize(), M_PI, M_PI, 0.0f);
 

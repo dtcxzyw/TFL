@@ -249,8 +249,8 @@ protected:
             label->setAutoSize(Control::AutoSize::AUTO_SIZE_BOTH);
             label->setConsumeInputEvents(false);
             label->setAlignment(Control::Alignment::ALIGN_TOP_LEFT);
-            auto info = Label::create("info");
-            label->addControl(info);
+            uniqueRAII<Label> info = Label::create("info");
+            label->addControl(info.get());
             info->setAutoSize(Control::AutoSize::AUTO_SIZE_BOTH);
             info->setAlignment(Control::Alignment::ALIGN_TOP_LEFT);
             info->setConsumeInputEvents(false);

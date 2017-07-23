@@ -27,7 +27,7 @@ public:
     static void push() {
         if (stack.size())
             parents.push_back(stack.top().get());
-        stack.emplace(new T);
+        stack.push(std::make_unique<T>());
     }
 
     static void pop();
