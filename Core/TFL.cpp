@@ -5,14 +5,9 @@
 #include <ctime>
 #include <fstream>
 
-bool isRunning = true;
 uint64_t pakKey;
 std::unique_ptr<BindingResolver> br;
 uniqueRAII<Form> joystick;
-
-void callback() {
-    isRunning = false;
-}
 
 std::string getLogPath() {
     auto t = std::time(nullptr);
@@ -235,8 +230,6 @@ private:
 protected:
 
     void initialize() override {
-
-        std::atexit(callback);
 
         Logger::set(Logger::LEVEL_ERROR, logCallback);
         Logger::set(Logger::LEVEL_INFO, logCallback);

@@ -21,12 +21,9 @@
 using namespace gameplay;
 using namespace std::literals;
 
-extern bool isRunning;
-
 struct Deleter final {
     void operator()(Ref* ptr) const {
-        if (isRunning)
-            ptr->release();
+        ptr->release();
     }
     template<typename T,typename = std::enable_if_t<!std::is_base_of<Ref,T>::value>>
     void operator()(T* ptr) const {

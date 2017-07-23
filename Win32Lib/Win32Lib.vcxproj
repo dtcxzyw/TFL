@@ -198,7 +198,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions);FT2_BUILD_LIBRARY;alloca=_alloca;GLEW_STATIC;_USE_MATH_DEFINES;_WIN32;WIN32;LUA_COMPAT_APIINTCASTS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions);FT2_BUILD_LIBRARY;alloca=_alloca;GLEW_STATIC;_USE_MATH_DEFINES;_WIN32;WIN32</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>

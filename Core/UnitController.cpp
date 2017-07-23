@@ -414,7 +414,7 @@ struct CBR final :public UnitController {
 };
 
 void fly(UnitInstance& instance, Vector2 dest, float h, float v, float delta, float RSC, Vector3 now) {
-    h += localClient->getHeight(now.x, now.z);
+    h += std::max(localClient->getHeight(now.x, now.z),0.0f);
 
     if (now.y < h - 50.0f && dest.isZero())
         dest = { now.x,now.z };

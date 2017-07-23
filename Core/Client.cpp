@@ -123,9 +123,10 @@ Client::Client(const std::string & server, bool& res) :
 
     res = mPeer->NumberOfConnections();
     mDepth = FrameBuffer::create("depth", shadowSize, shadowSize, Texture::Format::RGBA8888);
-
+    /*
     mDepth->setDepthStencilTarget(DepthStencilTarget::create("shadow",
         DepthStencilTarget::DEPTH, shadowSize, shadowSize));
+        */
     mShadowMap = Texture::Sampler::create(mDepth->getRenderTarget()->getTexture());
     mShadowMap->setFilterMode(Texture::LINEAR, Texture::LINEAR);
     mShadowMap->setWrapMode(Texture::CLAMP, Texture::CLAMP);
@@ -140,7 +141,7 @@ Client::Client(const std::string & server, bool& res) :
     mWaterPlane->scale(1.4f*mapSizeHF / mWaterPlane->getBoundingSphere().radius);
 
     if (reflection>0.0f) {
-        auto old = FrameBuffer::getCurrent()->getDepthStencilTarget();
+        auto old = FrameBuffer::getCurrent();
         mWaterBuffer = DepthStencilTarget::create("water",
             DepthStencilTarget::DEPTH_STENCIL,old->getWidth(),old->getHeight());
     }

@@ -1,7 +1,7 @@
 OpenAL atomic.h
 update glew to 2.0.0
 Terrain.cpp fix a bug at line 297
-luaconf.h add maxstack to 1GB
+luaconf.h reset maxstack
 font.cpp at line 438 and 1269
 gameplay-main-android.cpp at line 18
 boundingsphere.cpp at line 41
