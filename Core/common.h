@@ -105,3 +105,4 @@ extern bool enableParticle;
 extern float bias;
 extern uint16_t miniMapSize;
 extern float waterAlpha;
+extern float reflection;

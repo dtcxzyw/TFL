@@ -120,4 +120,5 @@ uint16_t shadowSize=1;
 bool enableParticle = false;
 float bias = 0.0025f;
 uint16_t miniMapSize = 0;
-float waterAlpha = 0.7f;
+float waterAlpha = 0.5f;
+float reflection = 0.0f;

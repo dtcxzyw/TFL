@@ -196,6 +196,7 @@ void readSettings() {
         bias = info->getFloat("bias");
         miniMapSize = info->getInt("miniMapSize");
         waterAlpha = info->getFloat("waterAlpha");
+        reflection = info->getFloat("reflection");
     }
 }
 

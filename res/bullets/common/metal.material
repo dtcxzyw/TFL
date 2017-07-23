@@ -24,6 +24,13 @@ material metal
 		{
 			cullFace = true
 			depthTest = true
+			stencilOpSfail = KEEP 
+			stencilOpDpfail = KEEP 
+			stencilOpDppass = REPLACE 
+			stencilFunc = ALWAYS
+			stencilFuncRef =1
+			stencilTest = true
+			stencilWrite = 4294967295 
 		}
 		
         pass
@@ -53,6 +60,61 @@ material metal
 				minFilter = LINEAR_MIPMAP_LINEAR
 				magFilter = LINEAR
 			}
+        }
+    }
+	
+	technique water
+    { 
+        renderState
+        {
+		
+			blend = true
+			blendSrc = CONSTANT_ALPHA
+			blendDst = ONE_MINUS_CONSTANT_ALPHA
+			
+            cullFace = true
+			frontFace =CW
+            depthTest = true
+			stencilOpSfail = KEEP 
+			stencilOpDpfail = KEEP 
+			stencilOpDppass = KEEP 
+			stencilFunc = EQUAL
+			stencilFuncRef =1
+			stencilTest = true
+			stencilWrite = 0 
+        }
+        
+        pass
+        {
+            u_viewProjectionMatrix = VIEW_PROJECTION_MATRIX
+			
+            u_inverseTransposeWorldViewMatrix = INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX
+            u_directionalLightDirection[0] = LIGHT_DIRECTION
+            u_directionalLightColor[0] = LIGHT_COLOR
+            u_ambientColor = SCENE_AMBIENT_COLOR
+            u_specularExponent = 32
+			u_worldViewMatrix = WORLD_VIEW_MATRIX
+			u_cameraPosition = CAMERA_WORLD_POSITION 
+            
+            u_shadowMap=SHADOW_MAP
+            u_matrix = LIGHT_MATRIX
+            u_model= WORLD_MATRIX 
+            u_mapSize =MAP_SIZE
+            u_bias = BIAS
+            
+            vertexShader = res/shaders/textured.vert
+            fragmentShader = res/shaders/textured.frag
+            defines = DIRECTIONAL_LIGHT_COUNT 1;SPECULAR;WATER
+
+            sampler u_diffuseTexture
+            {
+                path = res/shared/Core/green.png
+                mipmap = true
+                wrapS = REPEAT
+                wrapT = REPEAT
+                minFilter = LINEAR_MIPMAP_LINEAR
+                magFilter = LINEAR
+            }
         }
     }
 }

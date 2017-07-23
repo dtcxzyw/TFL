@@ -43,6 +43,7 @@ private:
     uniqueRAII<Node> mLight;
     uniqueRAII<Node> mSky;
     uniqueRAII<Node> mWaterPlane;
+    uniqueRAII<DepthStencilTarget> mWaterBuffer;
 
     void drawNode(Node* node, const char* effect="shadow");
 

@@ -236,6 +236,18 @@ form Settings
 		valueTextPrecision = 2
 	}
 	
+	slider waterRef
+	{
+		text = Water Reflection
+		width = 50%
+		min =  0
+		max =  1
+		value = 0
+		step = 0.01
+		valueTextVisible = true 
+		valueTextPrecision = 2
+	}
+	
 	button return
 	{
 		text = Save and Return 

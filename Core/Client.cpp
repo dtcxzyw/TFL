@@ -40,7 +40,7 @@ void Client::drawNode(Node * node, const char* effect) {
                     t->getPatch(i)->getMaterial(0)->setTechnique(effect);
             }
 
-            if (effect[0] != 'd' || m || t)
+            if (effect[0] == 's' || m || t)
                 node->getDrawable()->draw();
         }
     }
@@ -139,7 +139,11 @@ Client::Client(const std::string & server, bool& res) :
     mWaterPlane = model->findNode("plane")->clone();
     mWaterPlane->scale(1.4f*mapSizeHF / mWaterPlane->getBoundingSphere().radius);
 
-    glBlendColor(1.0f, 1.0f, 1.0f, waterAlpha);
+    if (reflection>0.0f) {
+        auto old = FrameBuffer::getCurrent()->getDepthStencilTarget();
+        mWaterBuffer = DepthStencilTarget::create("water",
+            DepthStencilTarget::DEPTH_STENCIL,old->getWidth(),old->getHeight());
+    }
 }
 
 Client::~Client() {
@@ -494,12 +498,18 @@ void Client::render() {
 
         drawNode(mSky.get());
 
-        if (true)
+        uniqueRAII<DepthStencilTarget> old;
+        if (reflection>0.0f) {
+            old = FrameBuffer::getCurrent()->getDepthStencilTarget();
+            FrameBuffer::getCurrent()->setDepthStencilTarget(mWaterBuffer.get());
             game->clear(Game::CLEAR_STENCIL, {}, 0.0f, 0);
+        }
 
+        glBlendColor(1.0f, 1.0f, 1.0f, waterAlpha);
         drawNode(mWaterPlane.get());
 
-        if (true) {
+        if (reflection>0.0f) {
+            glBlendColor(1.0f, 1.0f, 1.0f, reflection);
             auto cn = mCamera->getNode();
 
             game->clear(Game::CLEAR_DEPTH, {}, 1.0f, 0);
@@ -516,12 +526,21 @@ void Client::render() {
                 if (!x.second.isDied() && x.second.getGroup() == mGroup)
                     drawNode(x.second.getNode(), water);
 
+            mScene->setAmbientColor(0.0f, 0.0f, 0.3f);
+            for (auto&& x : mUnits)
+                if (!x.second.isDied() && x.second.getGroup() != mGroup)
+                    drawNode(x.second.getNode());
+
             mScene->setAmbientColor(0.0f, 0.0f, 0.0f);
+
+            for (auto&& x : mBullets)
+                drawNode(x.second.getNode(), water);
 
             drawNode(mScene->findNode("terrain"), water);
 
             drawNode(mSky.get(), water);
 
+            FrameBuffer::getCurrent()->setDepthStencilTarget(old.get());
         }
 
         for (auto&& x : mBullets)

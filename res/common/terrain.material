@@ -55,8 +55,8 @@ material terrain
         renderState
         {
 			blend = true
-			blendSrc = ONE_MINUS_CONSTANT_ALPHA
-			blendDst = CONSTANT_ALPHA
+			blendSrc = CONSTANT_ALPHA
+			blendDst = ONE_MINUS_CONSTANT_ALPHA
 		
             cullFace = true
 			frontFace =CW
