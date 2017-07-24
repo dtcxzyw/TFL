@@ -1,4 +1,4 @@
-HP = 100
+HP = 200
 cost = 10
 FOV = 600
 plane= 5,10

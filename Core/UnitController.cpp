@@ -71,8 +71,7 @@ void correct(UnitInstance& instance, float delta, float& cnt, float& time) {
 auto dot(Node* node, Vector2 obj) {
     auto f = node->getForwardVectorWorld();
     Vector2 x{ f.x,f.z };
-    x.normalize();
-    return obj.dot(x);
+    return obj.dot(x.normalize());
 }
 
 auto checkRay(Vector3 begin, Vector3 end) {
@@ -182,14 +181,12 @@ struct Tank final :public UnitController {
             sample = 0.0f;
         }
 
-        if (mObject && !point.isZero() && abs(point.y - now.y) <= 100.0f && bt<=15.0f) {
+        if (mObject && !point.isZero() && abs(point.y - now.y) <= 100.0f && bt <= 15.0f) {
             auto obj = Vector2{ point.x,point.z } -np;
             obj.normalize();
-            auto d = dot(t, obj);
+            auto d = dot(yr, obj);
             auto f = t->getForwardVectorWorld().normalize();
-            auto top =now+ f*now.distance(point)/speed*0.3f;
-            if (d > 0.999f && obj.lengthSquared() <= dis
-                && checkRay(now, top) == top) {
+            if (d > 0.996f && obj.lengthSquared() <= dis) {
 
                 auto iter = fireUnits.begin();
                 for (; iter != fireUnits.end(); ++iter)
@@ -203,7 +200,7 @@ struct Tank final :public UnitController {
                         auto u = t->getUpVectorWorld().normalize();
                         auto r = t->getRightVectorWorld().normalize();
                         localServer->newBullet(BulletInstance(bullet, t->getTranslationWorld() +
-                            offset*f + u*iter->y + r*iter->x, point,f, speed, harm, range, instance.getGroup()));
+                            offset*f + u*iter->y + r*iter->x, point, f, speed, harm, range, instance.getGroup()));
                     }
                     t->translateForward(bt);
                     t->translateForward(-(bt = 20.0f));
@@ -216,7 +213,6 @@ struct Tank final :public UnitController {
             }
         }
         else if (!onBack) {
-            mObject = 0;
             auto f = node->getForwardVector();
             correctVector(yr, &Node::getForwardVectorWorld, f.normalize(), 0.0f, RST*delta, 0.0f);
         }
@@ -358,7 +354,7 @@ struct CBM final :public UnitController {
         if (mObject && !point.isZero() && count >= time) {
             if (mIsServer) {
                 auto m = node->findNode("missile");
-                localServer->newBullet(BulletInstance(missile, m->getTranslationWorld(),Vector3::zero(),
+                localServer->newBullet(BulletInstance(missile, m->getTranslationWorld(), Vector3::zero(),
                     m->getForwardVectorWorld().normalize(), speed, harm, range, instance.getGroup()
                     , mObject, angle));
             }
@@ -404,17 +400,17 @@ struct CBR final :public UnitController {
         if (mObject && !point.isZero() && mIsServer) {
             auto d = now.distanceSquared(point);
             auto fov = instance.getKind().getFOV();
-            localServer->attack(mObject,delta*harm*fov/d);
+            localServer->attack(mObject, delta*harm*fov / d);
         }
 
-        node->findNode("radar")->rotateY(M_PI*2.0f/1000.0f*delta);
+        node->findNode("radar")->rotateY(M_PI*2.0f / 1000.0f*delta);
 
         return move(instance, mDest, np, c, RSC, delta, rfac, v, sample, fcnt, x, -1.0f);
     }
 };
 
 void fly(UnitInstance& instance, Vector2 dest, float h, float v, float delta, float RSC, Vector3 now) {
-    h += std::max(localClient->getHeight(now.x, now.z),0.0f);
+    h += std::max(localClient->getHeight(now.x, now.z), 0.0f);
 
     if (now.y < h - 50.0f && dest.isZero())
         dest = { now.x,now.z };
@@ -461,7 +457,7 @@ struct PBM final :public UnitController {
 
         if (mIsServer && mObject && !point.isZero() && count >= time) {
             localServer->newBullet(BulletInstance(missile, now + instance.getKind().getOffset(),
-                Vector3::zero(),node->getForwardVectorWorld().normalize(), speed, harm, range,
+                Vector3::zero(), node->getForwardVectorWorld().normalize(), speed, harm, range,
                 instance.getGroup(), mObject, angle));
             count = 0.0f;
         }

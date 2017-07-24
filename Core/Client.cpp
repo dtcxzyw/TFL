@@ -600,6 +600,13 @@ void Client::render() {
             }
 
             mMiniMapUnit->start();
+            for (auto&& p : mMap->getKey()) {
+                auto dp = base + p*fac;
+                gameplay::Rectangle range{ dp.x - miniMapSize / 64.0f,dp.y - miniMapSize / 64.0f
+                    ,miniMapSize / 32.0f,miniMapSize / 32.0f };
+                mMiniMapUnit->draw(range, { 1,1 });
+            }
+
             for (auto&& x : mUnits)
                 if (!x.second.isDied()) {
                     auto p = x.second.getRoughPos();

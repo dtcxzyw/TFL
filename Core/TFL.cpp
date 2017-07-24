@@ -336,7 +336,7 @@ public:
                 break;
             case Mouse::MOUSE_PRESS_RIGHT_BUTTON:localClient->cancel();
             case Mouse::MOUSE_MOVE:localClient->mousePos(x, y); break;
-            case Mouse::MOUSE_WHEEL:localClient->scaleEvent(wheelDelta*unit);
+            case Mouse::MOUSE_WHEEL:localClient->scaleEvent(-wheelDelta*unit);
                 break;
             default:
                 break;
