@@ -24,9 +24,9 @@ void Bullet::operator=(const std::string & name) {
     mModelPath = full + "model.scene";
     mHitRadius = info->getFloat("radius");
     mBoomTime = info->getFloat("time");
-    auto p = ParticleEmitter::create((full + "bullet.info#boom").c_str());
+    uniqueRAII<ParticleEmitter> p = ParticleEmitter::create((full + "bullet.info#boom").c_str());
     mDuang = Node::create();
-    mDuang->setDrawable(p);
+    mDuang->setDrawable(p.get());
 }
 
 Node* Bullet::getModel() const {

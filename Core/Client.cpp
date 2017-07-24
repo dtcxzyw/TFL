@@ -130,7 +130,8 @@ Client::Client(const std::string & server, bool& res) :
         DepthStencilTarget::DEPTH, shadowSize, shadowSize);
     mDepth->setDepthStencilTarget(shadow.get());
 
-    mShadowMap = Texture::Sampler::create(mDepth->getRenderTarget()->getTexture());
+    uniqueRAII<Texture> texture = mDepth->getRenderTarget()->getTexture();
+    mShadowMap = Texture::Sampler::create(texture.get());
     mShadowMap->setFilterMode(Texture::LINEAR, Texture::LINEAR);
     mShadowMap->setWrapMode(Texture::CLAMP, Texture::CLAMP);
     mLight = Node::create();
