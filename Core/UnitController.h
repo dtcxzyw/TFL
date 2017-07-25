@@ -11,6 +11,7 @@ public:
     void setMoveTarget(Vector2 dest);
     void setAttackTarget(uint32_t id);
     uint32_t getAttackTarget() const;
+    bool isStoped() const;
     void isServer();
     virtual bool update(UnitInstance& instance,float delta) = 0;
     virtual void onDied(UnitInstance& instance);

@@ -112,7 +112,7 @@ Client::Client(const std::string & server, bool& res) :
             std::this_thread::yield();
         return mPeer->NumberOfConnections();
     };
-
+    
     if (result != RakNet::CONNECTION_ATTEMPT_STARTED
         || !wait())
         INFO("Failed to connect to the server.");

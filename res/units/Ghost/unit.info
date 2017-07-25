@@ -5,6 +5,7 @@ plane= 10,20
 offset=0,-10,0
 radius=60
 AIType=attack
+cross=true
 control
 {
 	type=PBM

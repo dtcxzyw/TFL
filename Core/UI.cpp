@@ -320,6 +320,10 @@ void ServerMenu::event(Control * control, Event evt) {
 void ServerMenu::update(float) {
     localServer->waitClient();
     auto& info = localServer->getClientInfo();
+    if (info.empty()) {
+        pop();
+        return;
+    }
     std::stringstream ss;
     ss << "The number of clients is " << info.size() << std::endl;
     uint16_t count[5]{};

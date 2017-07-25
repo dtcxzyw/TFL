@@ -295,7 +295,7 @@ void Server::update(float delta) {
                 flag = true;
             }
         }
-    } while (flag && Game::getAbsoluteTime() - now < 10.0);
+    } while (flag);
 
     {
         //shuffle groups to make the game blance.

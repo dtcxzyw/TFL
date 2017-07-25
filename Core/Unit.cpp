@@ -18,6 +18,7 @@ void Unit::operator=(const std::string& name) {
     mInfo->getVector3("offset", &mOffset);
     mPlane *= 0.5f;
     mRadius = mInfo->getFloat("radius");
+    mCross = mInfo->getBool("cross", false);
 }
 
 std::string Unit::getName() const {
@@ -58,6 +59,9 @@ float Unit::getRadius() const {
     return mRadius;
 }
 
+bool Unit::canCross() const {
+    return mCross;
+}
 
 uint32_t UnitInstance::cnt = 0;
 
@@ -66,7 +70,12 @@ Node * UnitInstance::getNode() const {
 }
 
 void UnitInstance::setMoveTarget(Vector2 pos) {
-    mController->setMoveTarget(pos);
+    if (mKind->canCross())
+        mController->setMoveTarget(pos);
+    else {
+        mTarget = pos;
+        updateMoveTarget();
+    }
 }
 
 bool UnitInstance::update(float delta) {
@@ -75,13 +84,80 @@ bool UnitInstance::update(float delta) {
     if (mPos.x > mapSizeHF)mNode->setTranslationX(mapSizeHF);
     if (mPos.z < -mapSizeHF)mNode->setTranslationZ(-mapSizeHF);
     if (mPos.z > mapSizeHF)mNode->setTranslationZ(mapSizeHF);
+    if (!mKind->canCross() && !isDied())
+        updateMoveTarget();
     delta += mDelta;
     mDelta = 0.0f;
-    return mController->update(*this, delta );
+    return mController->update(*this, delta);
 }
 
 BoundingSphere UnitInstance::getBound() const {
     return {mNode->getTranslation(),mKind->getRadius()};
+}
+
+bool test(Vector2 b, Vector2 e) {
+    if (e.x<-mapSizeHF || e.x>mapSizeHF || e.y<-mapSizeHF || e.y>mapSizeHF
+        || localClient->getHeight(e.x, e.y) <= 1.0f)
+        return false;
+    auto dis = b.distance(e);
+    constexpr auto step = 1.0f;
+    for (auto i = step; i < dis; i += step) {
+        auto p = (b*i + e*(dis - i))/dis;
+        if (localClient->getHeight(p.x, p.y) <= 1.0f)
+            return false;
+    }
+    return true;
+}
+
+Vector2 choose(Vector2 b, Vector2 m,Vector2 unit, float maxv) {
+    float l = 1.0f, r = maxv;
+    while (r - l >= 1.0f) {
+        float mid = (l + r) / 2.0f;
+        auto p = m + unit*mid;
+        if (test(b, p))r = mid;
+        else l = mid;
+    }
+    return m + unit*r;
+}
+
+void UnitInstance::updateMoveTarget() {
+    Vector2 mp = { mPos.x,mPos.z };
+    if (mTarget.isZero() || mTarget.distanceSquared(mp) <= 16.0f) {
+        mTarget = {};
+        mController->setMoveTarget({});
+        return;
+    }
+    if (test(mp, mTarget)) {
+        mController->setMoveTarget(mTarget);
+        return;
+    }
+    auto offset = mp - mTarget;
+    if (offset.x == 0.0f)offset.x = std::numeric_limits<float>::epsilon();
+    if (offset.y == 0.0f)offset.y = std::numeric_limits<float>::epsilon();
+    constexpr auto maxFac =10.0f;
+    auto fac = 1.0f;
+    while (fac <= maxFac) {
+        float w = 0.5f;
+        while (w >= 0.05f) {
+            auto mid = mTarget*w + mp*(1.0f - w);
+            Vector2 unit = { 1.0f,-offset.x / offset.y };
+            unit.normalize();
+            auto dis = offset.length()*fac;
+            auto p1 = choose(mp, mid, unit, dis);
+            auto p2 = choose(mp, mid, -unit, dis);
+            if (std::min(p1.distanceSquared(mid), p2.distanceSquared(mid)) <= dis*dis - 1.0f) {
+                mController->setMoveTarget(p1.distanceSquared(mid) < p2.distanceSquared(mid) ? p1 : p2);
+                return;
+            }
+            w *= 0.5f;
+        }
+        fac += 0.5f;
+    }
+
+    if (fac>= maxFac) {
+        mTarget = {};
+        mController->setMoveTarget({});
+    }
 }
 
 void UnitInstance::setAttackTarget(uint32_t id) {

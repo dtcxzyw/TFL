@@ -12,6 +12,10 @@ uint32_t UnitController::getAttackTarget() const {
     return mObject;
 }
 
+bool UnitController::isStoped() const {
+    return mDest.isZero();
+}
+
 void UnitController::isServer() { mIsServer = true; }
 
 void UnitController::onDied(UnitInstance & instance) {}

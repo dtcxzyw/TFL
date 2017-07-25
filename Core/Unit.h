@@ -4,13 +4,13 @@
 
 class Unit final {
 private:
-    float mHP,mTime,mFOV;
+    float mHP,mTime,mFOV, mRadius;
     mutable uniqueRAII<Scene> mModel;
     std::string mName;
     uniqueRAII<Properties> mInfo;
     Vector2 mPlane;
     Vector3 mOffset;
-    float mRadius;
+    bool mCross;
 public:
     void operator=(const std::string& name);
     std::string getName() const;
@@ -22,6 +22,7 @@ public:
     Vector2 getPlane() const;
     Vector3 getOffset() const;
     float getRadius() const;
+    bool canCross() const;
 };
 
 extern std::map<std::string,Unit> globalUnits;
@@ -39,8 +40,10 @@ private:
     uint32_t mPID;
     const Unit* mKind;
     Vector3 mPos;
+    Vector2 mTarget;
     std::unique_ptr<UnitController> mController;
     float mDelta;
+    void updateMoveTarget();
 public:
     UnitInstance() {
         throw;
