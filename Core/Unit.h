@@ -43,6 +43,8 @@ private:
     Vector2 mTarget;
     std::unique_ptr<UnitController> mController;
     float mDelta;
+    bool mIsServer;
+    std::chrono::system_clock::time_point mLast;
     void updateMoveTarget();
 public:
     UnitInstance() {

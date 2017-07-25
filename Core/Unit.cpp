@@ -84,8 +84,11 @@ bool UnitInstance::update(float delta) {
     if (mPos.x > mapSizeHF)mNode->setTranslationX(mapSizeHF);
     if (mPos.z < -mapSizeHF)mNode->setTranslationZ(-mapSizeHF);
     if (mPos.z > mapSizeHF)mNode->setTranslationZ(mapSizeHF);
-    if (!mKind->canCross() && !isDied())
-        updateMoveTarget();
+    if (mIsServer && !mKind->canCross() && !isDied()) {
+        auto now = std::chrono::system_clock::now();
+        if (now - mLast > 500ms)
+            updateMoveTarget(), mLast = now;
+    }
     delta += mDelta;
     mDelta = 0.0f;
     return mController->update(*this, delta);
@@ -97,13 +100,14 @@ BoundingSphere UnitInstance::getBound() const {
 
 bool test(Vector2 b, Vector2 e) {
     if (e.x<-mapSizeHF || e.x>mapSizeHF || e.y<-mapSizeHF || e.y>mapSizeHF
-        || localClient->getHeight(e.x, e.y) <= 1.0f)
+        || localClient->getHeight(e.x, e.y) < -2.0f)
         return false;
     auto dis = b.distance(e);
-    constexpr auto step = 1.0f;
+    constexpr auto step = 40.0f;
+    if (dis <= step)return true;
     for (auto i = step; i < dis; i += step) {
         auto p = (b*i + e*(dis - i))/dis;
-        if (localClient->getHeight(p.x, p.y) <= 1.0f)
+        if (localClient->getHeight(p.x, p.y) < -2.0f)
             return false;
     }
     return true;
@@ -127,14 +131,14 @@ void UnitInstance::updateMoveTarget() {
         mController->setMoveTarget({});
         return;
     }
-    if (test(mp, mTarget)) {
+    if (test(mp, mTarget) || mPos.y<=0.0f) {
         mController->setMoveTarget(mTarget);
         return;
     }
     auto offset = mp - mTarget;
     if (offset.x == 0.0f)offset.x = std::numeric_limits<float>::epsilon();
     if (offset.y == 0.0f)offset.y = std::numeric_limits<float>::epsilon();
-    constexpr auto maxFac =10.0f;
+    constexpr auto maxFac =128.0f;
     auto fac = 1.0f;
     while (fac <= maxFac) {
         float w = 0.5f;
@@ -146,15 +150,16 @@ void UnitInstance::updateMoveTarget() {
             auto p1 = choose(mp, mid, unit, dis);
             auto p2 = choose(mp, mid, -unit, dis);
             if (std::min(p1.distanceSquared(mid), p2.distanceSquared(mid)) <= dis*dis - 1.0f) {
-                mController->setMoveTarget(p1.distanceSquared(mid) < p2.distanceSquared(mid) ? p1 : p2);
+                mController->setMoveTarget(
+                    p1.distanceSquared(mid) < p2.distanceSquared(mid) ? p1 : p2);
                 return;
             }
             w *= 0.5f;
         }
-        fac += 0.5f;
+        fac *= 2.0f;
     }
 
-    if (fac>= maxFac) {
+    if (fac> maxFac) {
         mTarget = {};
         mController->setMoveTarget({});
     }
@@ -180,7 +185,8 @@ const Unit & UnitInstance::getKind() const {
 
 UnitInstance::UnitInstance(const Unit & unit, uint8_t group, uint32_t id,
     Scene* add, bool isServer, Vector3 pos)
-    :mGroup(group), mHP(unit.getHP()), mNode(nullptr), mPID(id), mKind(&unit),mDelta(0.0f) {
+    :mGroup(group), mHP(unit.getHP()), mNode(nullptr), mPID(id), mKind(&unit),
+    mDelta(0.0f),mIsServer(isServer) {
     mNode = unit.getModel();
     add->addNode(mNode.get());
     mNode->setTranslation(pos);

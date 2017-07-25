@@ -76,25 +76,25 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)Bin</OutDir>
+    <OutDir>$(SolutionDir)Bin\</OutDir>
     <TargetName>TFL</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)Bin</OutDir>
+    <OutDir>$(SolutionDir)Bin\</OutDir>
     <TargetName>TFL_x64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)Bin</OutDir>
+    <OutDir>$(SolutionDir)Bin\</OutDir>
     <TargetName>TFL</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)Deps\RakNet;$(SolutionDir)Deps\GamePlay-deps-3.0.0\Box2D-2.3.0\Box2D;$(SolutionDir)Deps\GamePlay-deps-3.0.0\bullet-2.82-r2704\src;$(SolutionDir)Deps\GamePlay-deps-3.0.0\include;$(SolutionDir)Deps\GamePlay;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)Bin</OutDir>
+    <OutDir>$(SolutionDir)Bin\</OutDir>
     <TargetName>TFL_x64</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -176,7 +176,7 @@
       <OmitFramePointers>false</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <StringPooling>true</StringPooling>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -212,7 +212,7 @@
       <OmitFramePointers>false</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <StringPooling>true</StringPooling>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
