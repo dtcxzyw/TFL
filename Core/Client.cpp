@@ -696,13 +696,24 @@ void Client::mousePos(int x, int y) {
 }
 
 void Client::beginPoint(int x, int y) {
-
-    if (mState)
-        mBX = x, mBY = y;
+    if (mState) {
+        auto right = Game::getInstance()->getWidth()-mRight;
+        if (y <= miniMapSize && x <= right && x >= right -miniMapSize ) {
+            auto fac = mapSizeF/ miniMapSize;
+            Vector2 pos{ fac*(x - right + miniMapSize)-mapSizeHF,fac*y-mapSizeHF };
+            auto node = mCamera->getNode();
+            auto old = node->getTranslation();
+            node->setTranslation(pos.x, 
+                mMap->getHeight(pos.x, pos.y)+old.y-mMap->getHeight(old.x,old.z), pos.y);
+            while (checkCamera())
+                node->translateY(-50.0f);
+        }
+        else mBX = x, mBY = y;
+    }
 }
 
 void Client::endPoint(int x, int y) {
-    if (mState) {
+    if (mState && mBX) {
         if ((mBX - x)*(mBX - x) + (mBY - y)*(mBY - y) > 256) {
             Vector3 b = getPoint(mBX, mBY), e = getPoint(x, y);
             auto x1 = b.x, y1 = b.z, x2 = e.x, y2 = e.z;

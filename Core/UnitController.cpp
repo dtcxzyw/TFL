@@ -426,9 +426,11 @@ void fly(UnitInstance& instance, Vector2 dest, float h, float v, float delta, fl
         instance.getNode()->rotateY(RSC*delta*0.1f);
         instance.getNode()->translateForward(v*delta*0.1f);
     }
+
+    constexpr auto fac = 0.1f;
     auto f = Vector3::unitY();
     correctVector(instance.getNode(), &Node::getUpVector, f.normalize()
-        , dest.isZero() ? RSC*delta : 0.0f, 0.0f, RSC*delta);
+        , dest.isZero() ? RSC*delta*fac : 0.0f, 0.0f, RSC*delta*fac);
 }
 
 struct PBM final :public UnitController {
