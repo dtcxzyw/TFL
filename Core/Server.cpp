@@ -382,16 +382,16 @@ void Server::update(float delta) {
         std::map<uint8_t, std::set<uint32_t>> duang;
         std::map<uint32_t, DuangSyncInfo> info;
         std::set<uint32_t> deferred;
-        std::vector<BoundingSphere> vbs;
+        std::vector < std::pair<uint8_t,BoundingSphere>> vbs;
 
         for (auto&& x : mBullets) {
             x.second.update(delta);
-            vbs.emplace_back(x.second.getHitBound());
+            vbs.emplace_back(x.second.getGroup(),x.second.getHitBound());
         }
 
         size_t idx = 0;
         for (auto&& x : mBullets) {
-            auto bb = vbs[idx];
+            auto bb = vbs[idx].second;
             if (bb.center.x<-mapSizeHF || bb.center.x>mapSizeHF
                 || bb.center.z<-mapSizeHF || bb.center.z>mapSizeHF) {
                 deferred.insert(x.first);
@@ -415,7 +415,7 @@ void Server::update(float delta) {
             }
 
             for (size_t i = 0; i < vbs.size(); ++i)
-                if (i != idx && vbs[i].intersects(bb)) {
+                if (vbs[i].first!=vbs[idx].first && vbs[i].second.intersects(bb)) {
                     boom = true;
                     goto point;
                 }

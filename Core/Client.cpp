@@ -703,8 +703,8 @@ void Client::beginPoint(int x, int y) {
             Vector2 pos{ fac*(x - right + miniMapSize)-mapSizeHF,fac*y-mapSizeHF };
             auto node = mCamera->getNode();
             auto old = node->getTranslation();
-            node->setTranslation(pos.x, 
-                mMap->getHeight(pos.x, pos.y)+old.y-mMap->getHeight(old.x,old.z), pos.y);
+            node->setTranslation(pos.x, mMap->getHeight(pos.x, pos.y)+
+                std::max(100.0f,old.y-mMap->getHeight(old.x,old.z)), pos.y);
             while (checkCamera())
                 node->translateY(-50.0f);
         }

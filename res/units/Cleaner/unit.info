@@ -19,5 +19,5 @@ control
 	offset = 6
 	bullet = rocket
 	speed = 800
-	mat=5,5,1
+	mat=8,4,1
 }
