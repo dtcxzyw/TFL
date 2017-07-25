@@ -16,7 +16,7 @@ void UI::addListener(Control* control) {
     extEvent |= (typeid(*control) == typeid(Slider)) ? VALUE_CHANGED : 0;
     control->addListener(this, extEvent);
     control->setConsumeInputEvents(dynamic_cast<Form*>(control) == nullptr ||
-        control->getId()=="Settings"s);
+        control->getId() == "Settings"s);
     if (control->isContainer())
         for (auto child : dynamic_cast<Container*>(control)->getControls())
             addListener(child);
@@ -82,7 +82,7 @@ MainMenu::MainMenu() :UI("Main") {}
 #define CHECKRET() if (evt == Event::PRESS && CMPID("return"))pop()
 
 void MainMenu::event(Control* control, Event evt) {
-    if (evt == Event::PRESS && CMPID("exit")) 
+    if (evt == Event::PRESS && CMPID("exit"))
         Game::getInstance()->exit();
     if (evt == Event::PRESS && CMPID("play"))
         push<PlayMenu>();
@@ -305,7 +305,7 @@ void ServerMenu::event(Control * control, Event evt) {
         if (get<CheckBox>("ai")->isChecked()) {
             bool flag = false;
             aiFuture = std::make_unique<std::future<void>>(std::async(std::launch::async,
-                AIMain, &flag,static_cast<uint8_t>(get<Slider>("level")->getValue())));
+                AIMain, &flag, static_cast<uint8_t>(get<Slider>("level")->getValue())));
             while (!flag) localServer->waitClient();
         }
         localServer->run();
@@ -399,12 +399,19 @@ void GameMain::event(Control * control, Event evt) {
 void GameMain::update(float delta) {
     get<Label>("state")->setText(("FPS :" + to_string(Game::getInstance()->getFrameRate()) +
         " Unit:" + to_string(localClient->getUnitNum())).c_str());
-    if (localServer)localServer->update(delta);
-    localClient->setViewport(mForm->getWidth());
-    if (localClient->update(delta))
-        get<Slider>("weight")->setValue(localClient->getWeight(mCurrent));
-    else
-        pop();
+    static auto div=1;
+    div += (Game::getInstance()->getFrameRate() >= 60) ? 1 : -1;
+    div = std::max(div, 1);
+    for (auto i = 0; i < div; ++i) {
+        if (localServer)localServer->update(delta/div);
+        localClient->setViewport(mForm->getWidth());
+        if (localClient->update(delta/div))
+            get<Slider>("weight")->setValue(localClient->getWeight(mCurrent));
+        else {
+            pop();
+            return;
+        }
+    }
 }
 
 GameMain::~GameMain() {
@@ -436,7 +443,6 @@ void ClientMenu::update(float) {
 ClientMenu::~ClientMenu() {
     localClient.reset();
 }
-
 
 #undef CHECKRET
 #undef CMPID
