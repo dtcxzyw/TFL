@@ -715,16 +715,24 @@ void Client::beginPoint(int x, int y) {
 void Client::endPoint(int x, int y) {
     if (mState && mBX) {
         if ((mBX - x)*(mBX - x) + (mBY - y)*(mBY - y) > 256) {
-            Vector3 b = getPoint(mBX, mBY), e = getPoint(x, y);
-            auto x1 = b.x, y1 = b.z, x2 = e.x, y2 = e.z;
-            if (x1 > x2)std::swap(x1, x2);
-            if (y1 > y2)std::swap(y1, y2);
+            auto game = Game::getInstance();
+            auto rect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
+            mCamera->setAspectRatio(rect.width / rect.height);
+            if (mBX > x)std::swap(mBX, x);
+            if (mBY > y)std::swap(mBY, y);
             mChoosed.clear();
-            for (auto&& x : mUnits)
-                if (x.second.getGroup() == mGroup) {
-                    auto p = x.second.getNode()->getTranslation();
-                    if (x1<p.x && x2>p.x && y1<p.z && y2>p.z)
-                        mChoosed.insert(x.first);
+            for (auto&& u : mUnits)
+                if (u.second.getGroup() == mGroup) {
+                    auto MVP = u.second.getNode()->getWorldViewProjectionMatrix();
+                    auto NDC = MVP*Vector4::unitW();
+                    NDC.x /= NDC.w; NDC.y /= NDC.w;
+                    NDC.x /= 2.0f, NDC.y /= 2.0f;
+                    NDC.x += 0.5f; NDC.y += 0.5f;
+                    NDC.y =1.0f - NDC.y;
+                    NDC.x *= rect.width;
+                    NDC.y *= rect.height;
+                    if (NDC.x >= mBX && NDC.x <= x && NDC.y >= mBY && NDC.y <= y)
+                        mChoosed.insert(u.first);
                 }
         }
         else move(x, y);
