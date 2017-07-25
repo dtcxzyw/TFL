@@ -1,0 +1,24 @@
+scene Xdog
+{
+	node root
+	{
+		scale = 0.05,0.05,0.05
+		
+		node base
+		{
+			url = res/units/Xdog/model.gpb#base
+			material = res/shared/Core/green.material
+		}
+		
+		node yr
+		{
+			url = res/units/Xdog/model.gpb#yr
+			material = res/shared/Core/green.material
+			node xr
+			{
+				url = res/units/Xdog/model.gpb#xr
+				material = res/shared/Core/green.material
+			}
+		}
+	}
+}

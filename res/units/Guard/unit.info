@@ -1,0 +1,22 @@
+HP = 300
+cost = 30
+FOV = 1000
+plane= 10,10
+offset=0,-10,0
+radius=35
+AIType=defense
+control
+{
+	type=CBG
+	RSC = 0.01
+	RSX = 0.01
+	RSY = 0.01
+	v=90
+	dis = 1000
+	time=0.1
+	harm=10
+	bullet=common
+	radius=20
+	speed=1500
+	rfac = 0.9
+}
