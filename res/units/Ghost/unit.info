@@ -12,7 +12,7 @@ control
 	RSC=0.005
 	time=10
 	v=400
-	dis=1500
+	dis=3500
 	missile=DF
 	harm = 150
 	range = 70

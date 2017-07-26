@@ -16,6 +16,7 @@ scene Guard
 			material = res/shared/Core/green.material
 			node xr
 			{
+				translate = 0,-160,0
 				url = res/units/Guard/model.gpb#xr
 				material = res/shared/Core/green.material
 			}

@@ -414,12 +414,13 @@ struct CBR final :public UnitController {
 };
 
 struct CBG final :public UnitController {
-    float RSC, RSX, RSY, harm, dis, v, rfac, x, sy, fcnt, count, sample, time, range, speed, offset;
+    float RSC, RSX, RSY, harm, dis, v, rfac, x, sy, fcnt, count, sample, time, range, speed, offset,bt;
     Vector2 last;
     std::string bullet;
+    bool onBack;
     CBG(const Properties* info) :Init(RSC), Init(RSX), Init(RSY), Init(harm), Init(dis), Init(v), Init(rfac)
         , x(10000.0f), sy(0.0f), count(0.0f), sample(0.0f), fcnt(0.0f), Init(time), Init(range)
-        , Init(speed), Init(offset), bullet(info->getString("bullet")) {
+        , Init(speed), Init(offset), bullet(info->getString("bullet")),bt(0.0f),onBack(false) {
         v /= 1000.0f;
         dis *= dis;
         time *= 1000.0f;
@@ -454,24 +455,39 @@ struct CBG final :public UnitController {
         if (mObject && !point.isZero()) {
             auto obj = point - now; obj.normalize();
             correctVector(ty, &Node::getForwardVectorWorld, obj, 0.0f, RSY*delta, 0.0f);
-            auto limit = ty->getForwardVectorWorld().normalize()
-                .dot(t->getForwardVectorWorld().normalize());
-            correctVector(t, &Node::getForwardVectorWorld, obj, std::min(limit, RSX*delta), 0.0f, 0.0f);
+            if (!onBack) {
+                auto limit = ty->getForwardVectorWorld().normalize()
+                    .dot(t->getForwardVectorWorld().normalize());
+                correctVector(t, &Node::getForwardVectorWorld, obj, std::min(limit, RSX*delta), 0.0f, 0.0f);
+            }
             auto f = t->getForwardVectorWorld().normalize();
             if (count >= time && obj.lengthSquared() <= dis &&
-                obj.dot(f) >= 0.996f && checkRay(now, point) == point) {
+                obj.dot(f) >= 0.996f && checkRay(now, point) == point && bt<=30.0f) {
                 if (mIsServer)
                     localServer->newBullet(BulletInstance(bullet, t->getTranslationWorld() +
                         offset*f, point, f, speed, harm, range, instance.getGroup()));
                 count = 0.0f;
+                t->translateForward(bt);
+                t->translateForward(-(bt =40.0f));
+                onBack = true;
             }
         }
         else {
             mObject = 0;
             auto f = node->getForwardVector().normalize();
             correctVector(ty, &Node::getForwardVectorWorld, f, 0.0f, RSY*delta, 0.0f);
-            correctVector(t, &Node::getForwardVectorWorld, f, RSX*delta, 0.0f, 0.0f);
+            if(!onBack)
+                correctVector(t, &Node::getForwardVectorWorld, f, RSX*delta, 0.0f, 0.0f);
         }
+
+        if (bt > 0.0f) {
+            if (bt >= delta*0.1f)bt -= delta*0.1f, t->translateForward(delta*0.1f);
+            else {
+                t->translateForward(bt);
+                bt = 0.0f;
+            }
+        }
+        else onBack = false;
 
         return move(instance, mDest, np, c, RSC, delta, rfac, v, sample, fcnt, x);
     }

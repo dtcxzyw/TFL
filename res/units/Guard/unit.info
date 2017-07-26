@@ -4,7 +4,7 @@ FOV = 3000
 plane= 10,10
 offset=0,-10,0
 radius=30
-AIType=defense
+AIType=attack
 control
 {
 	type=CBG
@@ -12,7 +12,7 @@ control
 	RSX = 0.01
 	RSY = 0.01
 	v=90
-	dis = 2000
+	dis = 4000
 	time=0.1
 	harm=20
 	bullet=common
