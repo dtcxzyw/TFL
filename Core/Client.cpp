@@ -265,14 +265,16 @@ bool Client::update(float delta) {
     if (!(mBX || mBY)) {
         auto game = Game::getInstance();
         auto rect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
-        float vx = (mX - rect.width / 2) / rect.width;
-        float vy = (mY - rect.height / 2) / rect.height;
-        constexpr float unit = 0.001f;
-        float m = unit*delta;
-        float mx = (std::abs(vx) <= 0.5 && std::abs(vx) >= 0.4) ? (vx > 0.0f ? m : -m) : 0.0f;
-        float my = (std::abs(vy) <= 0.5 && std::abs(vy) >= 0.4) ? (vy > 0.0f ? m : -m) : 0.0f;
-        moveEvent(mx, 0.0f);
-        moveEvent(0.0f, my);
+        if (mX<rect.width - miniMapSize || mY>miniMapSize) {
+            float vx = (mX - rect.width / 2) / rect.width;
+            float vy = (mY - rect.height / 2) / rect.height;
+            constexpr float unit = 0.001f;
+            float m = unit*delta;
+            float mx = (std::abs(vx) <= 0.5f && std::abs(vx) >= 0.4f) ? (vx > 0.0f ? m : -m) : 0.0f;
+            float my = (std::abs(vy) <= 0.5f && std::abs(vy) >= 0.4f) ? (vy > 0.0f ? m : -m) : 0.0f;
+            moveEvent(mx, 0.0f);
+            moveEvent(0.0f, my);
+        }
     }
 #endif // WIN32
 
@@ -404,7 +406,7 @@ bool Client::update(float delta) {
 
     std::set<uint32_t> choosed;
     for (auto&& x : mChoosed)
-        if (mUnits.find(x) != mUnits.cend())
+        if (mUnits.find(x) != mUnits.cend() && !mUnits[x].isDied())
             choosed.insert(x);
     choosed.swap(mChoosed);
 
