@@ -31,6 +31,7 @@ private:
     uint32_t mGroup;
     float mSpeed;
     Vector3 mCameraPos;
+    uniqueRAII<Form> mStateInfo;
 
     //Effects
     std::set<DuangInfo> mDuang;

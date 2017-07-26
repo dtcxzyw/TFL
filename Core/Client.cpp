@@ -152,6 +152,18 @@ Client::Client(const std::string & server, bool& res) :
         mWaterBuffer = DepthStencilTarget::create("water",
             DepthStencilTarget::DEPTH_STENCIL,old->getWidth(),old->getHeight());
     }
+
+    {
+        mStateInfo = Form::create("label", Theme::getDefault()->getStyle("Label"));
+        mStateInfo->setAutoSize(Control::AutoSize::AUTO_SIZE_BOTH);
+        mStateInfo->setConsumeInputEvents(false);
+        mStateInfo->setAlignment(Control::Alignment::ALIGN_BOTTOM_HCENTER);
+        uniqueRAII<Label> info = Label::create("info");
+        mStateInfo->addControl(info.get());
+        info->setAutoSize(Control::AutoSize::AUTO_SIZE_BOTH);
+        info->setAlignment(Control::Alignment::ALIGN_BOTTOM_HCENTER);
+        info->setConsumeInputEvents(false);
+    }
 }
 
 Client::~Client() {
@@ -399,6 +411,11 @@ bool Client::update(float delta) {
             x.second.updateClient(delta);
     }
 
+    auto label = dynamic_cast<Label*>(mStateInfo->getControl(0U));
+    if (mChoosed.size())label->setText(("Choosed "+to_string(mChoosed.size())).c_str());
+    else label->setText("");
+    mStateInfo->update(delta);
+
     return true;
 }
 
@@ -606,6 +623,8 @@ void Client::render() {
             mRECT->draw(range, { 32,32 });
             mRECT->finish();
         }
+
+        mStateInfo->draw();
     }
 }
 
@@ -703,24 +722,29 @@ void Client::beginPoint(int x, int y) {
 }
 
 void Client::endPoint(int x, int y) {
+    auto toNDC = [](auto node, auto rect) {
+        auto MVP = node->getWorldViewProjectionMatrix();
+        auto NDC = MVP*Vector4::unitW();
+        NDC.x /= NDC.w; NDC.y /= NDC.w; NDC.z /= NDC.w;
+        NDC.x /= 2.0f, NDC.y /= 2.0f; NDC.z /= 2.0f;
+        NDC.x += 0.5f; NDC.y += 0.5f; NDC.z += 0.5f;
+        NDC.y = 1.0f - NDC.y;
+        NDC.x *= rect.width;
+        NDC.y *= rect.height;
+        return NDC;
+    };
+
     if (mState && mBX) {
+        auto game = Game::getInstance();
+        auto rect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
+        mCamera->setAspectRatio(rect.width / rect.height);
+
         if ((mBX - x)*(mBX - x) + (mBY - y)*(mBY - y) > 256) {
-            auto game = Game::getInstance();
-            auto rect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
-            mCamera->setAspectRatio(rect.width / rect.height);
+            std::set<uint32_t> choosed, mine;
             if (mBX > x)std::swap(mBX, x);
             if (mBY > y)std::swap(mBY, y);
-            std::set<uint32_t> choosed;
-            std::set<uint32_t> mine;
             for (auto&& u : mUnits) {
-                auto MVP = u.second.getNode()->getWorldViewProjectionMatrix();
-                auto NDC = MVP*Vector4::unitW();
-                NDC.x /= NDC.w; NDC.y /= NDC.w;
-                NDC.x /= 2.0f, NDC.y /= 2.0f;
-                NDC.x += 0.5f; NDC.y += 0.5f;
-                NDC.y = 1.0f - NDC.y;
-                NDC.x *= rect.width;
-                NDC.y *= rect.height;
+                auto NDC = toNDC(u.second.getNode(), rect);
                 if (NDC.x >= mBX && NDC.x <= x && NDC.y >= mBY && NDC.y <= y) {
                     if (u.second.getGroup() != mGroup)choosed.insert(u.first);
                     else mine.insert(u.first);
@@ -734,6 +758,7 @@ void Client::endPoint(int x, int y) {
                 RakNet::BitStream data;
                 data.Write(ClientMessage::setAttackTarget);
                 for (auto&& x : mChoosed) {
+                    if (mUnits.find(x) == mUnits.cend())continue;
                     auto pos = mUnits[x].getRoughPos();
                     auto md = std::numeric_limits<float>::max();
                     uint32_t maxwell = 0;
@@ -750,7 +775,38 @@ void Client::endPoint(int x, int y) {
             }
             else mChoosed.swap(mine);
         }
-        else move(x, y);
+        else {
+            uint32_t choosed=0;
+            float currectDepth = 1.0f;
+
+            for (auto&& u : mUnits) {
+                auto NDC = toNDC(u.second.getNode(), rect);
+                if (NDC.z<currectDepth && NDC.x >= x-8.0f && NDC.x <= x+8.0f
+                    && NDC.y >= y-8.0f && NDC.y <= y+8.0f) {
+                    currectDepth = NDC.z;
+                    choosed = u.first;
+                }
+            }
+
+            if (choosed) {
+                if (mUnits[choosed].getGroup() == mGroup) {
+                    mChoosed.clear();
+                    mChoosed.insert(choosed);
+                }
+                else {
+                    RakNet::BitStream data;
+                    data.Write(ClientMessage::setAttackTarget);
+                    for (auto&& x : mChoosed) {
+                        if (mUnits.find(x) == mUnits.cend())continue;
+                        data.Write(x);
+                        data.Write(choosed);
+                    }
+                    mPeer->Send(&data, PacketPriority::HIGH_PRIORITY,
+                        PacketReliability::RELIABLE_ORDERED, 0, mServer, false);
+                }
+            }
+            else move(x, y);
+        }
     }
     mBX = 0, mBY = 0;
 }
