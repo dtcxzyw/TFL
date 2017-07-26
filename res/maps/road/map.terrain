@@ -1,0 +1,23 @@
+terrain
+{
+	material = res/common/terrain.material
+	
+	heightmap = res/maps/road/height.png 
+    normalMap = res/maps/road/normal.png
+
+	size = 6000, 750, 6000
+	patchSize = 32
+
+    layer grass
+	{
+		texture
+		{
+			path = res/maps/test/grass.png
+			repeat = 500,500
+		}
+		
+		index =0
+	}
+}
+
+seaLevel = 180

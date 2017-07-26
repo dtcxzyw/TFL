@@ -399,19 +399,13 @@ void GameMain::event(Control * control, Event evt) {
 void GameMain::update(float delta) {
     get<Label>("state")->setText(("FPS :" + to_string(Game::getInstance()->getFrameRate()) +
         " Unit:" + to_string(localClient->getUnitNum())).c_str());
-    static auto div=1;
-    div += (Game::getInstance()->getFrameRate() >= 60) ? 1 : -1;
-    div = std::max(div, 1);
-    div = std::min(div, 3);
-    for (auto i = 0; i < div; ++i) {
-        if (localServer)localServer->update(delta/div);
-        localClient->setViewport(mForm->getWidth());
-        if (localClient->update(delta/div))
-            get<Slider>("weight")->setValue(localClient->getWeight(mCurrent));
-        else {
-            pop();
-            return;
-        }
+    if (localServer)localServer->update(delta);
+    localClient->setViewport(mForm->getWidth());
+    if (localClient->update(delta))
+        get<Slider>("weight")->setValue(localClient->getWeight(mCurrent));
+    else {
+        pop();
+        return;
     }
 }
 

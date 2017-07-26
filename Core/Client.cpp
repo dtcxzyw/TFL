@@ -699,14 +699,26 @@ void Client::beginPoint(int x, int y) {
     if (mState) {
         auto right = Game::getInstance()->getWidth()-mRight;
         if (y <= miniMapSize && x <= right && x >= right -miniMapSize ) {
-            auto fac = mapSizeF/ miniMapSize;
-            Vector2 pos{ fac*(x - right + miniMapSize)-mapSizeHF,fac*y-mapSizeHF };
-            auto node = mCamera->getNode();
-            auto old = node->getTranslation();
-            node->setTranslation(pos.x, mMap->getHeight(pos.x, pos.y)+
-                std::max(100.0f,old.y-mMap->getHeight(old.x,old.z)), pos.y);
-            while (checkCamera())
-                node->translateY(-50.0f);
+            auto fac = mapSizeF / miniMapSize;
+            Vector2 pos{ fac*(x - right + miniMapSize) - mapSizeHF,fac*y - mapSizeHF };
+            if (mChoosed.empty()) {
+                auto node = mCamera->getNode();
+                auto old = node->getTranslation();
+                node->setTranslation(pos.x, mMap->getHeight(pos.x, pos.y) +
+                    std::max(100.0f, old.y - mMap->getHeight(old.x, old.z)), pos.y);
+                while (checkCamera())
+                    node->translateY(-50.0f);
+            }
+            else {
+                RakNet::BitStream data;
+                data.Write(ClientMessage::setMoveTarget);
+                data.Write(pos);
+                data.Write(static_cast<uint32_t>(mChoosed.size()));
+                for (auto x : mChoosed)
+                    data.Write(x);
+                mPeer->Send(&data, PacketPriority::HIGH_PRIORITY,
+                    PacketReliability::RELIABLE, 0, mServer, false);
+            }
         }
         else mBX = x, mBY = y;
     }

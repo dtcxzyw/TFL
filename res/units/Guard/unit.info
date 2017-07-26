@@ -13,10 +13,10 @@ control
 	RSY = 0.01
 	v=90
 	dis = 2000
-	time=0.3
-	harm=10
+	time=0.1
+	harm=20
 	bullet=common
-	range=20
+	range=200
 	speed=1500
 	offset = 5
 	rfac = 0.9
