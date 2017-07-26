@@ -278,9 +278,6 @@ bool Client::update(float delta) {
 
     delta *= mSpeed;
 
-    std::set<uint32_t> others;
-    std::set<uint32_t> mine;
-
     auto isStop = false;
     for (auto packet = mPeer->Receive(); packet; mPeer->DeallocatePacket(packet), packet = mPeer->Receive()) {
         if (isStop)continue;
@@ -324,12 +321,6 @@ bool Client::update(float delta) {
                 }
                 if (u.isDied)
                     mUnits[u.id].attacked(1e10f);
-                else {
-                    if (u.group == mGroup)
-                        mine.insert(u.id);
-                    else
-                        others.insert(u.id);
-                }
             }
             for (auto&& o : old) {
                 mScene->removeNode(mUnits[o].getNode());
@@ -410,6 +401,12 @@ bool Client::update(float delta) {
         for (auto&& x : mBullets)
             x.second.updateClient(delta);
     }
+
+    std::set<uint32_t> choosed;
+    for (auto&& x : mChoosed)
+        if (mUnits.find(x) != mUnits.cend())
+            choosed.insert(x);
+    choosed.swap(mChoosed);
 
     auto label = dynamic_cast<Label*>(mStateInfo->getControl(0U));
     if (mChoosed.size())label->setText(("Choosed "+to_string(mChoosed.size())).c_str());
@@ -722,9 +719,9 @@ void Client::beginPoint(int x, int y) {
 }
 
 void Client::endPoint(int x, int y) {
-    auto toNDC = [](auto node, auto rect) {
-        auto MVP = node->getWorldViewProjectionMatrix();
-        auto NDC = MVP*Vector4::unitW();
+    auto toNDC = [](auto&& u, auto rect,auto offset) {
+        auto MVP = u.second.getNode()->getWorldViewProjectionMatrix();
+        auto NDC = MVP*offset;
         NDC.x /= NDC.w; NDC.y /= NDC.w; NDC.z /= NDC.w;
         NDC.x /= 2.0f, NDC.y /= 2.0f; NDC.z /= 2.0f;
         NDC.x += 0.5f; NDC.y += 0.5f; NDC.z += 0.5f;
@@ -744,7 +741,7 @@ void Client::endPoint(int x, int y) {
             if (mBX > x)std::swap(mBX, x);
             if (mBY > y)std::swap(mBY, y);
             for (auto&& u : mUnits) {
-                auto NDC = toNDC(u.second.getNode(), rect);
+                auto NDC = toNDC(u, rect,Vector4::unitW());
                 if (NDC.x >= mBX && NDC.x <= x && NDC.y >= mBY && NDC.y <= y) {
                     if (u.second.getGroup() != mGroup)choosed.insert(u.first);
                     else mine.insert(u.first);
@@ -778,11 +775,15 @@ void Client::endPoint(int x, int y) {
         else {
             uint32_t choosed=0;
             float currectDepth = 1.0f;
-
+            auto dis = [](auto x, auto y) {
+                return x*x + y*y;
+            };
             for (auto&& u : mUnits) {
-                auto NDC = toNDC(u.second.getNode(), rect);
-                if (NDC.z<currectDepth && NDC.x >= x-8.0f && NDC.x <= x+8.0f
-                    && NDC.y >= y-8.0f && NDC.y <= y+8.0f) {
+                auto NDC = toNDC(u, rect,Vector4::unitW());
+                auto right = toNDC(u, rect,  Vector4{
+                    u.second.getKind().getRadius()/u.second.getNode()->getScaleX(),0.0f,0.0f,1.0f });
+                auto radius =dis(right.x - NDC.x,right.y-NDC.y);
+                if (NDC.z<currectDepth && dis(NDC.x-x,NDC.y-y)<=radius) {
                     currectDepth = NDC.z;
                     choosed = u.first;
                 }

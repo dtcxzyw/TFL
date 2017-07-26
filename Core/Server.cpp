@@ -494,7 +494,8 @@ void Server::update(float delta) {
         send(choose, data, PacketPriority::HIGH_PRIORITY);
 
         for (auto&& x : update.units) {
-            if (x.second.getAttackTarget())continue;
+            auto old = x.second.getAttackTarget();
+            if (old && !getUnitPos(old).isZero())continue;
             auto p = x.second.getNode()->getTranslation();
             float md = std::numeric_limits<float>::max();
             uint32_t maxwell = 0;
