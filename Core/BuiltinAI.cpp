@@ -127,27 +127,6 @@ public:
 
         for (auto&& t : teams)
             send(t);
-
-        std::map<uint32_t, uint32_t> attackMap;
-        for (auto&& x : mMine) {
-            float md = std::numeric_limits<float>::max();
-            uint32_t maxwell = 0;
-            for (auto&& y : mArmies) {
-                auto dis = y.second.pos.distanceSquared(x.second.pos);
-                if (dis < md)md = dis, maxwell = y.first;
-            }
-            if (maxwell) attackMap[x.first] = maxwell;
-        }
-
-        if (attackMap.size()) {
-            RakNet::BitStream data;
-            data.Write(ClientMessage::setAttackTarget);
-            for (auto&& x : attackMap) {
-                data.Write(x.first);
-                data.Write(x.second);
-            }
-            mSend(data, PacketPriority::HIGH_PRIORITY, PacketReliability::RELIABLE);
-        }
     }
 };
 

@@ -399,28 +399,6 @@ bool Client::update(float delta) {
             x.second.updateClient(delta);
     }
 
-    //control
-    RakNet::BitStream data;
-    data.Write(ClientMessage::setAttackTarget);
-
-    for (auto&& x : mine) {
-        if (mUnits.find(x) == mUnits.cend())continue;
-        auto p = mUnits[x].getNode()->getTranslation();
-        float md = std::numeric_limits<float>::max();
-        uint32_t maxwell = 0;
-        for (auto&& y : others) {
-            if (mUnits.find(y) == mUnits.cend())continue;
-            auto dis = p.distanceSquared(mUnits[y].getNode()->getTranslation());
-            if (dis < md)
-                md = dis, maxwell = y;
-        }
-        data.Write(x);
-        data.Write(maxwell);
-    }
-
-    mPeer->Send(&data, PacketPriority::HIGH_PRIORITY,
-        PacketReliability::RELIABLE_ORDERED, 0, mServer, false);
-
     return true;
 }
 
@@ -732,20 +710,45 @@ void Client::endPoint(int x, int y) {
             mCamera->setAspectRatio(rect.width / rect.height);
             if (mBX > x)std::swap(mBX, x);
             if (mBY > y)std::swap(mBY, y);
-            mChoosed.clear();
-            for (auto&& u : mUnits)
-                if (u.second.getGroup() == mGroup) {
-                    auto MVP = u.second.getNode()->getWorldViewProjectionMatrix();
-                    auto NDC = MVP*Vector4::unitW();
-                    NDC.x /= NDC.w; NDC.y /= NDC.w;
-                    NDC.x /= 2.0f, NDC.y /= 2.0f;
-                    NDC.x += 0.5f; NDC.y += 0.5f;
-                    NDC.y =1.0f - NDC.y;
-                    NDC.x *= rect.width;
-                    NDC.y *= rect.height;
-                    if (NDC.x >= mBX && NDC.x <= x && NDC.y >= mBY && NDC.y <= y)
-                        mChoosed.insert(u.first);
+            std::set<uint32_t> choosed;
+            std::set<uint32_t> mine;
+            for (auto&& u : mUnits) {
+                auto MVP = u.second.getNode()->getWorldViewProjectionMatrix();
+                auto NDC = MVP*Vector4::unitW();
+                NDC.x /= NDC.w; NDC.y /= NDC.w;
+                NDC.x /= 2.0f, NDC.y /= 2.0f;
+                NDC.x += 0.5f; NDC.y += 0.5f;
+                NDC.y = 1.0f - NDC.y;
+                NDC.x *= rect.width;
+                NDC.y *= rect.height;
+                if (NDC.x >= mBX && NDC.x <= x && NDC.y >= mBY && NDC.y <= y) {
+                    if (u.second.getGroup() != mGroup)choosed.insert(u.first);
+                    else mine.insert(u.first);
                 }
+            }
+
+            if (choosed.size()) {
+                for (auto&& x : mine)
+                    mChoosed.insert(x);
+
+                RakNet::BitStream data;
+                data.Write(ClientMessage::setAttackTarget);
+                for (auto&& x : mChoosed) {
+                    auto pos = mUnits[x].getRoughPos();
+                    auto md = std::numeric_limits<float>::max();
+                    uint32_t maxwell = 0;
+                    for (auto&& y : choosed) {
+                        auto p = mUnits[y].getRoughPos();
+                        auto dis = p.distanceSquared(pos);
+                        if (dis < md)md = dis, maxwell = y;
+                    }
+                    data.Write(x);
+                    data.Write(maxwell);
+                }
+                mPeer->Send(&data, PacketPriority::HIGH_PRIORITY,
+                    PacketReliability::RELIABLE_ORDERED, 0, mServer, false);
+            }
+            else mChoosed.swap(mine);
         }
         else move(x, y);
     }

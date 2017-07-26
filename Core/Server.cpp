@@ -174,8 +174,13 @@ void Server::update(float delta) {
             uint32_t x, y;
             while (data.Read(x) && data.Read(y)) {
                 auto xi = units.find(x);
-                if (xi != units.cend())
-                    xi->second.setAttackTarget(y);
+                if (xi != units.cend()) {
+                    auto p = getUnitPos(y);
+                    if (!p.isZero()) {
+                        xi->second.setMoveTarget({ p.x, p.z });
+                        xi->second.setAttackTarget(y);
+                    }
+                }
             }
         }
         CheckHeader(ClientMessage::setMoveTarget) {
@@ -382,11 +387,11 @@ void Server::update(float delta) {
         std::map<uint8_t, std::set<uint32_t>> duang;
         std::map<uint32_t, DuangSyncInfo> info;
         std::set<uint32_t> deferred;
-        std::vector < std::pair<uint8_t,BoundingSphere>> vbs;
+        std::vector < std::pair<uint8_t, BoundingSphere>> vbs;
 
         for (auto&& x : mBullets) {
             x.second.update(delta);
-            vbs.emplace_back(x.second.getGroup(),x.second.getHitBound());
+            vbs.emplace_back(x.second.getGroup(), x.second.getHitBound());
         }
 
         size_t idx = 0;
@@ -415,7 +420,7 @@ void Server::update(float delta) {
             }
 
             for (size_t i = 0; i < vbs.size(); ++i)
-                if (vbs[i].first!=vbs[idx].first && vbs[i].second.intersects(bb)) {
+                if (vbs[i].first != vbs[idx].first && vbs[i].second.intersects(bb)) {
                     boom = true;
                     goto point;
                 }
@@ -487,7 +492,22 @@ void Server::update(float delta) {
             data.Write(u);
 
         send(choose, data, PacketPriority::HIGH_PRIORITY);
+
+        for (auto&& x : update.units) {
+            if (x.second.getAttackTarget())continue;
+            auto p = x.second.getNode()->getTranslation();
+            float md = std::numeric_limits<float>::max();
+            uint32_t maxwell = 0;
+            for (auto&& y : saw)
+                if (y.group != x.second.getGroup()) {
+                    auto dis = p.distanceSquared(y.pos);
+                    if (dis < md)
+                        md = dis, maxwell = y.id;
+                }
+            x.second.setAttackTarget(maxwell);
+        }
     }
+
 
     //update bullet
     {
