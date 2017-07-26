@@ -1,4 +1,4 @@
-scene Xdog
+scene Guard
 {
 	node root
 	{
@@ -6,17 +6,17 @@ scene Xdog
 		
 		node base
 		{
-			url = res/units/Xdog/model.gpb#base
+			url = res/units/Guard/model.gpb#base
 			material = res/shared/Core/green.material
 		}
 		
 		node yr
 		{
-			url = res/units/Xdog/model.gpb#yr
+			url = res/units/Guard/model.gpb#yr
 			material = res/shared/Core/green.material
 			node xr
 			{
-				url = res/units/Xdog/model.gpb#xr
+				url = res/units/Guard/model.gpb#xr
 				material = res/shared/Core/green.material
 			}
 		}

@@ -1,5 +1,5 @@
 radius= 10
-time = 5000
+time = 1000
 particle boom
 {
     sprite

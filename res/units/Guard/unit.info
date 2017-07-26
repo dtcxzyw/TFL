@@ -1,9 +1,9 @@
 HP = 300
-cost = 30
-FOV = 1000
+cost = 15
+FOV = 3000
 plane= 10,10
 offset=0,-10,0
-radius=35
+radius=30
 AIType=defense
 control
 {
@@ -12,11 +12,12 @@ control
 	RSX = 0.01
 	RSY = 0.01
 	v=90
-	dis = 1000
-	time=0.1
+	dis = 2000
+	time=0.3
 	harm=10
 	bullet=common
-	radius=20
+	range=20
 	speed=1500
+	offset = 5
 	rfac = 0.9
 }

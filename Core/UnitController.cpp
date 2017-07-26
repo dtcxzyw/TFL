@@ -274,12 +274,12 @@ struct DET final :public UnitController {
         float d = 0.0f;
         if (mObject && !point.isZero()) {
             auto obj = point - now; obj.normalize();
-            auto f = t->getForwardVectorWorld(); f.normalize();
-            d = obj.dot(f);
             correctVector(ty, &Node::getForwardVectorWorld, obj, 0.0f, RSY*delta, 0.0f);
             auto limit = ty->getForwardVectorWorld().normalize()
                 .dot(t->getForwardVectorWorld().normalize());
             correctVector(t, &Node::getForwardVectorWorld, obj, std::min(limit, RSX*delta), 0.0f, 0.0f);
+            auto f = t->getForwardVectorWorld().normalize();
+            d = obj.dot(f);
         }
         else {
             mObject = 0;
@@ -413,6 +413,70 @@ struct CBR final :public UnitController {
     }
 };
 
+struct CBG final :public UnitController {
+    float RSC, RSX, RSY, harm, dis, v, rfac, x, sy, fcnt, count, sample, time, range, speed, offset;
+    Vector2 last;
+    std::string bullet;
+    CBG(const Properties* info) :Init(RSC), Init(RSX), Init(RSY), Init(harm), Init(dis), Init(v), Init(rfac)
+        , x(10000.0f), sy(0.0f), count(0.0f), sample(0.0f), fcnt(0.0f), Init(time), Init(range)
+        , Init(speed), Init(offset), bullet(info->getString("bullet")) {
+        v /= 1000.0f;
+        dis *= dis;
+        time *= 1000.0f;
+    }
+
+    bool update(UnitInstance& instance, float delta) override {
+
+        scale(instance, sy, x, delta);
+
+        if (instance.isDied()) {
+            correct(instance, delta, fcnt, x);
+            return false;
+        }
+        auto node = instance.getNode();
+        count += delta;
+        count = std::min(count, time + 1.0f);
+
+        auto c = node;
+        auto ty = node->findNode("yr");
+        auto t = ty->findNode("xr");
+        auto point = localClient->getPos(mObject);
+        auto now = node->getTranslation();
+        Vector2 np{ now.x,now.z };
+
+        if (sample > 100.0f && !mDest.isZero()) {
+            if (last.distanceSquared(np) < 10.0f*v && np.distanceSquared(mDest) < 10000.0f)
+                mDest = Vector2::zero();
+            last = np;
+            sample = 0.0f;
+        }
+
+        if (mObject && !point.isZero()) {
+            auto obj = point - now; obj.normalize();
+            correctVector(ty, &Node::getForwardVectorWorld, obj, 0.0f, RSY*delta, 0.0f);
+            auto limit = ty->getForwardVectorWorld().normalize()
+                .dot(t->getForwardVectorWorld().normalize());
+            correctVector(t, &Node::getForwardVectorWorld, obj, std::min(limit, RSX*delta), 0.0f, 0.0f);
+            auto f = t->getForwardVectorWorld().normalize();
+            if (count >= time && obj.lengthSquared() <= dis &&
+                obj.dot(f) >= 0.996f && checkRay(now, point) == point) {
+                if (mIsServer)
+                    localServer->newBullet(BulletInstance(bullet, t->getTranslationWorld() +
+                        offset*f, point, f, speed, harm, range, instance.getGroup()));
+                count = 0.0f;
+            }
+        }
+        else {
+            mObject = 0;
+            auto f = node->getForwardVector().normalize();
+            correctVector(ty, &Node::getForwardVectorWorld, f, 0.0f, RSY*delta, 0.0f);
+            correctVector(t, &Node::getForwardVectorWorld, f, RSX*delta, 0.0f, 0.0f);
+        }
+
+        return move(instance, mDest, np, c, RSC, delta, rfac, v, sample, fcnt, x);
+    }
+};
+
 void fly(UnitInstance& instance, Vector2 dest, float h, float v, float delta, float RSC, Vector3 now) {
     h += std::max(localClient->getHeight(now.x, now.z), 0.0f);
 
@@ -489,6 +553,7 @@ void UnitController::initAllController() {
     Model(CBM);
     Model(PBM);
     Model(CBR);
+    Model(CBG);
 #undef Model
 }
 

@@ -402,6 +402,7 @@ void GameMain::update(float delta) {
     static auto div=1;
     div += (Game::getInstance()->getFrameRate() >= 60) ? 1 : -1;
     div = std::max(div, 1);
+    div = std::min(div, 3);
     for (auto i = 0; i < div; ++i) {
         if (localServer)localServer->update(delta/div);
         localClient->setViewport(mForm->getWidth());
