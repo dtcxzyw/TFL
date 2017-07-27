@@ -324,7 +324,7 @@ bool Client::update(float delta) {
                 }
                 if (u.isDied)
                     mUnits[u.id].attacked(1e10f);
-                else if (u.group == mGroup && u.size && getUnit(u.id).getLoading())
+                if (u.size)
                     mLoadSize[u.id] = u.size;
             }
             for (auto&& o : old) {

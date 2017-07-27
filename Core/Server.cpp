@@ -227,6 +227,7 @@ void Server::update(float delta) {
                         std::move(UnitInstance{ getUnit(x.first), group, id, mScene.get(), true,p}) });
                     units[id].setHP(x.second);
                     units[id].update(0);
+                    mCheck.insert({ id,group,&units[id] });
                 }
             }
         }
@@ -303,17 +304,6 @@ void Server::update(float delta) {
                 return;
             }
 
-    //update scene
-    struct CheckInfo {
-        uint32_t id;
-        uint8_t group;
-        UnitInstance* instance;
-        bool operator<(const CheckInfo& rhs) const {
-            return id < rhs.id;
-        }
-    };
-    static std::set<CheckInfo> check;
-
     //produce unit
     auto now = Game::getAbsoluteTime();
     bool flag;
@@ -328,7 +318,7 @@ void Server::update(float delta) {
                 mGroups[k.owner].units.
                     insert({ id,std::move(UnitInstance{ getUnit(k.id), k.owner, id, mScene.get(), true, p }) });
                 mGroups[k.owner].units[id].update(0);
-                check.insert({ id,k.owner,&mGroups[k.owner].units[id] });
+                mCheck.insert({ id,k.owner,&mGroups[k.owner].units[id] });
                 chooseNew(k);
                 flag = true;
             }
@@ -347,7 +337,7 @@ void Server::update(float delta) {
 
         for (auto&& u : units)
             if (u.instance->updateSum(delta))
-                check.insert(u);
+                mCheck.insert(u);
     }
 
     {
@@ -370,11 +360,16 @@ void Server::update(float delta) {
     std::set<CheckInfo> newCheck;
     do {
         if (newCheck.size()) {
-            check.swap(newCheck);
+            mCheck.swap(newCheck);
             newCheck.clear();
         }
 
-        for (auto&& c : check)
+        auto test = [&](uint32_t id) {
+            return std::find_if(mDeferred.cbegin(), mDeferred.cend(),
+                [id](auto&& x) {return x.id == id; }) == mDeferred.cend();
+        };
+
+        for (auto&& c : mCheck)
             if (mGroups[c.group].units.find(c.id) != mGroups[c.group].units.cend()) {
                 auto bs1 = c.instance->getBound();
                 for (auto&& x : mGroups)
@@ -382,7 +377,7 @@ void Server::update(float delta) {
                         if (c.id != u.first) {
                             auto bs2 = u.second.getBound();
                             if (bs1.intersects(bs2)) {
-                                if (c.group==x.first && 
+                                if (c.group == x.first && test(u.first) && test(c.id) &&
                                     (c.instance->getLoadTarget()==u.first && u.second.tryLoad(*c.instance)) || 
                                     (u.second.getLoadTarget()==c.id && c.instance->tryLoad(u.second))) {
                                     if (c.instance->getLoadTarget() == u.first) {
@@ -425,7 +420,7 @@ void Server::update(float delta) {
     } while (newCheck.size() && Game::getAbsoluteTime() - now < 10.0);
 
     if (newCheck.size()) {
-        check.swap(newCheck);
+        mCheck.swap(newCheck);
         newCheck.clear();
     }
 
@@ -523,11 +518,14 @@ void Server::update(float delta) {
             for (auto&& u : g.second.units) {
                 auto p = u.second.getNode()->getTranslation();
                 for (auto&& mu : update.units)
-                    if (!mu.second.isDied() && p.distanceSquared(mu.second.getNode()->getTranslation())
-                        < mu.second.getKind().getFOV()) {
+                    if (g.first==mu.second.getGroup() || (!mu.second.isDied() 
+                        && p.distanceSquared(mu.second.getNode()->getTranslation())
+                        < mu.second.getKind().getFOV())) {
                         uint16_t uk = getUnitID(u.second.getKind().getName());
                         saw.push_back({ u.first,uk,p,u.second.getNode()->getRotation(),
-                            g.first,u.second.getAttackTarget(),u.second.getLoadSize(),u.second.isDied() });
+                            g.first,u.second.getAttackTarget(),
+                            g.first == mu.second.getGroup()?u.second.getLoadSize():0
+                            ,u.second.isDied() });
                         break;
                     }
             }

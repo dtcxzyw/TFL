@@ -417,10 +417,11 @@ struct CBG final :public UnitController {
     float RSC, RSX, RSY, harm, dis, v, rfac, x, sy, fcnt, count, sample, time, range, speed, offset,bt;
     Vector2 last;
     std::string bullet;
-    bool onBack;
+    bool onBack,car;
     CBG(const Properties* info) :Init(RSC), Init(RSX), Init(RSY), Init(harm), Init(dis), Init(v), Init(rfac)
         , x(10000.0f), sy(0.0f), count(0.0f), sample(0.0f), fcnt(0.0f), Init(time), Init(range)
-        , Init(speed), Init(offset), bullet(info->getString("bullet")),bt(0.0f),onBack(false) {
+        , Init(speed), Init(offset), bullet(info->getString("bullet")),bt(0.0f),onBack(false)
+        ,car(info->getBool("car",false)) {
         v /= 1000.0f;
         dis *= dis;
         time *= 1000.0f;
@@ -489,7 +490,7 @@ struct CBG final :public UnitController {
         }
         else onBack = false;
 
-        return move(instance, mDest, np, c, RSC, delta, rfac, v, sample, fcnt, x);
+        return move(instance, mDest, np, c, RSC, delta, rfac, v, sample, fcnt, x,car?-1.0f:0.7f);
     }
 };
 

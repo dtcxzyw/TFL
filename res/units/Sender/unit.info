@@ -21,4 +21,5 @@ control
 	speed=1000
 	offset = 6
 	rfac = 0.9
+	car=true
 }

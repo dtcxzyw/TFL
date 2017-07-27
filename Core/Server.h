@@ -45,6 +45,16 @@ private:
     std::vector<DiedInfo> mDeferred;
 	float mSpeed;
 
+    struct CheckInfo {
+        uint32_t id;
+        uint8_t group;
+        UnitInstance* instance;
+        bool operator<(const CheckInfo& rhs) const {
+            return id < rhs.id;
+        }
+    };
+    std::set<CheckInfo> mCheck;
+
     void send(uint8_t group,const RakNet::BitStream& data,PacketPriority priority);
     void chooseNew(KeyInfo& k);
 public:

@@ -104,8 +104,9 @@ void BulletInstance::update(float delta) {
         if (mCnt > 0.3f*mTime) {
             constexpr auto angle = 0.01f;
             auto f =mEnd-mNode->getTranslation();
+            f.y = std::min(f.y, 0.0f);
             correctVector(mNode.get(), &Node::getForwardVector, f.normalize(),
-                angle*delta,angle*delta , 0.0f);
+                angle*delta, 0.0f, 0.0f);
         }
 
         mNode->translateForward(mSpeed*delta);
