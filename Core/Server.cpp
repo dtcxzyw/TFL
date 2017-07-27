@@ -518,8 +518,8 @@ void Server::update(float delta) {
             for (auto&& u : g.second.units) {
                 auto p = u.second.getNode()->getTranslation();
                 for (auto&& mu : update.units)
-                    if (!mu.second.isDied() && (g.first == mu.second.getGroup() ||
-                        p.distanceSquared(mu.second.getNode()->getTranslation())
+                    if ((g.first == mu.second.getGroup() && !u.second.isDied()) ||
+                        (!mu.second.isDied() && p.distanceSquared(mu.second.getNode()->getTranslation())
                         < mu.second.getKind().getFOV())) {
                         uint16_t uk = getUnitID(u.second.getKind().getName());
                         saw.push_back({ u.first,uk,p,u.second.getNode()->getRotation(),

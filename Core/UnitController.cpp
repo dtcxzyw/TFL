@@ -559,6 +559,7 @@ struct PBM final :public UnitController {
 
 struct TP final :public UnitController {
     float fcnt, v, RSC, height, x, sy;
+    Vector2 mStart;
     TP(const Properties* info) : fcnt(0.0f), Init(RSC), Init(height), Init(v), x(10000.0f), sy(0.0f) {
         v /= 1000.0f;
     }
@@ -581,7 +582,7 @@ struct TP final :public UnitController {
 
                 if (instance.getLoadSize()) {
                     if (mDest.distanceSquared({ now.x,now.z }) < 10000.0f)
-                        localServer->releaseUnit(instance);
+                        localServer->releaseUnit(instance), mDest = mStart;
 
                     fly(instance, mDest, height, v, delta, RSC, now);
                 }
@@ -592,12 +593,23 @@ struct TP final :public UnitController {
                         mDest = Vector2::zero();
                         correct(instance, delta, fcnt, x);
                     }
-                    else
-                        fly(instance, mDest, std::min(dis / 2.25e6f, 1.0f)*height,
-                            v, delta, RSC, now);
+                    else {
+                        auto h = std::pow(std::min(dis / 9e6f, 1.0f), 0.25f)*height;
+                        fly(instance, mDest,h,v, delta, RSC, now);
+                        h += std::max(localClient->getHeight(now.x, now.z), 0.0f);
+                        if (h < node->getTranslationY()) {
+                            node->setTranslationY(h);
+                            correctVector(instance.getNode(), &Node::getUpVector, Vector3::unitY(),
+                                M_PI, 0.0f, M_PI);
+                        }
+                    }
                 }
             }
-            else correct(instance, delta, fcnt, x);
+            else {
+                auto p = instance.getRoughPos();
+                mStart = { p.x,p.z };
+                correct(instance, delta, fcnt, x);
+            }
         }
 
         return true;
