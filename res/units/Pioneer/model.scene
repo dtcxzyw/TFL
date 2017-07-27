@@ -1,0 +1,10 @@
+scene Pioneer
+{
+	node root
+	{
+		scale = 0.2,0.2,0.2
+		
+		url = res/units/Pioneer/model.gpb#plane
+		material = res/shared/Core/green.material
+	}
+}

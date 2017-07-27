@@ -1,0 +1,17 @@
+HP = 300
+cost = 2
+FOV = 1500
+plane= 10,20
+offset=0,-10,0
+radius=60
+AIType=attack
+cross=true
+loading=15
+releaseOffset=0,-10,0
+control
+{
+	type=TP
+	RSC=0.005
+	v=300
+	height = 800
+}

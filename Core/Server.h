@@ -71,6 +71,7 @@ public:
     void newBullet(BulletInstance&& bullet);
     Vector3 getUnitPos(uint32_t id) const;
 	void changeSpeed(float speed);
+    void releaseUnit(UnitInstance& instance);
 };
 
 extern std::unique_ptr<Server> localServer;

@@ -414,14 +414,14 @@ struct CBR final :public UnitController {
 };
 
 struct CBG final :public UnitController {
-    float RSC, RSX, RSY, harm, dis, v, rfac, x, sy, fcnt, count, sample, time, range, speed, offset,bt;
+    float RSC, RSX, RSY, harm, dis, v, rfac, x, sy, fcnt, count, sample, time, range, speed, offset, bt;
     Vector2 last;
     std::string bullet;
-    bool onBack,car;
+    bool onBack, car;
     CBG(const Properties* info) :Init(RSC), Init(RSX), Init(RSY), Init(harm), Init(dis), Init(v), Init(rfac)
         , x(10000.0f), sy(0.0f), count(0.0f), sample(0.0f), fcnt(0.0f), Init(time), Init(range)
-        , Init(speed), Init(offset), bullet(info->getString("bullet")),bt(0.0f),onBack(false)
-        ,car(info->getBool("car",false)) {
+        , Init(speed), Init(offset), bullet(info->getString("bullet")), bt(0.0f), onBack(false)
+        , car(info->getBool("car", false)) {
         v /= 1000.0f;
         dis *= dis;
         time *= 1000.0f;
@@ -463,13 +463,13 @@ struct CBG final :public UnitController {
             }
             auto f = t->getForwardVectorWorld().normalize();
             if (count >= time && obj.lengthSquared() <= dis &&
-                obj.dot(f) >= 0.996f && checkRay(now, point) == point && bt<=30.0f) {
+                obj.dot(f) >= 0.996f && checkRay(now, point) == point && bt <= 30.0f) {
                 if (mIsServer)
                     localServer->newBullet(BulletInstance(bullet, t->getTranslationWorld() +
                         offset*f, point, f, speed, harm, range, instance.getGroup()));
                 count = 0.0f;
                 t->translateForward(bt);
-                t->translateForward(-(bt =40.0f));
+                t->translateForward(-(bt = 40.0f));
                 onBack = true;
             }
         }
@@ -477,7 +477,7 @@ struct CBG final :public UnitController {
             mObject = 0;
             auto f = node->getForwardVector().normalize();
             correctVector(ty, &Node::getForwardVectorWorld, f, 0.0f, RSY*delta, 0.0f);
-            if(!onBack)
+            if (!onBack)
                 correctVector(t, &Node::getForwardVectorWorld, f, RSX*delta, 0.0f, 0.0f);
         }
 
@@ -490,7 +490,7 @@ struct CBG final :public UnitController {
         }
         else onBack = false;
 
-        return move(instance, mDest, np, c, RSC, delta, rfac, v, sample, fcnt, x,car?-1.0f:0.7f);
+        return move(instance, mDest, np, c, RSC, delta, rfac, v, sample, fcnt, x, car ? -1.0f : 0.7f);
     }
 };
 
@@ -549,7 +549,7 @@ struct PBM final :public UnitController {
             count = 0.0f;
         }
 
-        if (now.distanceSquared({ mDest.x,height,mDest.y }) < 40000.0f)
+        if (mDest.distanceSquared({ now.x,now.y }) < 40000.0f)
             mDest = Vector2::zero();
 
         fly(instance, mDest, height, v, delta, RSC, now);
@@ -557,7 +557,39 @@ struct PBM final :public UnitController {
     }
 };
 
+struct TP final :public UnitController {
+    float fcnt, v, RSC, height, x, sy;
+    TP(const Properties* info) : fcnt(0.0f), Init(RSC), Init(height), Init(v), x(10000.0f), sy(0.0f) {
+        v /= 1000.0f;
+    }
+    bool update(UnitInstance& instance, float delta) override {
 
+        scale(instance, sy, x, delta, 0.75f);
+
+        if (instance.isDied()) {
+            correct(instance, delta, fcnt, x);
+            return false;
+        }
+
+        if (mIsServer) {
+            auto node = instance.getNode();
+            auto c = node;
+            auto now = node->getTranslation();
+
+            if (instance.getLoadSize()) {
+                if (mDest.distanceSquared({ now.x,now.y }) < 2500.0f) {
+                    localServer->releaseUnit(instance);
+                    mDest = Vector2::zero();
+                }
+                fly(instance, mDest, height, v, delta, RSC, now);
+            }
+            else 
+                fly(instance, mDest,mDest.distanceSquared({ now.x,now.y }) < 90000.0f?0.0f:height, 
+                    v, delta, RSC, now);
+        }
+        return true;
+    }
+};
 #undef Init
 
 using factoryFunction = std::function<std::unique_ptr<UnitController>(const Properties *)>;
@@ -571,6 +603,7 @@ void UnitController::initAllController() {
     Model(PBM);
     Model(CBR);
     Model(CBG);
+    Model(TP);
 #undef Model
 }
 

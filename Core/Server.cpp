@@ -218,22 +218,8 @@ void Server::update(float delta) {
             uint32_t object;
             data.Read(object);
             auto it = units.find(object);
-            if (it != units.cend()) {
-                std::uniform_real_distribution<float> URD(-1.0f, 1.0f);
-                auto pos = it->second.getRoughPos() + it->second.getKind().getReleaseOffset();
-                auto res = it->second.release();
-                mCheck.insert({ object,group,&it->second });
-                for (auto&& x : res) {
-                    auto id = UnitInstance::askID();
-                    auto p = pos;
-                    p.x += URD(mt), p.y += URD(mt), p.z += URD(mt);
-                    units.insert({ id,
-                        std::move(UnitInstance{ getUnit(x.first), group, id, mScene.get(), true,p}) });
-                    units[id].setHP(x.second);
-                    units[id].update(0);
-                    mCheck.insert({ id,group,&units[id] });
-                }
-            }
+            if (it != units.cend())
+                releaseUnit(it->second);
         }
     }
 
@@ -664,6 +650,25 @@ void Server::changeSpeed(float speed) {
     for (auto&& c : getClientInfo())
         mPeer->Send(&data, PacketPriority::IMMEDIATE_PRIORITY,
             PacketReliability::RELIABLE_ORDERED, 0, c.first, false);
+}
+
+void Server::releaseUnit(UnitInstance & instance) {
+    std::uniform_real_distribution<float> URD(-1.0f, 1.0f);
+    auto pos = instance.getRoughPos() + instance.getKind().getReleaseOffset();
+    auto res = instance.release();
+    auto group = instance.getGroup();
+    mCheck.insert({ instance.getID(),group,&instance });
+    auto&& units = mGroups[group].units;
+    for (auto&& x : res) {
+        auto id = UnitInstance::askID();
+        auto p = pos;
+        p.x += URD(mt), p.y += URD(mt), p.z += URD(mt);
+        units.insert({ id,
+            std::move(UnitInstance{ getUnit(x.first), group, id, mScene.get(), true,p }) });
+        units[id].setHP(x.second);
+        units[id].update(0);
+        mCheck.insert({ id,group,&units[id] });
+    }
 }
 
 GroupInfo::GroupInfo() :weight(globalUnits.size(), 1) {}
