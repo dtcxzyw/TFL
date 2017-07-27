@@ -549,7 +549,7 @@ struct PBM final :public UnitController {
             count = 0.0f;
         }
 
-        if (mDest.distanceSquared({ now.x,now.y }) < 40000.0f)
+        if (mDest.distanceSquared({ now.x,now.z }) < 40000.0f)
             mDest = Vector2::zero();
 
         fly(instance, mDest, height, v, delta, RSC, now);
@@ -572,21 +572,34 @@ struct TP final :public UnitController {
         }
 
         if (mIsServer) {
-            auto node = instance.getNode();
-            auto c = node;
-            auto now = node->getTranslation();
-
-            if (instance.getLoadSize()) {
-                if (mDest.distanceSquared({ now.x,now.y }) < 2500.0f) {
-                    localServer->releaseUnit(instance);
+            if (!mDest.isZero()) {
+                if (localClient->getHeight(mDest.x, mDest.y) < 0.0f)
                     mDest = Vector2::zero();
+                auto node = instance.getNode();
+                auto c = node;
+                auto now = node->getTranslation();
+
+                if (instance.getLoadSize()) {
+                    if (mDest.distanceSquared({ now.x,now.z }) < 10000.0f)
+                        localServer->releaseUnit(instance);
+
+                    fly(instance, mDest, height, v, delta, RSC, now);
                 }
-                fly(instance, mDest, height, v, delta, RSC, now);
+                else {
+                    auto dis = mDest.distanceSquared({ now.x,now.z });
+                    auto flag = now.y - localClient->getHeight(now.x, now.z) < instance.getKind().getRadius();
+                    if (flag && dis < 2.5e5f) {
+                        mDest = Vector2::zero();
+                        correct(instance, delta, fcnt, x);
+                    }
+                    else
+                        fly(instance, mDest, std::min(dis / 2.25e6f, 1.0f)*height,
+                            v, delta, RSC, now);
+                }
             }
-            else 
-                fly(instance, mDest,mDest.distanceSquared({ now.x,now.y }) < 90000.0f?0.0f:height, 
-                    v, delta, RSC, now);
+            else correct(instance, delta, fcnt, x);
         }
+
         return true;
     }
 };
