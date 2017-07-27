@@ -1,0 +1,25 @@
+scene Sender
+{
+	node root
+	{
+		scale = 0.05,0.05,0.05
+		
+		node base
+		{
+			url = res/units/Sender/model.gpb#base
+			material = res/shared/Core/green.material
+		}
+		
+		node yr
+		{
+			url = res/units/Sender/model.gpb#yr
+			material = res/shared/Core/green.material
+			node xr
+			{
+				translate = 0,-160,0
+				url = res/units/Sender/model.gpb#xr
+				material = res/shared/Core/green.material
+			}
+		}
+	}
+}

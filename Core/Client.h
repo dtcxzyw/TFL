@@ -32,6 +32,7 @@ private:
     float mSpeed;
     Vector3 mCameraPos;
     uniqueRAII<Form> mStateInfo;
+    std::map<uint32_t, uint32_t> mLoadSize;
 
     //Effects
     std::set<DuangInfo> mDuang;
@@ -51,6 +52,7 @@ private:
     Vector3 getPoint(int x, int y) const;
     //control
     int mX, mY,mBX,mBY;
+    double mLast;
     bool checkCamera();
     std::set<uint32_t> mChoosed;
     void move(int x, int y);

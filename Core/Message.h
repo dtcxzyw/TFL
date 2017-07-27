@@ -8,7 +8,9 @@ enum class ClientMessage : unsigned char {
     //code
     changeWeight,
     setAttackTarget,
-    setMoveTarget
+    setMoveTarget,
+    load,
+    release
 };
 
 enum class ServerMessage : unsigned char {
@@ -35,6 +37,7 @@ struct UnitSyncInfo final {
     Quaternion rotation;
     uint8_t group;
     uint32_t at;
+    uint32_t size;
     bool isDied;
 };
 

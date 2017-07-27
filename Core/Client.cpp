@@ -112,7 +112,7 @@ Client::Client(const std::string & server, bool& res) :
             std::this_thread::yield();
         return mPeer->NumberOfConnections();
     };
-    
+
     if (result != RakNet::CONNECTION_ATTEMPT_STARTED
         || !wait())
         INFO("Failed to connect to the server.");
@@ -135,7 +135,7 @@ Client::Client(const std::string & server, bool& res) :
     mShadowMap->setFilterMode(Texture::LINEAR, Texture::LINEAR);
     mShadowMap->setWrapMode(Texture::CLAMP, Texture::CLAMP);
     mLight = Node::create();
-    
+
     uniqueRAII<Camera> light = Camera::createOrthographic(1.0f, 1.0f, 1.0f, 1.0f, 2.0f);
     mLight->setCamera(light.get());
 
@@ -147,10 +147,10 @@ Client::Client(const std::string & server, bool& res) :
     mWaterPlane = model->findNode("plane")->clone();
     mWaterPlane->scale(1.4f*mapSizeHF / mWaterPlane->getBoundingSphere().radius);
 
-    if (reflection>0.0f) {
+    if (reflection > 0.0f) {
         auto old = FrameBuffer::getCurrent();
         mWaterBuffer = DepthStencilTarget::create("water",
-            DepthStencilTarget::DEPTH_STENCIL,old->getWidth(),old->getHeight());
+            DepthStencilTarget::DEPTH_STENCIL, old->getWidth(), old->getHeight());
     }
 
     {
@@ -299,6 +299,7 @@ bool Client::update(float delta) {
             continue;
         }
         CheckHeader(ServerMessage::updateUnit) {
+            mLoadSize.clear();
             uint32_t size;
             data.Read(size);
             std::set<uint32_t> old;
@@ -323,6 +324,8 @@ bool Client::update(float delta) {
                 }
                 if (u.isDied)
                     mUnits[u.id].attacked(1e10f);
+                else if (u.group == mGroup && u.size && getUnit(u.id).getLoading())
+                    mLoadSize[u.id] = u.size;
             }
             for (auto&& o : old) {
                 mScene->removeNode(mUnits[o].getNode());
@@ -403,15 +406,25 @@ bool Client::update(float delta) {
         for (auto&& x : mBullets)
             x.second.updateClient(delta);
     }
-
-    std::set<uint32_t> choosed;
-    for (auto&& x : mChoosed)
-        if (mUnits.find(x) != mUnits.cend() && !mUnits[x].isDied())
-            choosed.insert(x);
-    choosed.swap(mChoosed);
+    {
+        std::set<uint32_t> choosed;
+        for (auto&& x : mChoosed)
+            if (mUnits.find(x) != mUnits.cend() && !mUnits[x].isDied())
+                choosed.insert(x);
+        choosed.swap(mChoosed);
+    }
 
     auto label = dynamic_cast<Label*>(mStateInfo->getControl(0U));
-    if (mChoosed.size())label->setText(("Choosed "+to_string(mChoosed.size())).c_str());
+    if (mChoosed.size()) {
+        std::string str = "Choosed " + to_string(mChoosed.size());
+        if (mChoosed.size() == 1) {
+            auto& u = mUnits[*mChoosed.begin()];
+            if (u.getKind().getLoading())
+                str += "\nLoad " + to_string(mLoadSize[u.getID()])
+                + "/" + to_string(u.getKind().getLoading());
+        }
+        label->setText(str.c_str());
+    }
     else label->setText("");
     mStateInfo->update(delta);
 
@@ -490,7 +503,7 @@ void Client::render() {
                 drawNode(x.second.getNode());
 
         mScene->setAmbientColor(0.0f, 0.0f, 0.0f);
-       
+
         for (auto&& p : mMap->getKey()) {
             mFlagModel->setTranslation(p.x, mMap->getHeight(p.x, p.y), p.y);
             drawNode(mFlagModel.get());
@@ -501,7 +514,7 @@ void Client::render() {
         drawNode(mSky.get());
 
         uniqueRAII<DepthStencilTarget> old;
-        if (reflection>0.0f) {
+        if (reflection > 0.0f) {
             old = FrameBuffer::getCurrent()->getDepthStencilTarget();
             FrameBuffer::getCurrent()->setDepthStencilTarget(mWaterBuffer.get());
             game->clear(Game::CLEAR_STENCIL, {}, 0.0f, 0);
@@ -510,7 +523,7 @@ void Client::render() {
         glBlendColor(1.0f, 1.0f, 1.0f, waterAlpha);
         drawNode(mWaterPlane.get());
 
-        if (reflection>0.0f) {
+        if (reflection > 0.0f) {
             glBlendColor(1.0f, 1.0f, 1.0f, reflection);
             auto cn = mCamera->getNode();
 
@@ -693,8 +706,8 @@ void Client::mousePos(int x, int y) {
 
 void Client::beginPoint(int x, int y) {
     if (mState) {
-        auto right = Game::getInstance()->getWidth()-mRight;
-        if (y <= miniMapSize && x <= right && x >= right -miniMapSize ) {
+        auto right = Game::getInstance()->getWidth() - mRight;
+        if (y <= miniMapSize && x <= right && x >= right - miniMapSize) {
             auto fac = mapSizeF / miniMapSize;
             Vector2 pos{ fac*(x - right + miniMapSize) - mapSizeHF,fac*y - mapSizeHF };
             if (mChoosed.empty()) {
@@ -717,11 +730,12 @@ void Client::beginPoint(int x, int y) {
             }
         }
         else mBX = x, mBY = y;
+        mLast = Game::getAbsoluteTime();
     }
 }
 
 void Client::endPoint(int x, int y) {
-    auto toNDC = [](auto&& u, auto rect,auto offset) {
+    auto toNDC = [](auto&& u, auto rect, auto offset) {
         auto MVP = u.second.getNode()->getWorldViewProjectionMatrix();
         auto NDC = MVP*offset;
         NDC.x /= NDC.w; NDC.y /= NDC.w; NDC.z /= NDC.w;
@@ -743,7 +757,7 @@ void Client::endPoint(int x, int y) {
             if (mBX > x)std::swap(mBX, x);
             if (mBY > y)std::swap(mBY, y);
             for (auto&& u : mUnits) {
-                auto NDC = toNDC(u, rect,Vector4::unitW());
+                auto NDC = toNDC(u, rect, Vector4::unitW());
                 if (NDC.x >= mBX && NDC.x <= x && NDC.y >= mBY && NDC.y <= y) {
                     if (u.second.getGroup() != mGroup)choosed.insert(u.first);
                     else mine.insert(u.first);
@@ -775,17 +789,17 @@ void Client::endPoint(int x, int y) {
             else mChoosed.swap(mine);
         }
         else {
-            uint32_t choosed=0;
+            uint32_t choosed = 0;
             float currectDepth = 1.0f;
             auto dis = [](auto x, auto y) {
                 return x*x + y*y;
             };
             for (auto&& u : mUnits) {
-                auto NDC = toNDC(u, rect,Vector4::unitW());
-                auto right = toNDC(u, rect,  Vector4{
-                    u.second.getKind().getRadius()/u.second.getNode()->getScaleX(),0.0f,0.0f,1.0f });
-                auto radius =dis(right.x - NDC.x,right.y-NDC.y);
-                if (NDC.z<currectDepth && dis(NDC.x-x,NDC.y-y)<=radius) {
+                auto NDC = toNDC(u, rect, Vector4::unitW());
+                auto right = toNDC(u, rect, Vector4{
+                    u.second.getKind().getRadius() / u.second.getNode()->getScaleX(),0.0f,0.0f,1.0f });
+                auto radius = dis(right.x - NDC.x, right.y - NDC.y);
+                if (NDC.z < currectDepth && dis(NDC.x - x, NDC.y - y) <= radius) {
                     currectDepth = NDC.z;
                     choosed = u.first;
                 }
@@ -793,8 +807,27 @@ void Client::endPoint(int x, int y) {
 
             if (choosed) {
                 if (mUnits[choosed].getGroup() == mGroup) {
-                    mChoosed.clear();
-                    mChoosed.insert(choosed);
+                    if (mUnits[choosed].getKind().getLoading()
+                        && Game::getAbsoluteTime() - mLast > 500.0f) {
+                        RakNet::BitStream data;
+                        if (mChoosed.empty()) {
+                            data.Write(ClientMessage::release);
+                            data.Write(choosed);
+                            mChoosed.insert(choosed);
+                        }
+                        else {
+                            data.Write(ClientMessage::load);
+                            data.Write(choosed);
+                            for (auto&& x : mChoosed)
+                                data.Write(x);
+                        }
+                        mPeer->Send(&data, PacketPriority::HIGH_PRIORITY
+                            , PacketReliability::RELIABLE_ORDERED, 0, mServer, false);
+                    }
+                    else {
+                        mChoosed.clear();
+                        mChoosed.insert(choosed);
+                    }
                 }
                 else {
                     RakNet::BitStream data;

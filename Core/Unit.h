@@ -9,8 +9,9 @@ private:
     std::string mName;
     uniqueRAII<Properties> mInfo;
     Vector2 mPlane;
-    Vector3 mOffset;
+    Vector3 mOffset, mReleaseOffset;
     bool mCross;
+    uint32_t mLoading;
 public:
     void operator=(const std::string& name);
     std::string getName() const;
@@ -23,6 +24,8 @@ public:
     Vector3 getOffset() const;
     float getRadius() const;
     bool canCross() const;
+    uint32_t getLoading() const;
+    Vector3 getReleaseOffset() const;
 };
 
 extern std::map<std::string,Unit> globalUnits;
@@ -45,6 +48,8 @@ private:
     float mDelta;
     bool mIsServer;
     std::chrono::system_clock::time_point mLast;
+    std::vector<std::pair<uint16_t,float>> mLoading;
+    uint32_t mLoadTarget;
     void updateMoveTarget();
 public:
     UnitInstance() {
@@ -76,6 +81,13 @@ public:
     bool isDied() const;
     Vector3 getRoughPos() const;
     bool updateSum(float delta);
+    void setHP(float HP);
+    float getHP() const;
+    bool tryLoad(const UnitInstance& rhs);
+    std::vector<std::pair<uint16_t, float>> release();
+    void setLoadTarget(uint32_t id);
+    uint32_t getLoadTarget() const;
+    uint32_t getLoadSize() const;
     //Client
     UnitInstance(const Unit& unit, uint8_t group, uint32_t id, Scene* add, bool isServer,Vector3 pos);
     uint8_t getGroup() const;

@@ -1,23 +1,24 @@
-HP = 300
-cost = 15
+HP = 200
+cost = 2
 FOV = 3000
 plane= 10,10
 offset=0,-10,0
-radius=30
-AIType=attack
+radius=40
+AIType=load
+loading=5
 control
 {
 	type=CBG
 	RSC = 0.01
 	RSX = 0.01
 	RSY = 0.01
-	v=90
-	dis = 4000
-	time=0.1
-	harm=20
+	v=150
+	dis = 2000
+	time=0.2
+	harm=5
 	bullet=common
-	range=200
-	speed=1500
+	range=100
+	speed=1000
 	offset = 6
 	rfac = 0.9
 }

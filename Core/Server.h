@@ -51,9 +51,6 @@ public:
     Server(const std::string& path);
     ~Server();
 
-    //void load(const std::string& save);
-    //void save(const std::string& save);
-
     void waitClient();
     const std::map<RakNet::SystemAddress, ClientInfo>& getClientInfo();
     void run();

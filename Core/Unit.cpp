@@ -19,6 +19,9 @@ void Unit::operator=(const std::string& name) {
     mPlane *= 0.5f;
     mRadius = mInfo->getFloat("radius");
     mCross = mInfo->getBool("cross", false);
+    mLoading = mInfo->getInt("loading");
+    if(mInfo->exists("releaseOffset"))
+        mInfo->getVector3("releaseOffset", &mReleaseOffset);
 }
 
 std::string Unit::getName() const {
@@ -63,6 +66,14 @@ bool Unit::canCross() const {
     return mCross;
 }
 
+uint32_t Unit::getLoading() const {
+    return mLoading;
+}
+
+Vector3 Unit::getReleaseOffset() const {
+    return mReleaseOffset;
+}
+
 uint32_t UnitInstance::cnt = 0;
 
 Node * UnitInstance::getNode() const {
@@ -88,6 +99,8 @@ bool UnitInstance::update(float delta) {
         auto now = std::chrono::system_clock::now();
         if (now - mLast > 500ms)
             updateMoveTarget(), mLast = now;
+        if (mPos.y < -10.0f)
+            mHP -= 1000.0f;
     }
     delta += mDelta;
     mDelta = 0.0f;
@@ -186,7 +199,7 @@ const Unit & UnitInstance::getKind() const {
 UnitInstance::UnitInstance(const Unit & unit, uint8_t group, uint32_t id,
     Scene* add, bool isServer, Vector3 pos)
     :mGroup(group), mHP(unit.getHP()), mNode(nullptr), mPID(id), mKind(&unit),
-    mDelta(0.0f),mIsServer(isServer) {
+    mDelta(0.0f),mIsServer(isServer),mLoadTarget(0) {
     mNode = unit.getModel();
     add->addNode(mNode.get());
     mNode->setTranslation(pos);
@@ -235,4 +248,37 @@ bool UnitInstance::updateSum(float delta) {
     mDelta += delta;
     if (mDelta > 20.0f) return update(0.0f);
     return false;
+}
+
+void UnitInstance::setHP(float HP) {
+    mHP = HP;
+}
+
+float UnitInstance::getHP() const {
+    return mHP;
+}
+
+bool UnitInstance::tryLoad(const UnitInstance & rhs) {
+    if (mLoading.size() >= mKind->getLoading() ||
+        rhs.getKind().getLoading() || rhs.isDied())return false;
+    mLoading.emplace_back(getUnitID(rhs.getKind().getName()),rhs.getHP());
+    return true;
+}
+
+std::vector<std::pair<uint16_t, float>> UnitInstance::release() {
+    std::vector<std::pair<uint16_t, float>> res;
+    res.swap(mLoading);
+    return res;
+}
+
+void UnitInstance::setLoadTarget(uint32_t id) {
+    mLoadTarget = id;
+}
+
+uint32_t UnitInstance::getLoadTarget() const {
+    return mLoadTarget;
+}
+
+uint32_t UnitInstance::getLoadSize() const {
+    return mLoading.size();
 }

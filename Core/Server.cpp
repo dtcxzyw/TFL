@@ -149,6 +149,8 @@ void Server::update(float delta) {
         if (mClients.find(packet->systemAddress) == mClients.cend())continue;
         RakNet::BitStream data(packet->data, packet->length, false);
         data.IgnoreBytes(1);
+        auto group = mClients[packet->systemAddress].group;
+        auto& units = mGroups[group].units;
         CheckBegin;
         CheckHeader(ID_DISCONNECTION_NOTIFICATION) {
             INFO("Client ", packet->systemAddress.ToString(), " disconnected.");
@@ -170,7 +172,6 @@ void Server::update(float delta) {
             updateWeight = true;
         }
         CheckHeader(ClientMessage::setAttackTarget) {
-            auto& units = mGroups[mClients[packet->systemAddress].group].units;
             uint32_t x, y;
             while (data.Read(x) && data.Read(y)) {
                 auto xi = units.find(x);
@@ -184,7 +185,6 @@ void Server::update(float delta) {
             }
         }
         CheckHeader(ClientMessage::setMoveTarget) {
-            auto& units = mGroups[mClients[packet->systemAddress].group].units;
             Vector2 pos;
             uint32_t size;
             data.Read(pos);
@@ -195,6 +195,39 @@ void Server::update(float delta) {
                 auto u = units.find(id);
                 if (u != units.cend())
                     u->second.setMoveTarget(pos);
+            }
+        }
+        CheckHeader(ClientMessage::load) {
+            uint32_t id;
+            data.Read(id);
+            auto object = units.find(id);
+            if (object != units.cend()) {
+                auto p = object->second.getRoughPos();
+                Vector2 pos = { p.x,p.z };
+                uint32_t load;
+                while (data.Read(load)) {
+                    auto iter = units.find(load);
+                    if (iter != units.cend()) {
+                        iter->second.setMoveTarget(pos);
+                        iter->second.setLoadTarget(id);
+                    }
+                }
+            }
+        }
+        CheckHeader(ClientMessage::release) {
+            uint32_t id;
+            data.Read(id);
+            auto it = units.find(id);
+            if (it != units.cend()) {
+                auto p = it->second.getRoughPos()+it->second.getKind().getReleaseOffset();
+                auto res=it->second.release();
+                for (auto&& x : res) {
+                    auto id = UnitInstance::askID();
+                    units.insert({ id,
+                        std::move(UnitInstance{ getUnit(x.first), group, id, mScene.get(), true,p}) });
+                    units[id].setHP(x.second);
+                    units[id].update(0);
+                }
             }
         }
     }
@@ -349,17 +382,28 @@ void Server::update(float delta) {
                         if (c.id != u.first) {
                             auto bs2 = u.second.getBound();
                             if (bs1.intersects(bs2)) {
-                                auto v = bs1.center - bs2.center;
-                                v.y = 0.0f;
-                                v.normalize();
-                                v *= bs1.radius + bs2.radius - bs1.center.distance(bs2.center);
-                                v *= 1.3f;
-                                auto cube = [](float x) {return x*x*x; };
-                                auto ss = cube(bs1.radius) + cube(bs2.radius);
-                                c.instance->getNode()->translate(v*cube(bs2.radius) / ss);
-                                u.second.getNode()->translate(-v*cube(bs1.radius) / ss);
-                                newCheck.insert(c);
-                                newCheck.insert({ u.first,x.first,&u.second });
+                                if (c.group==x.first && 
+                                    (c.instance->getLoadTarget()==u.first && u.second.tryLoad(*c.instance)) || 
+                                    (u.second.getLoadTarget()==c.id && c.instance->tryLoad(u.second))) {
+                                    if (c.instance->getLoadTarget() == u.first) {
+                                        mDeferred.push_back({ c.group, c.id,0.0f });
+                                        goto out;
+                                    }
+                                    else mDeferred.push_back({ u.second.getGroup(), u.first,0.0f });
+                                }
+                                else {
+                                    auto v = bs1.center - bs2.center;
+                                    v.y = 0.0f;
+                                    v.normalize();
+                                    v *= bs1.radius + bs2.radius - bs1.center.distance(bs2.center);
+                                    v *= 1.3f;
+                                    auto cube = [](float x) {return x*x*x; };
+                                    auto ss = cube(bs1.radius) + cube(bs2.radius);
+                                    c.instance->getNode()->translate(v*cube(bs2.radius) / ss);
+                                    u.second.getNode()->translate(-v*cube(bs1.radius) / ss);
+                                    newCheck.insert(c);
+                                    newCheck.insert({ u.first,x.first,&u.second });
+                                }
                             }
                         }
                 for (auto&& x : mMap.getKey()) {
@@ -375,6 +419,8 @@ void Server::update(float delta) {
                         newCheck.insert(c);
                     }
                 }
+
+            out: {}
             }
     } while (newCheck.size() && Game::getAbsoluteTime() - now < 10.0);
 
@@ -481,7 +527,7 @@ void Server::update(float delta) {
                         < mu.second.getKind().getFOV()) {
                         uint16_t uk = getUnitID(u.second.getKind().getName());
                         saw.push_back({ u.first,uk,p,u.second.getNode()->getRotation(),
-                            g.first,u.second.getAttackTarget(),u.second.isDied() });
+                            g.first,u.second.getAttackTarget(),u.second.getLoadSize(),u.second.isDied() });
                         break;
                     }
             }
