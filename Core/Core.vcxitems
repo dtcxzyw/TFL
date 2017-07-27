@@ -14,6 +14,7 @@
     <ProjectCapability Include="SourceItemsFromImports" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="$(MSBuildThisFileDirectory)Audio.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)BuiltinAI.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Bullet.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)Client.h" />
@@ -26,6 +27,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)UnitController.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="$(MSBuildThisFileDirectory)Audio.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)BuiltinAI.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Bullet.cpp" />
     <ClCompile Include="$(MSBuildThisFileDirectory)Client.cpp" />

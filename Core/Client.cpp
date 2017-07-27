@@ -212,6 +212,7 @@ Client::WaitResult Client::wait() {
         }
         CheckHeader(ServerMessage::go) {
             mScene = Scene::create();
+            mScene->bindAudioListenerToCamera(true);
             mCamera =
                 Camera::createPerspective(45.0f, Game::getInstance()->getAspectRatio(), 1.0f, 5000.0f);
             mScene->addNode()->setCamera(mCamera.get());
