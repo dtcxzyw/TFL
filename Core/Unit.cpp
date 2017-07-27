@@ -282,3 +282,7 @@ uint32_t UnitInstance::getLoadTarget() const {
 uint32_t UnitInstance::getLoadSize() const {
     return mLoading.size();
 }
+
+bool UnitInstance::isStoped() const {
+    return mController->isStoped();
+}

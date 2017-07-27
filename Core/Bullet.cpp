@@ -59,7 +59,8 @@ BulletInstance::BulletInstance(const std::string & kind, Vector3 begin, Vector3 
     float speed, float harm, float radius, uint8_t group, uint32_t obj, float angle)
     :BulletInstance(std::distance(globalBullets.begin(), globalBullets.find(kind)),
         begin, end, speed, harm, radius, group, obj, angle) {
-    correctVector(mNode.get(), &Node::getForwardVector, forward, M_PI, M_PI, M_PI);
+    correctVector(mNode.get(), &Node::getForwardVector, forward, M_PI, 0.0f, 0.0f);
+    correctVector(mNode.get(), &Node::getForwardVector, forward, 0.0f, M_PI, 0.0f);
 }
 
 BulletInstance::BulletInstance(uint16_t kind, Vector3 begin, Vector3 end,

@@ -322,8 +322,7 @@ bool Client::update(float delta) {
                     i.first->second.update(0);
                     i.first->second.setAttackTarget(u.at);
                 }
-                if (u.isDied)
-                    mUnits[u.id].attacked(1e10f);
+                mUnits[u.id].setHP(u.HP);
                 if (u.size)
                     mLoadSize[u.id] = u.size;
             }
@@ -419,6 +418,8 @@ bool Client::update(float delta) {
         std::string str = "Choosed " + to_string(mChoosed.size());
         if (mChoosed.size() == 1) {
             auto& u = mUnits[*mChoosed.begin()];
+            str += "\nHP " + to_string(static_cast<int32_t>(u.getHP()))
+                + "/" + to_string(static_cast<int32_t>(u.getKind().getHP()));
             if (u.getKind().getLoading())
                 str += "\nLoad " + to_string(mLoadSize[u.getID()])
                 + "/" + to_string(u.getKind().getLoading());
@@ -756,13 +757,14 @@ void Client::endPoint(int x, int y) {
             std::set<uint32_t> choosed, mine;
             if (mBX > x)std::swap(mBX, x);
             if (mBY > y)std::swap(mBY, y);
-            for (auto&& u : mUnits) {
-                auto NDC = toNDC(u, rect, Vector4::unitW());
-                if (NDC.x >= mBX && NDC.x <= x && NDC.y >= mBY && NDC.y <= y) {
-                    if (u.second.getGroup() != mGroup)choosed.insert(u.first);
-                    else mine.insert(u.first);
+            for (auto&& u : mUnits)
+                if (!u.second.isDied()) {
+                    auto NDC = toNDC(u, rect, Vector4::unitW());
+                    if (NDC.x >= mBX && NDC.x <= x && NDC.y >= mBY && NDC.y <= y) {
+                        if (u.second.getGroup() != mGroup)choosed.insert(u.first);
+                        else mine.insert(u.first);
+                    }
                 }
-            }
 
             if (choosed.size()) {
                 for (auto&& x : mine)
@@ -794,26 +796,27 @@ void Client::endPoint(int x, int y) {
             auto dis = [](auto x, auto y) {
                 return x*x + y*y;
             };
-            for (auto&& u : mUnits) {
-                auto NDC = toNDC(u, rect, Vector4::unitW());
-                auto right = toNDC(u, rect, Vector4{
-                    u.second.getKind().getRadius() / u.second.getNode()->getScaleX(),0.0f,0.0f,1.0f });
-                auto radius = dis(right.x - NDC.x, right.y - NDC.y);
-                if (NDC.z < currectDepth && dis(NDC.x - x, NDC.y - y) <= radius) {
-                    currectDepth = NDC.z;
-                    choosed = u.first;
+            for (auto&& u : mUnits)
+                if (!u.second.isDied()) {
+                    auto NDC = toNDC(u, rect, Vector4::unitW());
+                    auto right = toNDC(u, rect, Vector4{
+                        u.second.getKind().getRadius() / u.second.getNode()->getScaleX(),0.0f,0.0f,1.0f });
+                    auto radius = dis(right.x - NDC.x, right.y - NDC.y);
+                    if (NDC.z < currectDepth && dis(NDC.x - x, NDC.y - y) <= radius) {
+                        currectDepth = NDC.z;
+                        choosed = u.first;
+                    }
                 }
-            }
 
             if (choosed) {
                 if (mUnits[choosed].getGroup() == mGroup) {
                     if (mUnits[choosed].getKind().getLoading()
-                        && Game::getAbsoluteTime() - mLast > 500.0f) {
+                        && Game::getAbsoluteTime() - mLast > 300.0f) {
                         RakNet::BitStream data;
-                        if (mChoosed.empty()) {
+                        if (mChoosed.empty() || 
+                            (mChoosed.size() == 1 && *mChoosed.begin() == choosed)) {
                             data.Write(ClientMessage::release);
                             data.Write(choosed);
-                            mChoosed.insert(choosed);
                         }
                         else {
                             data.Write(ClientMessage::load);
@@ -824,10 +827,8 @@ void Client::endPoint(int x, int y) {
                         mPeer->Send(&data, PacketPriority::HIGH_PRIORITY
                             , PacketReliability::RELIABLE_ORDERED, 0, mServer, false);
                     }
-                    else {
-                        mChoosed.clear();
-                        mChoosed.insert(choosed);
-                    }
+                    mChoosed.clear();
+                    mChoosed.insert(choosed);
                 }
                 else {
                     RakNet::BitStream data;

@@ -16,7 +16,7 @@ scene Sender
 			material = res/shared/Core/green.material
 			node xr
 			{
-				translate = 0,-160,0
+				translate = 0,-300,0
 				url = res/units/Sender/model.gpb#xr
 				material = res/shared/Core/green.material
 			}

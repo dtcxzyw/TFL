@@ -38,7 +38,7 @@ struct UnitSyncInfo final {
     uint8_t group;
     uint32_t at;
     uint32_t size;
-    bool isDied;
+    float HP;
 };
 
 struct BulletSyncInfo final {

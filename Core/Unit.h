@@ -88,6 +88,7 @@ public:
     void setLoadTarget(uint32_t id);
     uint32_t getLoadTarget() const;
     uint32_t getLoadSize() const;
+    bool isStoped() const;
     //Client
     UnitInstance(const Unit& unit, uint8_t group, uint32_t id, Scene* add, bool isServer,Vector3 pos);
     uint8_t getGroup() const;

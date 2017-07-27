@@ -207,7 +207,7 @@ void Server::update(float delta) {
                 uint32_t load;
                 while (data.Read(load)) {
                     auto iter = units.find(load);
-                    if (iter != units.cend()) {
+                    if (iter != units.cend() && !iter->second.getKind().getLoading()) {
                         iter->second.setMoveTarget(pos);
                         iter->second.setLoadTarget(id);
                     }
@@ -215,12 +215,13 @@ void Server::update(float delta) {
             }
         }
         CheckHeader(ClientMessage::release) {
-            uint32_t id;
-            data.Read(id);
-            auto it = units.find(id);
+            uint32_t object;
+            data.Read(object);
+            auto it = units.find(object);
             if (it != units.cend()) {
-                auto p = it->second.getRoughPos()+it->second.getKind().getReleaseOffset();
-                auto res=it->second.release();
+                auto p = it->second.getRoughPos() + it->second.getKind().getReleaseOffset();
+                auto res = it->second.release();
+                mCheck.insert({ object,group,&it->second });
                 for (auto&& x : res) {
                     auto id = UnitInstance::askID();
                     units.insert({ id,
@@ -335,9 +336,20 @@ void Server::update(float delta) {
 
         std::shuffle(units.begin(), units.end(), mt);
 
-        for (auto&& u : units)
+        for (auto&& u : units) {
+            if (u.instance->isStoped() && u.instance->getLoadTarget()) {
+                auto&& units = mGroups[u.group].units;
+                auto x = units.find(u.instance->getLoadTarget());
+                if (x != units.cend() && x->second.getLoadSize()<x->second.getKind().getLoading()) {
+                    auto p = x->second.getRoughPos();
+                    u.instance->setMoveTarget({ p.x,p.z });
+                }
+                else u.instance->setLoadTarget(0);
+            }
+
             if (u.instance->updateSum(delta))
                 mCheck.insert(u);
+        }
     }
 
     {
@@ -378,8 +390,8 @@ void Server::update(float delta) {
                             auto bs2 = u.second.getBound();
                             if (bs1.intersects(bs2)) {
                                 if (c.group == x.first && test(u.first) && test(c.id) &&
-                                    (c.instance->getLoadTarget()==u.first && u.second.tryLoad(*c.instance)) || 
-                                    (u.second.getLoadTarget()==c.id && c.instance->tryLoad(u.second))) {
+                                    ((c.instance->getLoadTarget() == u.first && u.second.tryLoad(*c.instance)) ||
+                                    (u.second.getLoadTarget() == c.id && c.instance->tryLoad(u.second)))) {
                                     if (c.instance->getLoadTarget() == u.first) {
                                         mDeferred.push_back({ c.group, c.id,0.0f });
                                         goto out;
@@ -518,14 +530,14 @@ void Server::update(float delta) {
             for (auto&& u : g.second.units) {
                 auto p = u.second.getNode()->getTranslation();
                 for (auto&& mu : update.units)
-                    if (g.first==mu.second.getGroup() || (!mu.second.isDied() 
+                    if (g.first == mu.second.getGroup() || (!mu.second.isDied()
                         && p.distanceSquared(mu.second.getNode()->getTranslation())
                         < mu.second.getKind().getFOV())) {
                         uint16_t uk = getUnitID(u.second.getKind().getName());
                         saw.push_back({ u.first,uk,p,u.second.getNode()->getRotation(),
                             g.first,u.second.getAttackTarget(),
-                            g.first == mu.second.getGroup()?u.second.getLoadSize():0
-                            ,u.second.isDied() });
+                            g.first == mu.second.getGroup() ? u.second.getLoadSize() : 0
+                            ,u.second.getHP() });
                         break;
                     }
             }
@@ -587,6 +599,7 @@ void Server::update(float delta) {
 }
 
 void Server::stop() {
+    mCheck.clear();
     mKey.clear();
     mScene.reset();
     mGroups.clear();

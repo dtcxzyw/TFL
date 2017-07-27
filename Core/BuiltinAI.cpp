@@ -220,7 +220,7 @@ p2:
         for (uint32_t i = 0; i < size; ++i) {
             UnitSyncInfo u;
             latest.Read(u);
-            if (u.isDied)continue;
+            if (u.HP<=0.0f)continue;
             auto iter = copy.find(u.id);
             if (iter == copy.cend()) {
                 old.insert(u.id);
