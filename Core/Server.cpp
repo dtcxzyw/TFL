@@ -219,11 +219,14 @@ void Server::update(float delta) {
             data.Read(object);
             auto it = units.find(object);
             if (it != units.cend()) {
-                auto p = it->second.getRoughPos() + it->second.getKind().getReleaseOffset();
+                std::uniform_real_distribution<float> URD(-1.0f, 1.0f);
+                auto pos = it->second.getRoughPos() + it->second.getKind().getReleaseOffset();
                 auto res = it->second.release();
                 mCheck.insert({ object,group,&it->second });
                 for (auto&& x : res) {
                     auto id = UnitInstance::askID();
+                    auto p = pos;
+                    p.x += URD(mt), p.y += URD(mt), p.z += URD(mt);
                     units.insert({ id,
                         std::move(UnitInstance{ getUnit(x.first), group, id, mScene.get(), true,p}) });
                     units[id].setHP(x.second);
@@ -370,16 +373,18 @@ void Server::update(float delta) {
     }
 
     std::set<CheckInfo> newCheck;
+    auto test = [&](uint32_t id) {
+        return std::find_if(mDeferred.cbegin(), mDeferred.cend(),
+            [id](auto&& x) {return x.id == id; }) == mDeferred.cend();
+    };
+
+    now = Game::getAbsoluteTime();
+
     do {
         if (newCheck.size()) {
             mCheck.swap(newCheck);
             newCheck.clear();
         }
-
-        auto test = [&](uint32_t id) {
-            return std::find_if(mDeferred.cbegin(), mDeferred.cend(),
-                [id](auto&& x) {return x.id == id; }) == mDeferred.cend();
-        };
 
         for (auto&& c : mCheck)
             if (mGroups[c.group].units.find(c.id) != mGroups[c.group].units.cend()) {
@@ -392,11 +397,10 @@ void Server::update(float delta) {
                                 if (c.group == x.first && test(u.first) && test(c.id) &&
                                     ((c.instance->getLoadTarget() == u.first && u.second.tryLoad(*c.instance)) ||
                                     (u.second.getLoadTarget() == c.id && c.instance->tryLoad(u.second)))) {
-                                    if (c.instance->getLoadTarget() == u.first) {
+                                    if (c.instance->getLoadTarget() == u.first)
                                         mDeferred.push_back({ c.group, c.id,0.0f });
-                                        goto out;
-                                    }
-                                    else mDeferred.push_back({ u.second.getGroup(), u.first,0.0f });
+                                    else 
+                                        mDeferred.push_back({ u.second.getGroup(), u.first,0.0f });
                                 }
                                 else {
                                     auto v = bs1.center - bs2.center;
@@ -426,10 +430,8 @@ void Server::update(float delta) {
                         newCheck.insert(c);
                     }
                 }
-
-            out: {}
             }
-    } while (newCheck.size() && Game::getAbsoluteTime() - now < 10.0);
+    } while (newCheck.size() && Game::getAbsoluteTime()-now<=10.0);
 
     if (newCheck.size()) {
         mCheck.swap(newCheck);

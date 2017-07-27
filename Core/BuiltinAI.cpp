@@ -11,7 +11,7 @@ using namespace std::literals;
 class BuiltinAI final {
 private:
     enum class Type {
-        attack, defense, discover
+        attack, defense, discover, load
     };
     std::map<std::string, Type> mUnits;
     using SendFunc = std::function<void(const RakNet::BitStream&, PacketPriority, PacketReliability)>;
@@ -32,11 +32,10 @@ public:
         for (auto&& x : units) {
             uniqueRAII<Properties> info = Properties::create(("res/units/" + x + "/unit.info").c_str());
             std::string tname = info->getString("AIType", "discover");
-            if (tname != "load") {
-                if (tname == "attack")mUnits[x] = Type::attack;
-                else if (tname == "defense")mUnits[x] = Type::defense;
-                else mUnits[x] = Type::discover;
-            }
+            if (tname == "attack")mUnits[x] = Type::attack;
+            else if (tname == "defense")mUnits[x] = Type::defense;
+            else if (tname == "load")mUnits[x] = Type::load;
+            else mUnits[x] = Type::discover;
         }
     }
 
@@ -120,7 +119,7 @@ public:
             for (auto&& t : teams) {
                 if (free.empty())break;
                 auto x = std::min_element(free.cbegin(), free.cend(), [&](auto&& a, auto&& b) {
-                    return t.object.distanceSquared({mMine[a].pos.x,mMine[a].pos.z }) <
+                    return t.object.distanceSquared({ mMine[a].pos.x,mMine[a].pos.z }) <
                         t.object.distanceSquared({ mMine[b].pos.x,mMine[b].pos.z });
                 });
                 t.current.emplace_back(*x);
@@ -134,7 +133,7 @@ public:
 
 #define FORNET for (auto packet = peer.Receive(); packet; peer.DeallocatePacket(packet), packet = peer.Receive())
 
-void AIMain(bool* flag,uint8_t level) {
+void AIMain(bool* flag, uint8_t level) {
     constexpr uint8_t group = 5;
     BuiltinAI builtinAI;
     RakNet::RakPeer peer;
@@ -220,7 +219,7 @@ p2:
         for (uint32_t i = 0; i < size; ++i) {
             UnitSyncInfo u;
             latest.Read(u);
-            if (u.HP<=0.0f)continue;
+            if (u.HP <= 0.0f)continue;
             auto iter = copy.find(u.id);
             if (iter == copy.cend()) {
                 old.insert(u.id);
@@ -241,7 +240,7 @@ p2:
 
         builtinAI.update();
 
-        std::this_thread::sleep_for(50ms*(10-level));
+        std::this_thread::sleep_for(50ms*(10 - level));
     }
     peer.Shutdown(500, 0, IMMEDIATE_PRIORITY);
 }
