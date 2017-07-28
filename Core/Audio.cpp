@@ -4,9 +4,23 @@ uint16_t audioLevel = 0;
 float gain = 1.0f;
 
 void AudioManager::setScene(Scene* scene) {
-    mScene = scene;
-    mScene->bindAudioListenerToCamera(true);
-    alDistanceModel(AL_LINEAR_DISTANCE);
+    scene->bindAudioListenerToCamera(false);
+    mListener = scene->getActiveCamera()->getNode();
+    alDistanceModel(AL_NONE);
+    {
+        mSize = 0;
+        ALuint tmp[64];
+        for (size_t i = 1; i <= 64; ++i) {
+            alGenBuffers(i,tmp);
+            if (alGetError() != AL_NO_ERROR)break;
+            alDeleteBuffers(i, tmp);
+            alGenSources(i, tmp);
+            if (alGetError() != AL_NO_ERROR)break;
+            alDeleteSources(i, tmp);
+            mSize = i;
+        }
+        INFO("OpenAL max size ", mSize);
+    }
 }
 
 #define E(name) {Enum::name,#name}
@@ -21,41 +35,34 @@ std::ostream& operator<<(std::ostream& out, AudioType type) {
 #undef E
 
 void AudioManager::play(AudioType type, Vector3 pos) {
-    if (audioLevel < 1 || gain == 0.0f)return;
+    if (audioLevel < 1 || gain == 0.0f || mSource.size()>=16)return;
     uniqueRAII<AudioSource> source =
-        AudioSource::create(to_string("res/audio/common/", type, ".ogg").c_str(), true);
+        AudioSource::create(to_string("res/audio/common/", type, ".ogg").c_str());
     source->setLooped(false);
     source->setGain(gain);
     source->play();
-    auto src = source->getSource();
-    alSourcef(src, AL_REFERENCE_DISTANCE, 1.0f);
-    alSourcef(src, AL_ROLLOFF_FACTOR, 1000.0f);
-    alSourcef(src, AL_MAX_DISTANCE, 10000.0f);
-    mSource.emplace_back(mScene->addNode());
-    mSource.back()->setAudioSource(source.get());
-    mSource.back()->setTranslation(pos);
+    mSource.emplace_back(std::move(source),pos);
 }
 
 void AudioManager::update() {
 
-    auto erase = [&](auto i) {
-        mScene->removeNode(i->get());
-        mSource.erase(i);
-    };
-
 begin:
     for (auto i = mSource.cbegin(); i != mSource.cend(); ++i)
-        if ((*i)->getAudioSource()->getState() == AudioSource::State::STOPPED) {
-            erase(i);
+        if (i->first->getState() == AudioSource::State::STOPPED) {
+            mSource.erase(i);
             goto begin;
         }
 
-    while (mSource.size() > 16)
-        erase(mSource.begin());
-
+    auto pos = mListener->getTranslationWorld();
+    for (auto&& s : mSource) {
+        auto dis = s.second.distance(pos);
+        constexpr auto max = 2000.0f;
+        auto fac =1.0f - std::min(dis, max) / max;
+        s.first->setGain(gain*fac);
+    }
 }
 
 void AudioManager::clear() {
-    mScene = nullptr;
+    mListener = nullptr;
     mSource.clear();
 }

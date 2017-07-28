@@ -17,8 +17,9 @@ enum class StateType {
 
 class AudioManager final {
 private:
-    Scene* mScene;
-    std::list<uniqueRAII<Node>> mSource;
+    Node* mListener;
+    std::list<std::pair<uniqueRAII<AudioSource>,Vector3>> mSource;
+    size_t mSize;
 public:
 
     void setScene(Scene* scene);

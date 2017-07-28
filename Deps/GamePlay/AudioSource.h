@@ -169,10 +169,6 @@ public:
      */
     Node* getNode() const;
 
-    ALuint getSource() const {
-        return _alSource;
-    }
-
 private:
 
     /**
