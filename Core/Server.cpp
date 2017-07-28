@@ -145,6 +145,11 @@ void Server::update(float delta) {
 
     getClientInfo();
 
+    if (mGroups.empty()) {
+        stop();
+        return;
+    }
+
     for (auto packet = mPeer->Receive(); packet; mPeer->DeallocatePacket(packet), packet = mPeer->Receive()) {
         if (mClients.find(packet->systemAddress) == mClients.cend())continue;
         RakNet::BitStream data(packet->data, packet->length, false);

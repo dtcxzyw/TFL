@@ -192,6 +192,8 @@ void readSettings() {
         miniMapSize = info->getInt("miniMapSize");
         waterAlpha = info->getFloat("waterAlpha");
         reflection = info->getFloat("reflection");
+        audioLevel = info->getInt("audioLevel");
+        gain = info->getFloat("gain");
     }
 }
 

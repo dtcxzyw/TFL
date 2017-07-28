@@ -206,6 +206,7 @@ struct Tank final :public UnitController {
                         localServer->newBullet(BulletInstance(bullet, t->getTranslationWorld() +
                             offset*f + u*iter->y + r*iter->x, point, f, speed, harm, range, instance.getGroup()));
                     }
+                    else localClient->getAudio().play(AudioType::fire,now);
                     t->translateForward(bt);
                     t->translateForward(-(bt = 20.0f));
                     onBack = true;
@@ -467,6 +468,8 @@ struct CBG final :public UnitController {
                 if (mIsServer)
                     localServer->newBullet(BulletInstance(bullet, t->getTranslationWorld() +
                         offset*f, point, f, speed, harm, range, instance.getGroup()));
+                else
+                    localClient->getAudio().play(AudioType::fire,now);
                 count = 0.0f;
                 t->translateForward(bt);
                 t->translateForward(-(bt = 40.0f));

@@ -4,6 +4,7 @@
 #include "Map.h"
 #include "Unit.h"
 #include <list>
+#include "Audio.h"
 
 struct DuangInfo final {
     uniqueRAII<Node> emitter;
@@ -33,6 +34,7 @@ private:
     Vector3 mCameraPos;
     uniqueRAII<Form> mStateInfo;
     std::map<uint32_t, uint32_t> mLoadSize;
+    AudioManager mAudio;
 
     //Effects
     std::set<DuangInfo> mDuang;
@@ -83,6 +85,7 @@ public:
     void endPoint(int x, int y);
     void cancel();
     bool isPlaying() const;
+    AudioManager& getAudio();
 };
 
 extern std::unique_ptr<Client> localClient;

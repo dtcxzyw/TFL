@@ -237,7 +237,10 @@ void writeSettings() {
         << "bias=" << bias << std::endl
         << "miniMapSize=" << miniMapSize << std::endl
         << "waterAlpha=" << waterAlpha << std::endl
-        << "reflection=" << reflection << std::endl;
+        << "reflection=" << reflection << std::endl
+        << "audioLevel=" << audioLevel << std::endl
+        << "gain=" << gain << std::endl;
+
     auto str = ss.str();
     uniqueRAII<Stream> file = FileSystem::open("game.settings", FileSystem::WRITE);
     file->write(str.data(), str.size(), 1);
@@ -254,6 +257,8 @@ void SettingsMenu::read() {
     get<Slider>("miniMap")->setValue(miniMapSize);
     get<Slider>("waterAlpha")->setValue(waterAlpha);
     get<Slider>("waterRef")->setValue(reflection);
+    get<Slider>("audioLevel")->setValue(audioLevel);
+    get<Slider>("gain")->setValue(gain);
 }
 
 SettingsMenu::~SettingsMenu() {
@@ -291,6 +296,8 @@ window
     miniMapSize = get<Slider>("miniMap")->getValue();
     waterAlpha = get<Slider>("waterAlpha")->getValue();
     reflection = get <Slider>("waterRef")->getValue();
+    gain = get<Slider>("gain")->getValue();
+    audioLevel = get <Slider>("audioLevel")->getValue();
     writeSettings();
 }
 

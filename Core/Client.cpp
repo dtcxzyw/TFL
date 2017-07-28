@@ -212,7 +212,6 @@ Client::WaitResult Client::wait() {
         }
         CheckHeader(ServerMessage::go) {
             mScene = Scene::create();
-            mScene->bindAudioListenerToCamera(true);
             mCamera =
                 Camera::createPerspective(45.0f, Game::getInstance()->getAspectRatio(), 1.0f, 5000.0f);
             mScene->addNode()->setCamera(mCamera.get());
@@ -230,6 +229,8 @@ Client::WaitResult Client::wait() {
             std::fill(mWeight.begin(), mWeight.end(), 1);
             mScene->addNode(mSky.get());
             mScene->addNode(mWaterPlane.get());
+            mAudio.setScene(mScene.get());
+
             mState = true;
 
             mPeer->DeallocatePacket(packet);
@@ -243,6 +244,7 @@ Client::WaitResult Client::wait() {
 
 void Client::stop() {
     mState = false;
+    mAudio.clear();
     mScene.reset();
     mCamera.reset();
     mUnits.clear();
@@ -377,6 +379,7 @@ bool Client::update(float delta) {
                 mHotPoint.push_back({ info.pos.x,info.pos.z });
                 if (mHotPoint.size() > 4)
                     mHotPoint.pop_front();
+                mAudio.play(AudioType::boom, info.pos);
             }
         }
     }
@@ -429,6 +432,8 @@ bool Client::update(float delta) {
     }
     else label->setText("");
     mStateInfo->update(delta);
+
+    mAudio.update();
 
     return true;
 }
@@ -855,4 +860,8 @@ void Client::cancel() {
 
 bool Client::isPlaying() const {
     return mState;
+}
+
+AudioManager & Client::getAudio() {
+    return mAudio;
 }

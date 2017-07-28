@@ -13,7 +13,7 @@ struct Path {
 const std::set<path> exts =
 { ".config", ".form",".gpb",".theme",".png",
 ".data",".info",".terrain",".material",".frag",
-".vert",".lua",".scene",".physics"};
+".vert",".ogg",".scene",".physics"};
 void find(const path& p) {
     for (auto&& child : directory_iterator(p)) {
         cout << child.path();
