@@ -56,7 +56,7 @@ private:
     int mX, mY,mBX,mBY;
     double mLast;
     bool checkCamera();
-    std::set<uint32_t> mChoosed;
+    std::set<uint32_t> mChoosed,mLastChoosed;
     void move(int x, int y);
 
 public:

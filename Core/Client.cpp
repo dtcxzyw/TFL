@@ -717,6 +717,11 @@ void Client::beginPoint(int x, int y) {
         if (y <= miniMapSize && x <= right && x >= right - miniMapSize) {
             auto fac = mapSizeF / miniMapSize;
             Vector2 pos{ fac*(x - right + miniMapSize) - mapSizeHF,fac*y - mapSizeHF };
+            constexpr auto offset = 50.0f;
+            pos.x = std::min(mapSizeHF - offset, pos.x);
+            pos.x = std::max(offset - mapSizeHF, pos.x);
+            pos.y = std::min(mapSizeHF - offset, pos.y);
+            pos.y = std::max(offset - mapSizeHF, pos.y);
             if (mChoosed.empty()) {
                 auto node = mCamera->getNode();
                 auto old = node->getTranslation();
@@ -737,11 +742,14 @@ void Client::beginPoint(int x, int y) {
             }
         }
         else mBX = x, mBY = y;
-        mLast = Game::getAbsoluteTime();
     }
 }
 
 void Client::endPoint(int x, int y) {
+
+    bool useFeature = Game::getAbsoluteTime() - mLast < 200.0f;
+    mLast = Game::getAbsoluteTime();
+
     auto toNDC = [](auto&& u, auto rect, auto offset) {
         auto MVP = u.second.getNode()->getWorldViewProjectionMatrix();
         auto NDC = MVP*offset;
@@ -816,23 +824,23 @@ void Client::endPoint(int x, int y) {
 
             if (choosed) {
                 if (mUnits[choosed].getGroup() == mGroup) {
-                    if (mUnits[choosed].getKind().getLoading()
-                        && Game::getAbsoluteTime() - mLast > 300.0f) {
+                    if (useFeature && mUnits[choosed].getKind().getLoading()) {
                         RakNet::BitStream data;
-                        if (mChoosed.empty() || 
-                            (mChoosed.size() == 1 && *mChoosed.begin() == choosed)) {
+                        if (mLastChoosed.empty() ||
+                            (mLastChoosed.size() == 1 && *mLastChoosed.begin() == choosed)) {
                             data.Write(ClientMessage::release);
                             data.Write(choosed);
                         }
                         else {
                             data.Write(ClientMessage::load);
                             data.Write(choosed);
-                            for (auto&& x : mChoosed)
+                            for (auto&& x : mLastChoosed)
                                 data.Write(x);
                         }
                         mPeer->Send(&data, PacketPriority::HIGH_PRIORITY
                             , PacketReliability::RELIABLE_ORDERED, 0, mServer, false);
                     }
+                    else mLastChoosed.swap(mChoosed);
                     mChoosed.clear();
                     mChoosed.insert(choosed);
                 }

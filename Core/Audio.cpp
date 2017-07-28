@@ -35,7 +35,7 @@ std::ostream& operator<<(std::ostream& out, AudioType type) {
 #undef E
 
 void AudioManager::play(AudioType type, Vector3 pos) {
-    if (audioLevel < 1 || gain == 0.0f || mSource.size()>=16)return;
+    if (audioLevel < 1 || gain == 0.0f || mSource.size()>=mSize)return;
     uniqueRAII<AudioSource> source =
         AudioSource::create(to_string("res/audio/common/", type, ".ogg").c_str());
     source->setLooped(false);
