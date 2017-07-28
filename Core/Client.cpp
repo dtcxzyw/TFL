@@ -717,12 +717,13 @@ void Client::beginPoint(int x, int y) {
         if (y <= miniMapSize && x <= right && x >= right - miniMapSize) {
             auto fac = mapSizeF / miniMapSize;
             Vector2 pos{ fac*(x - right + miniMapSize) - mapSizeHF,fac*y - mapSizeHF };
-            constexpr auto offset = 50.0f;
-            pos.x = std::min(mapSizeHF - offset, pos.x);
-            pos.x = std::max(offset - mapSizeHF, pos.x);
-            pos.y = std::min(mapSizeHF - offset, pos.y);
-            pos.y = std::max(offset - mapSizeHF, pos.y);
             if (mChoosed.empty()) {
+                constexpr auto offset = 200.0f;
+                pos.x = std::min(mapSizeHF - offset, pos.x);
+                pos.x = std::max(offset - mapSizeHF, pos.x);
+                pos.y = std::min(mapSizeHF - offset, pos.y);
+                pos.y = std::max(offset - mapSizeHF, pos.y);
+
                 auto node = mCamera->getNode();
                 auto old = node->getTranslation();
                 node->setTranslation(pos.x, mMap->getHeight(pos.x, pos.y) +

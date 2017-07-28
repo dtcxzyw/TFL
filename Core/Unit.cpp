@@ -183,8 +183,7 @@ void UnitInstance::setAttackTarget(uint32_t id) {
 }
 
 bool UnitInstance::attacked(float harm) {
-    mHP -= harm;
-    if (mHP < 0.0f)mController->onDied(*this);
+    setHP(mHP - harm);
     return mHP < 0.0f;
 }
 
@@ -252,6 +251,7 @@ bool UnitInstance::updateSum(float delta) {
 
 void UnitInstance::setHP(float HP) {
     mHP = HP;
+    if (mHP < 0.0f)mController->onDied(*this);
 }
 
 float UnitInstance::getHP() const {
