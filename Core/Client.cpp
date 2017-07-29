@@ -331,7 +331,7 @@ bool Client::update(float delta) {
                         mAudio.voice(CodeType::found, { u.id });
                 }
                 mUnits[u.id].setHP(u.HP);
-                if (u.group != mGroup && u.HP <= 0.0f)
+                if (u.group != mGroup && u.HP <= 0.0f) 
                     mAudio.voice(CodeType::success, { u.id });
 
                 if (u.size)

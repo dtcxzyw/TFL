@@ -5,7 +5,8 @@ float gain = 1.0f;
 
 void AudioManager::voice(const char * name, Vector3 pos, std::vector<uint32_t> args) {
     if (gain == 0.0f || mSource.size() + mVoice.size() >= mSize || mVoice.size()>=4 ||
-        mVoiceFormat.find(name) == mVoiceFormat.cend())return;
+        mVoiceFormat.find(name) == mVoiceFormat.cend() 
+        || (args.size() && mHistory.find(args.front())!=mHistory.cend()))return;
     if (!pos.isZero()) {
         auto VP = mListener->getCamera()->getViewProjectionMatrix();
         auto NDC = VP*Vector4(pos.x, pos.y, pos.z, 1.0f);
@@ -23,12 +24,14 @@ void AudioManager::voice(const char * name, Vector3 pos, std::vector<uint32_t> a
                 if (cnt >= args.size())INFO("Error format");
                 std::string id = to_string(args[cnt]);
                 for (auto&& y : id)
-                    last.emplace(&y);
+                    last.push({ y });
                 ++cnt;
             }
             else last.emplace(x);
         }
         mVoice.push_back({ nullptr,last });
+        if (args.size())
+            mHistory.insert(args.front());
 }
 
 void AudioManager::setScene(Scene* scene) {
@@ -162,4 +165,5 @@ void AudioManager::clear() {
     mSource.clear();
     mVoice.clear();
     mVoiceFormat.clear();
+    mHistory.clear();
 }

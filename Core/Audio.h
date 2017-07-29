@@ -25,6 +25,7 @@ private:
     };
     std::list<Voice> mVoice;
     std::map<std::string, std::vector<std::string>> mVoiceFormat;
+    std::set<uint32_t> mHistory;
     size_t mSize;
 
     void voice(const char* name, Vector3 pos, std::vector<uint32_t> args);
