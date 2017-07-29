@@ -4,21 +4,22 @@ uint16_t audioLevel = 0;
 float gain = 1.0f;
 
 void AudioManager::voice(const char * name, Vector3 pos, std::vector<uint32_t> args) {
-    if (gain == 0.0f || mSource.size() + mVoice.size() >= mSize ||
+    if (gain == 0.0f || mSource.size() + mVoice.size() >= mSize || mVoice.size()>=4 ||
         mVoiceFormat.find(name) == mVoiceFormat.cend())return;
-    auto VP = mListener->getCamera()->getViewProjectionMatrix();
-    auto NDC = VP*Vector4(pos.x, pos.y, pos.z, 1.0f);
-    NDC.x /= NDC.w; NDC.y /= NDC.w; NDC.z /= NDC.w;
-    NDC.x /= 2.0f, NDC.y /= 2.0f; NDC.z /= 2.0f;
-    NDC.x += 0.5f; NDC.y += 0.5f; NDC.z += 0.5f;
-    NDC.y = 1.0f - NDC.y;
-    if (NDC.x >= 0.0f && NDC.x <= 1.0f && NDC.y >= 0.0f
-        && NDC.y <= 1.0f && NDC.z >= 0.0f && NDC.z <= 1.0f) {
+    if (!pos.isZero()) {
+        auto VP = mListener->getCamera()->getViewProjectionMatrix();
+        auto NDC = VP*Vector4(pos.x, pos.y, pos.z, 1.0f);
+        NDC.x /= NDC.w; NDC.y /= NDC.w; NDC.z /= NDC.w;
+        NDC.x /= 2.0f, NDC.y /= 2.0f; NDC.z /= 2.0f;
+        NDC.x += 0.5f; NDC.y += 0.5f; NDC.z += 0.5f;
+        NDC.y = 1.0f - NDC.y;
+        if (NDC.x < 0.0f || NDC.x > 1.0f || NDC.y < 0.0f || NDC.y > 1.0f)return;
+    }
         auto&& format = mVoiceFormat[name];
         std::queue<std::string> last;
         size_t cnt = 0;
         for (auto&& x : format) {
-            if (x == "id") {
+            if (x == "arg") {
                 if (cnt >= args.size())INFO("Error format");
                 std::string id = to_string(args[cnt]);
                 for (auto&& y : id)
@@ -27,8 +28,7 @@ void AudioManager::voice(const char * name, Vector3 pos, std::vector<uint32_t> a
             }
             else last.emplace(x);
         }
-        mVoice.push_back({nullptr,last});
-    }
+        mVoice.push_back({ nullptr,last });
 }
 
 void AudioManager::setScene(Scene* scene) {
@@ -64,8 +64,10 @@ void AudioManager::setScene(Scene* scene) {
                 point.emplace_back(pos = format.find_first_of('+', pos + 1));
             point.pop_back();
             size_t last = 0;
-            for (auto&& x : point)
-                mVoiceFormat[id].emplace_back(format.substr(x, x - last));
+            for (auto&& x : point) {
+                mVoiceFormat[id].emplace_back(format.substr(last, x - last));
+                last = x+1;
+            }
         }
     }
 }
@@ -110,9 +112,9 @@ void AudioManager::play(AudioType type, Vector3 pos) {
     mSource.emplace_back(std::move(source), pos);
 }
 
-void AudioManager::voice(CodeType type, Vector3 pos, std::vector<uint32_t> args) {
+void AudioManager::voice(CodeType type, std::vector<uint32_t> args) {
     if (audioLevel >= 2)
-        voice(enum2string(type), pos, args);
+        voice(enum2string(type), {}, args);
 }
 
 void AudioManager::voice(StateType type, Vector3 pos, std::vector<uint32_t> args) {
@@ -122,11 +124,11 @@ void AudioManager::voice(StateType type, Vector3 pos, std::vector<uint32_t> args
 
 void AudioManager::update() {
 
-begin:
+begin1:
     for (auto i = mSource.cbegin(); i != mSource.cend(); ++i)
         if (i->first->getState() == AudioSource::State::STOPPED) {
             mSource.erase(i);
-            goto begin;
+            goto begin1;
         }
 
     auto pos = mListener->getTranslationWorld();
@@ -137,12 +139,12 @@ begin:
         s.first->setGain(gain*fac);
     }
 
-begin:
+begin2:
     for (auto i = mVoice.begin(); i != mVoice.end(); ++i)
         if (!i->current || i->current->getState() == AudioSource::State::STOPPED) {
             if (i->last.empty()) {
                 mVoice.erase(i);
-                goto begin;
+                goto begin2;
             }
             else {
                 i->current = 

@@ -94,6 +94,9 @@ void Client::move(int x, int y) {
             data.Write(x);
         mPeer->Send(&data, PacketPriority::HIGH_PRIORITY,
             PacketReliability::RELIABLE, 0, mServer, false);
+        uint32_t ix = static_cast<uint32_t>(p.x+mapSizeHF)*16/mapSize;
+        uint32_t iy = static_cast<uint32_t>(p.y + mapSizeHF) * 16 / mapSize;
+        mAudio.voice(CodeType::to, {*mChoosed.begin(), ix * 16 + iy });
     }
 }
 
@@ -324,8 +327,13 @@ bool Client::update(float delta) {
                     i.first->second.getNode()->setRotation(u.rotation);
                     i.first->second.update(0);
                     i.first->second.setAttackTarget(u.at);
+                    if (u.group != mGroup && u.HP > 0.0f)
+                        mAudio.voice(CodeType::found, { u.id });
                 }
                 mUnits[u.id].setHP(u.HP);
+                if (u.group != mGroup && u.HP <= 0.0f)
+                    mAudio.voice(CodeType::success, { u.id });
+
                 if (u.size)
                     mLoadSize[u.id] = u.size;
             }
@@ -740,6 +748,9 @@ void Client::beginPoint(int x, int y) {
                     data.Write(x);
                 mPeer->Send(&data, PacketPriority::HIGH_PRIORITY,
                     PacketReliability::RELIABLE, 0, mServer, false);
+                uint32_t ix = static_cast<uint32_t>(pos.x + mapSizeHF) * 16 / mapSize;
+                uint32_t iy = static_cast<uint32_t>(pos.y + mapSizeHF) * 16 / mapSize;
+                mAudio.voice(CodeType::to, { *mChoosed.begin(), ix * 16 + iy });
             }
         }
         else mBX = x, mBY = y;
@@ -781,7 +792,7 @@ void Client::endPoint(int x, int y) {
                     }
                 }
 
-            if (choosed.size()) {
+            if (choosed.size()&& (mine.size() || mChoosed.size())) {
                 for (auto&& x : mine)
                     mChoosed.insert(x);
 
@@ -802,6 +813,7 @@ void Client::endPoint(int x, int y) {
                 }
                 mPeer->Send(&data, PacketPriority::HIGH_PRIORITY,
                     PacketReliability::RELIABLE_ORDERED, 0, mServer, false);
+                mAudio.voice(CodeType::attack, { *mChoosed.begin(),*choosed.begin() });
             }
             else mChoosed.swap(mine);
         }
@@ -855,6 +867,7 @@ void Client::endPoint(int x, int y) {
                     }
                     mPeer->Send(&data, PacketPriority::HIGH_PRIORITY,
                         PacketReliability::RELIABLE_ORDERED, 0, mServer, false);
+                    mAudio.voice(CodeType::attack, { *mChoosed.begin(),choosed});
                 }
             }
             else move(x, y);

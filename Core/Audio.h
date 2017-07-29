@@ -32,7 +32,7 @@ public:
 
     void setScene(Scene* scene);
     void play(AudioType type, Vector3 pos);
-    void voice(CodeType type, Vector3 pos, std::vector<uint32_t> args = {});
+    void voice(CodeType type, std::vector<uint32_t> args = {});
     void voice(StateType type, Vector3 pos, std::vector<uint32_t> args = {});
     void update();
     void clear();
