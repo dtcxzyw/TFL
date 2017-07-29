@@ -1,24 +1,27 @@
-HP = 200
+HP = 300
 cost = 2
-FOV = 0
-sound = 1000
+FOV = 1500
+sound = 600
 plane= 10,10
 offset=0,-10,0
 radius=45
 AIType=attack
 cross=true
+loading=5
 control
 {
-	type = Submarine
-	RSC = 0.005
-	height=0.5
-	v=200
-	dis = 2000
-	time=5
+	type = Ship
+	RSC = 0.001
+	RST = 0.01
+	v=150
+	dis = 2500
+	time=4
+	btime=2
 	harm=80
 	bullet=common
 	missile=DF
 	range=50
-	speed=300
+	speed=400
 	lfac=0.4
+	offset=5
 }
