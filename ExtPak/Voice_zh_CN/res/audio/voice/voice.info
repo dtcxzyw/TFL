@@ -1,0 +1,7 @@
+to=arg+to+arg+go
+attack=arg+to+object+arg+attack
+found=report+found+object+arg
+success=report+object+arg+success
+fire=fire
+ready=ready
+in=report+object+arg+in

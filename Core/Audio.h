@@ -8,7 +8,7 @@ enum class AudioType {
 };
 
 enum class CodeType {
-    to, attack, found, help, success, died
+    to, attack, found, success
 };
 
 enum class StateType {
@@ -19,11 +19,21 @@ class AudioManager final {
 private:
     Node* mListener;
     std::list<std::pair<uniqueRAII<AudioSource>,Vector3>> mSource;
+    struct Voice final {
+        uniqueRAII<AudioSource> current;
+        std::queue<std::string> last;
+    };
+    std::list<Voice> mVoice;
+    std::map<std::string, std::vector<std::string>> mVoiceFormat;
     size_t mSize;
+
+    void voice(const char* name, Vector3 pos, std::vector<uint32_t> args);
 public:
 
     void setScene(Scene* scene);
     void play(AudioType type, Vector3 pos);
+    void voice(CodeType type, Vector3 pos, std::vector<uint32_t> args = {});
+    void voice(StateType type, Vector3 pos, std::vector<uint32_t> args = {});
     void update();
     void clear();
 };
