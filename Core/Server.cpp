@@ -526,7 +526,7 @@ void Server::update(float delta) {
                 for (auto&& mu : update.units)
                     if ((g.first == mu.second.getGroup() && !u.second.isDied()) ||
                         (!mu.second.isDied() && p.distanceSquared(mu.second.getNode()->getTranslation())
-                        < mu.second.getKind().getFOV())) {
+                        <=(p.y>=0.0f?mu.second.getKind().getFOV():mu.second.getKind().getSound()))) {
                         uint16_t uk = getUnitID(u.second.getKind().getName());
                         saw.push_back({ u.first,uk,p,u.second.getNode()->getRotation(),
                             g.first,u.second.getAttackTarget(),

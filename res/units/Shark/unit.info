@@ -4,20 +4,21 @@ FOV = 0
 sound = 1000
 plane= 10,10
 offset=0,-10,0
-radius=40
+radius=45
 AIType=attack
+cross=true
 control
 {
 	type = Submarine
 	RSC = 0.01
 	height=0.5
-	v=80
+	v=200
 	dis = 2000
 	time=5
-	harm=100
+	harm=80
 	bullet=common
-	missle=DF
-	range=100
+	missile=DF
+	range=50
 	speed=300
-	lfac=0.5
+	lfac=0.4
 }

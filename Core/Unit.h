@@ -4,7 +4,7 @@
 
 class Unit final {
 private:
-    float mHP,mTime,mFOV, mRadius;
+    float mHP,mTime,mFOV, mRadius,mSound;
     mutable uniqueRAII<Scene> mModel;
     std::string mName;
     uniqueRAII<Properties> mInfo;
@@ -26,6 +26,7 @@ public:
     bool canCross() const;
     uint32_t getLoading() const;
     Vector3 getReleaseOffset() const;
+    float getSound() const;
 };
 
 extern std::map<std::string,Unit> globalUnits;

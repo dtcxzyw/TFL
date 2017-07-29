@@ -22,6 +22,7 @@ void Unit::operator=(const std::string& name) {
     mLoading = mInfo->getInt("loading");
     if(mInfo->exists("releaseOffset"))
         mInfo->getVector3("releaseOffset", &mReleaseOffset);
+    mSound = mInfo->getFloat("sound");
 }
 
 std::string Unit::getName() const {
@@ -72,6 +73,10 @@ uint32_t Unit::getLoading() const {
 
 Vector3 Unit::getReleaseOffset() const {
     return mReleaseOffset;
+}
+
+float Unit::getSound() const {
+    return mSound;
 }
 
 uint32_t UnitInstance::cnt = 0;
