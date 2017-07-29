@@ -47,7 +47,6 @@ private:
     std::unique_ptr<UnitController> mController;
     float mDelta;
     bool mIsServer;
-    std::chrono::system_clock::time_point mLast;
     std::vector<std::pair<uint16_t,float>> mLoading;
     uint32_t mLoadTarget;
     void updateMoveTarget();

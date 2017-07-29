@@ -1,5 +1,6 @@
 #include "Audio.h"
 #include <map>
+#include "Client.h"
 uint16_t audioLevel = 0;
 float gain = 1.0f;
 
@@ -120,9 +121,12 @@ void AudioManager::voice(CodeType type, std::vector<uint32_t> args) {
         voice(enum2string(type), {}, args);
 }
 
-void AudioManager::voice(StateType type, Vector3 pos, std::vector<uint32_t> args) {
-    if (audioLevel >= 3)
+void AudioManager::voice(StateType type,uint32_t id, Vector3 pos, std::vector<uint32_t> args) {
+    if (audioLevel >= 3 && localClient->isMine(id) && 
+        (mLast.find(id)==mLast.cend() || mLast[id]!=type)) {
         voice(enum2string(type), pos, args);
+        mLast[id] = type;
+    }
 }
 
 void AudioManager::update() {
@@ -139,7 +143,7 @@ begin1:
         auto dis = s.second.distance(pos);
         constexpr auto max = 2000.0f;
         auto fac = 1.0f - std::min(dis, max) / max;
-        s.first->setGain(gain*fac);
+        s.first->setGain(gain*fac*(pos.y<0.0f?0.5f:1.0f));
     }
 
 begin2:
@@ -158,6 +162,7 @@ begin2:
                 i->last.pop();
             }
         }
+
 }
 
 void AudioManager::clear() {
@@ -166,4 +171,5 @@ void AudioManager::clear() {
     mVoice.clear();
     mVoiceFormat.clear();
     mHistory.clear();
+    mLast.clear();
 }

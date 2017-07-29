@@ -96,9 +96,7 @@ bool UnitInstance::update(float delta) {
     if (mPos.z < -mapSizeHF)mNode->setTranslationZ(-mapSizeHF);
     if (mPos.z > mapSizeHF)mNode->setTranslationZ(mapSizeHF);
     if (mIsServer && !mKind->canCross() && !isDied()) {
-        auto now = std::chrono::system_clock::now();
-        if (now - mLast > 500ms)
-            updateMoveTarget(), mLast = now;
+        updateMoveTarget();
         if (mPos.y < -10.0f)
             mHP -= 1000.0f;
     }
@@ -113,28 +111,23 @@ BoundingSphere UnitInstance::getBound() const {
 
 bool test(Vector2 b, Vector2 e) {
     if (e.x<-mapSizeHF || e.x>mapSizeHF || e.y<-mapSizeHF || e.y>mapSizeHF
-        || localClient->getHeight(e.x, e.y) < -2.0f)
+        || localClient->getHeight(e.x, e.y) < 0.0f)
         return false;
     auto dis = b.distance(e);
-    constexpr auto step = 40.0f;
+    constexpr auto step = 10.0f;
     if (dis <= step)return true;
     for (auto i = step; i < dis; i += step) {
         auto p = (b*i + e*(dis - i))/dis;
-        if (localClient->getHeight(p.x, p.y) < -2.0f)
+        if (localClient->getHeight(p.x, p.y) < 0.0f)
             return false;
     }
     return true;
 }
 
 Vector2 choose(Vector2 b, Vector2 m,Vector2 unit, float maxv) {
-    float l = 1.0f, r = maxv;
-    while (r - l >= 1.0f) {
-        float mid = (l + r) / 2.0f;
-        auto p = m + unit*mid;
-        if (test(b, p))r = mid;
-        else l = mid;
-    }
-    return m + unit*r;
+    for(float r=1.0f;r<maxv;++r)
+        if(test(b,m+unit*r))
+            return m + unit*r;
 }
 
 void UnitInstance::updateMoveTarget() {
@@ -148,7 +141,7 @@ void UnitInstance::updateMoveTarget() {
         mController->setMoveTarget(mTarget);
         return;
     }
-    auto offset = mp - mTarget;
+    auto offset = mTarget - mp;
     if (offset.x == 0.0f)offset.x = std::numeric_limits<float>::epsilon();
     if (offset.y == 0.0f)offset.y = std::numeric_limits<float>::epsilon();
     constexpr auto maxFac =128.0f;
@@ -198,7 +191,7 @@ const Unit & UnitInstance::getKind() const {
 UnitInstance::UnitInstance(const Unit & unit, uint8_t group, uint32_t id,
     Scene* add, bool isServer, Vector3 pos)
     :mGroup(group), mHP(unit.getHP()), mNode(nullptr), mPID(id), mKind(&unit),
-    mDelta(0.0f),mIsServer(isServer),mLoadTarget(0) {
+    mDelta(0.0f),mIsServer(isServer),mLoadTarget(0),mPos(pos) {
     mNode = unit.getModel();
     add->addNode(mNode.get());
     mNode->setTranslation(pos);

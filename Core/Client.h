@@ -86,6 +86,7 @@ public:
     void cancel();
     bool isPlaying() const;
     AudioManager& getAudio();
+    bool isMine(uint32_t id) const;
 };
 
 extern std::unique_ptr<Client> localClient;

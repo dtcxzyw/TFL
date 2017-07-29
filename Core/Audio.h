@@ -26,6 +26,7 @@ private:
     std::list<Voice> mVoice;
     std::map<std::string, std::vector<std::string>> mVoiceFormat;
     std::set<uint32_t> mHistory;
+    std::map<uint32_t, StateType> mLast;
     size_t mSize;
 
     void voice(const char* name, Vector3 pos, std::vector<uint32_t> args);
@@ -34,7 +35,7 @@ public:
     void setScene(Scene* scene);
     void play(AudioType type, Vector3 pos);
     void voice(CodeType type, std::vector<uint32_t> args = {});
-    void voice(StateType type, Vector3 pos, std::vector<uint32_t> args = {});
+    void voice(StateType type,uint32_t id, Vector3 pos, std::vector<uint32_t> args = {});
     void update();
     void clear();
 };

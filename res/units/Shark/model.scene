@@ -1,0 +1,19 @@
+scene Shark
+{
+	node root
+	{
+		scale = 0.05,0.05,0.05
+		
+		node base
+		{
+			url = res/units/Shark/model.gpb#base
+			material = res/Shared/Core/color.material
+		}
+		
+		node push
+		{
+			url = res/units/Shark/model.gpb#push
+			material = res/shared/Core/color.material
+		}
+	}
+}

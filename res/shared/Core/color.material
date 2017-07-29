@@ -49,7 +49,7 @@ material color
 
             sampler u_diffuseTexture
             {
-                path = res/units/Ghost/color.png
+                path = res/shared/Core/color.png
                 mipmap = false
                 wrapS = REPEAT
                 wrapT = REPEAT
@@ -97,7 +97,7 @@ material color
 
             sampler u_diffuseTexture
             {
-                path = res/units/Ghost/color.png
+                path = res/shared/Core/color.png
                 mipmap = false
                 wrapS = REPEAT
                 wrapT = REPEAT
@@ -176,7 +176,7 @@ material color
 
             sampler u_diffuseTexture
             {
-                path = res/units/Ghost/color.png
+                path = res/shared/Core/color.png
                 mipmap = false
                 wrapS = REPEAT
                 wrapT = REPEAT

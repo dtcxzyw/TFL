@@ -887,3 +887,8 @@ bool Client::isPlaying() const {
 AudioManager & Client::getAudio() {
     return mAudio;
 }
+
+bool Client::isMine(uint32_t id) const {
+    auto i = mUnits.find(id);
+    return i != mUnits.cend() && i->second.getGroup() == mGroup;
+}
