@@ -1,5 +1,5 @@
 HP = 300
-cost = 2
+cost = 40
 FOV = 1500
 sound = 600
 plane= 10,10

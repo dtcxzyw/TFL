@@ -815,21 +815,18 @@ struct Ship final :public UnitController {
                 correctVector(node, &Node::getForwardVector, offset.normalize()
                     ,0.0f, RSC*delta, 0.0f);
                 node->translateForward(v*delta);
-
-                correctVector(node, &Node::getUpVector, Vector3::unitY(), 0.0f, 0.0f, M_PI);
-
-                {
-                    float tmp;
-                    correct(instance, now.y > 0.0f ? delta : 0.0f, fcnt, tmp);
-                    if (node->getTranslationY() < 0.0f)
-                        node->setTranslationY(0.0f);
-                }
-
-                return true;
             }
         }
 
-        return false;
+        {
+            correctVector(node, &Node::getUpVector, Vector3::unitY(), M_PI, 0.0f, M_PI);
+            if (node->getTranslationY() < 0.0f)
+                node->setTranslationY(0.0f);
+            float tmp;
+            correct(instance,node->getTranslationY()<=0.0f?0.0f:delta, fcnt, tmp);
+        }
+
+        return true;
     }
 };
 #undef Init
