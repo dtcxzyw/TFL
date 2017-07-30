@@ -831,12 +831,11 @@ struct Ship final :public UnitController {
 };
 
 struct Copter final :public UnitController {
-    float RSC, v, height, dis, time, offset,count[2],fcnt,harm,range,speed;
+    float RSC, v, height, dis, time, offset,count[2],fcnt,harm,range,speed,ry;
     std::string bullet;
-    Vector3 last,forward;
+    Vector3 last;
     Copter(const Properties* info) :Init(RSC), Init(v), Init(height), Init(dis), Init(time), Init(offset),
-        bullet(info->getString("bullet")),fcnt(0.0f),Init(harm),Init(range),Init(speed)
-        ,forward(Vector3::unitZ()) {
+        bullet(info->getString("bullet")),fcnt(0.0f),Init(harm),Init(range),Init(speed),ry(0.0f) {
         v /= 1000.0f;
         dis *= dis;
         time *= 1000.0f;
@@ -859,7 +858,7 @@ struct Copter final :public UnitController {
             count[i] = std::min(count[i] + delta, time + 0.1f);
 
         if (mObject && !point.isZero()) {
-            auto in = point.distanceSquared(now) <= dis && point.y <= now.y;
+            auto in = point.distanceSquared(now) <= dis && point.y <= now.y+100.0f;
             auto ready = count[0] >= time || count[1] >= time;
             if (mIsServer) {
                 if (in && ready) {
@@ -887,43 +886,44 @@ struct Copter final :public UnitController {
         }
 
         auto h = localClient->getHeight(now.x, now.z);
-        if (mDest.isZero()) {
-            if (h > 0.0f) {
-                float tmp;
-                correct(instance, delta, fcnt, tmp);
+        if (mIsServer) {
+            if (mDest.isZero()) {
+                if (h > 0.0f) {
+                    float tmp;
+                    correct(instance, delta, fcnt, tmp);
+                }
+                else {
+                    correctVector(node, &Node::getUpVector, Vector3::unitY(), RSC*delta, 0.0f, RSC*delta);
+                    if (node->getTranslationY() < height)
+                        node->translateUp(v*delta);
+                }
             }
             else {
-                correctVector(node, &Node::getUpVector, Vector3::unitY(), RSC*delta, 0.0f, RSC*delta);
-                node->translateUp(v*delta);
+                h = std::max(h, 0.0f) + height;
+                Vector3 dest = { mDest.x,h,mDest.y };
+                auto offset = dest - now;
+                offset.y = (offset.y > 0.0f ? -1.0f : 1.0f)*std::min(std::abs(offset.y),
+                    std::abs(std::hypot(offset.x, offset.z)*0.363f));
+                correctVector(node, &Node::getForwardVector, offset.normalize(), RSC*delta, RSC*delta, 0.0f);
+                correctVector(node, &Node::getUpVector, Vector3::unitY(), 0.0f, 0.0f, RSC*delta);
+                node->translateForward(v*delta);
+                auto d =h- now.y;
+                node->translateY((d>0.0f?1.0f:-1.0f)*std::min(std::abs(d),v*delta));
+                float tmp;
+                correct(instance, 0.0f, fcnt, tmp);
+                if (dest.distanceSquared(now) <= height*height + 1e4f)
+                    mDest = Vector2::zero();
             }
         }
         else {
-            h = std::max(h, 0.0f) + height;
-            Vector3 dest = { mDest.x,h,mDest.y };
-            auto offset = dest - now;
-            correctVector(node, &Node::getForwardVector,offset.normalize(), RSC*delta, RSC*delta,0.0f);
-            correctVector(node, &Node::getUpVector, Vector3::unitY(), 0.0f, 0.0f, RSC*delta);
-            node->translateUp((offset.y>0?v:-v)*delta);
-        }
-
-        if (!mIsServer) {
-            constexpr auto fac1 = 1.0f;
+            auto up = node->getTranslationY() - 10.0f > h ? M_PI*delta: 0.0f;
+            constexpr auto fac1 = 0.005f;
             auto dis = last.distanceSquared(now);
-            node->findNode("up")->rotateY(dis*fac1);
+            constexpr auto w = 0.9f;
+            ry = ry*w + (up + dis)*fac1*(1 - w);
+            node->findNode("up")->rotateY((up+dis)*fac1);
             last = now;
-            auto f = node->getForwardVector().normalize();
-            auto dot = forward.dot(f);
-            bool rotate = false;
-            {
-                node->rotateY(0.01f);
-                auto nf= node->getForwardVector().normalize();
-                auto ndot = forward.dot(nf);
-                if (ndot > dot)rotate = true;
-                node->rotateY(-0.01f);
-            }
-            constexpr auto fac2 = 1.0f;
-            node->findNode("rotate")->rotateY(std::acos(dis)*fac2);
-            forward = f;
+            node->findNode("rotate")->rotateY(up/300.0f);
         }
 
         return true;

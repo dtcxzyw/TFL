@@ -4,7 +4,7 @@ FOV = 2000
 sound = 1500
 plane= 10,20
 offset=0,-10,0
-radius=40
+radius=50
 AIType=attack
 cross=true
 loading=2
@@ -22,5 +22,5 @@ control
 	harm=100
 	range=20
 	speed=700
-	offset=3
+	offset=6
 }

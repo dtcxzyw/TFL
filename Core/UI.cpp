@@ -394,8 +394,8 @@ GameMain::GameMain() :UI("GameMain") {
     }
 #endif // ANDROID
     choose("army");
-    mCurrent = c->getControl(0U)->getId();
-    get<Label>("weight")->setText(("Weight " + mCurrent).c_str());
+    mCurrent = dynamic_cast<Button*>(c->getControl(0U))->getText();
+    get<Slider>("weight")->setText(("Weight " + mCurrent).c_str());
 }
 
 void GameMain::event(Control * control, Event evt) {

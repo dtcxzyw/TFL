@@ -2,7 +2,7 @@ scene Eagle
 {
 	node root
 	{
-		scale = 0.2,0.2,0.2
+		scale = 0.05,0.05,0.05
 		node base
 		{
 			url = res/units/Eagle/model.gpb#base
