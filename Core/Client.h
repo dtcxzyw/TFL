@@ -5,6 +5,7 @@
 #include "Unit.h"
 #include <list>
 #include "Audio.h"
+#include "Message.h"
 
 struct DuangInfo final {
     uniqueRAII<Node> emitter;
@@ -34,6 +35,7 @@ private:
     Vector3 mCameraPos;
     uniqueRAII<Form> mStateInfo;
     std::map<uint32_t, uint32_t> mLoadSize;
+    std::vector<ProducingSyncInfo> mProducingState;
     AudioManager mAudio;
 
     //Effects

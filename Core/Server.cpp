@@ -141,8 +141,6 @@ void Server::update(float delta) {
 
     if (!mState)return;
 
-    bool updateWeight = false;
-
     getClientInfo();
 
     if (mGroups.empty()) {
@@ -174,7 +172,6 @@ void Server::update(float delta) {
             if (weight < 1)weight = 1;
             if (weight > 1000)weight = 1000;
             mGroups[group].weight[id] = weight;
-            updateWeight = true;
         }
         CheckHeader(ClientMessage::setAttackTarget) {
             uint32_t x, y;
@@ -566,8 +563,9 @@ void Server::update(float delta) {
         for (auto&& b : mBullets) {
             auto p = b.second.getBound().center;
             for (auto&& mu : update.units)
-                if (!mu.second.isDied() && p.distanceSquared(mu.second.getNode()->getTranslation())
-                    < mu.second.getKind().getFOV()) {
+                if ((b.second.getGroup() == mu.second.getGroup()) || 
+                    (!mu.second.isDied() && p.distanceSquared(mu.second.getNode()->getTranslation())
+                    <= (p.y >= 0.0f ? mu.second.getKind().getFOV() : mu.second.getKind().getSound()))) {
                     bullets.push_back({ b.first,b.second.getKind(),p,b.second.getNode()->getRotation() });
                     break;
                 }
@@ -582,13 +580,18 @@ void Server::update(float delta) {
         send(choose, data, PacketPriority::HIGH_PRIORITY);
     }
 
-    //update weight
-    if (updateWeight) {
-        RakNet::BitStream weight;
-        weight.Write(ServerMessage::updateWeight);
+    //update state
+    {
+        RakNet::BitStream data;
+        data.Write(ServerMessage::updateState);
         for (auto&& x : update.weight)
-            weight.Write(x);
-        send(choose, weight, PacketPriority::MEDIUM_PRIORITY);
+            data.Write(x);
+        float now = Game::getAbsoluteTime();
+        for (auto&& k : update.key) {
+            ProducingSyncInfo info{ k,mKey[k].id,std::max((mKey[k].time-now)/1000.0f,0.0f) };
+            data.Write(info);
+        }
+        send(choose, data, PacketPriority::MEDIUM_PRIORITY);
     }
 }
 

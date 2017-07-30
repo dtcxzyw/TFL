@@ -23,14 +23,17 @@ void AudioManager::voice(const char * name, Vector3 pos, std::vector<uint32_t> a
         for (auto&& x : format) {
             if (x == "arg") {
                 if (cnt >= args.size())INFO("Error format");
-                std::string id = to_string(args[cnt]);
-                for (auto&& y : id)
-                    last.push({ y });
-                ++cnt;
+                else {
+                    std::string id = to_string(args[cnt]+10);
+                    for (auto&& y : id)
+                        last.push({ y });
+                    ++cnt;
+                }
             }
             else last.emplace(x);
         }
         mVoice.push_back({ nullptr,last });
+        mState[name] = true;
         if (args.size())
             mHistory.insert(args.front());
 }
@@ -123,7 +126,7 @@ void AudioManager::voice(CodeType type, std::vector<uint32_t> args) {
 
 void AudioManager::voice(StateType type,uint32_t id, Vector3 pos, std::vector<uint32_t> args) {
     if (audioLevel >= 3 && localClient->isMine(id) && 
-        (mLast.find(id)==mLast.cend() || mLast[id]!=type)) {
+        (mLast.find(id)==mLast.cend() || mLast[id]!=type) && !mState[enum2string(type)]) {
         voice(enum2string(type), pos, args);
         mLast[id] = type;
     }
@@ -150,6 +153,7 @@ begin2:
     for (auto i = mVoice.begin(); i != mVoice.end(); ++i)
         if (!i->current || i->current->getState() == AudioSource::State::STOPPED) {
             if (i->last.empty()) {
+                mState[i->type] = false;
                 mVoice.erase(i);
                 goto begin2;
             }
@@ -172,4 +176,5 @@ void AudioManager::clear() {
     mVoiceFormat.clear();
     mHistory.clear();
     mLast.clear();
+    mState.clear();
 }

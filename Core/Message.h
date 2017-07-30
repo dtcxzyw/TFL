@@ -18,7 +18,7 @@ enum class ServerMessage : unsigned char {
     info,
     go,
     updateUnit,
-    updateWeight,
+    updateState,
     updateBullet,
 	changeSpeed,
     duang,
@@ -51,6 +51,12 @@ struct BulletSyncInfo final {
 struct DuangSyncInfo final {
     uint16_t kind;
     Vector3 pos;
+};
+
+struct ProducingSyncInfo final {
+    uint8_t key;
+    uint16_t kind;
+    float time;
 };
 
 extern uint64_t pakKey;

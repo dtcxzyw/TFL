@@ -22,11 +22,13 @@ private:
     struct Voice final {
         uniqueRAII<AudioSource> current;
         std::queue<std::string> last;
+        std::string type;
     };
     std::list<Voice> mVoice;
     std::map<std::string, std::vector<std::string>> mVoiceFormat;
     std::set<uint32_t> mHistory;
     std::map<uint32_t, StateType> mLast;
+    std::map<std::string, bool> mState;
     size_t mSize;
 
     void voice(const char* name, Vector3 pos, std::vector<uint32_t> args);

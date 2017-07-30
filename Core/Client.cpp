@@ -94,9 +94,9 @@ void Client::move(int x, int y) {
             data.Write(x);
         mPeer->Send(&data, PacketPriority::HIGH_PRIORITY,
             PacketReliability::RELIABLE, 0, mServer, false);
-        uint32_t ix = static_cast<uint32_t>(p.x+mapSizeHF)*16/mapSize;
+        uint32_t ix = static_cast<uint32_t>(p.x + mapSizeHF) * 16 / mapSize;
         uint32_t iy = static_cast<uint32_t>(p.y + mapSizeHF) * 16 / mapSize;
-        mAudio.voice(CodeType::to, {*mChoosed.begin(), ix * 16 + iy });
+        mAudio.voice(CodeType::to, { *mChoosed.begin(), ix * 16 + iy });
     }
 }
 
@@ -254,6 +254,7 @@ void Client::stop() {
     mDuang.clear();
     mChoosed.clear();
     mHotPoint.clear();
+    mProducingState.clear();
     RakNet::BitStream stream;
     stream.Write(ClientMessage::exit);
     mPeer->Send(&stream, PacketPriority::IMMEDIATE_PRIORITY, PacketReliability::RELIABLE_ORDERED
@@ -331,7 +332,7 @@ bool Client::update(float delta) {
                         mAudio.voice(CodeType::found, { u.id });
                 }
                 mUnits[u.id].setHP(u.HP);
-                if (u.group != mGroup && u.HP <= 0.0f) 
+                if (u.group != mGroup && u.HP <= 0.0f)
                     mAudio.voice(CodeType::success, { u.id });
 
                 if (u.size)
@@ -366,9 +367,13 @@ bool Client::update(float delta) {
                 mBullets.erase(x);
             }
         }
-        CheckHeader(ServerMessage::updateWeight) {
+        CheckHeader(ServerMessage::updateState) {
             for (auto& x : mWeight)
                 data.Read(x);
+            ProducingSyncInfo info;
+            mProducingState.clear();
+            while (data.Read(info))
+                mProducingState.emplace_back(info);
         }
         CheckHeader(ServerMessage::duang) {
             if (!enableParticle)continue;
@@ -425,21 +430,35 @@ bool Client::update(float delta) {
         choosed.swap(mChoosed);
     }
 
-    auto label = dynamic_cast<Label*>(mStateInfo->getControl(0U));
-    if (mChoosed.size()) {
-        std::string str = "Choosed " + to_string(mChoosed.size());
-        if (mChoosed.size() == 1) {
-            auto& u = mUnits[*mChoosed.begin()];
-            str += "\nHP " + to_string(static_cast<int32_t>(u.getHP()))
-                + "/" + to_string(static_cast<int32_t>(u.getKind().getHP()));
-            if (u.getKind().getLoading())
-                str += "\nLoad " + to_string(mLoadSize[u.getID()])
-                + "/" + to_string(u.getKind().getLoading());
+    {
+        auto label = dynamic_cast<Label*>(mStateInfo->getControl(0U));
+        std::string str;
+        {
+            auto pos = mCamera->getNode()->getTranslation();
+            for (auto&& x : mProducingState) {
+                auto&& u = getUnit(x.kind);
+                uint32_t t = u.getTime() / 1000.0f;
+                uint32_t p = x.time*100.0f / t;
+                str += "\nThe key " + to_string(static_cast<uint16_t>(x.key)+1) + " is producing " + 
+                    u.getName() + ' ' + to_string(100U - p)
+                    + "% (" + to_string(static_cast<uint32_t>(x.time)) + '/' + to_string(t) + ")";
+            }
+        }
+
+        if (mChoosed.size()) {
+            str += "\nChoosed " + to_string(mChoosed.size());
+            if (mChoosed.size() == 1) {
+                auto& u = mUnits[*mChoosed.begin()];
+                str += "\nHP " + to_string(static_cast<int32_t>(u.getHP()))
+                    + "/" + to_string(static_cast<int32_t>(u.getKind().getHP()));
+                if (u.getKind().getLoading())
+                    str += "\nLoad " + to_string(mLoadSize[u.getID()])
+                    + "/" + to_string(u.getKind().getLoading());
+            }
         }
         label->setText(str.c_str());
+        mStateInfo->update(delta);
     }
-    else label->setText("");
-    mStateInfo->update(delta);
 
     mAudio.update();
 
@@ -792,7 +811,7 @@ void Client::endPoint(int x, int y) {
                     }
                 }
 
-            if (choosed.size()&& (mine.size() || mChoosed.size())) {
+            if (choosed.size() && (mine.size() || mChoosed.size())) {
                 for (auto&& x : mine)
                     mChoosed.insert(x);
 
@@ -867,7 +886,7 @@ void Client::endPoint(int x, int y) {
                     }
                     mPeer->Send(&data, PacketPriority::HIGH_PRIORITY,
                         PacketReliability::RELIABLE_ORDERED, 0, mServer, false);
-                    mAudio.voice(CodeType::attack, { *mChoosed.begin(),choosed});
+                    mAudio.voice(CodeType::attack, { *mChoosed.begin(),choosed });
                 }
             }
             else move(x, y);
