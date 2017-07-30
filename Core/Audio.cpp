@@ -134,12 +134,9 @@ void AudioManager::voice(StateType type,uint32_t id, Vector3 pos, std::vector<ui
 
 void AudioManager::update() {
 
-begin1:
-    for (auto i = mSource.cbegin(); i != mSource.cend(); ++i)
-        if (i->first->getState() == AudioSource::State::STOPPED) {
-            mSource.erase(i);
-            goto begin1;
-        }
+    mSource.erase(std::remove_if(mSource.begin(), mSource.end(), [](auto&& x) {
+        return x.first->getState() == AudioSource::State::STOPPED;
+    }), mSource.end());
 
     auto pos = mListener->getTranslationWorld();
     for (auto&& s : mSource) {
@@ -149,13 +146,13 @@ begin1:
         s.first->setGain(gain*fac*(pos.y<0.0f?0.5f:1.0f));
     }
 
-begin2:
+begin:
     for (auto i = mVoice.begin(); i != mVoice.end(); ++i)
         if (!i->current || i->current->getState() == AudioSource::State::STOPPED) {
             if (i->last.empty()) {
                 mState[i->type] = false;
                 mVoice.erase(i);
-                goto begin2;
+                goto begin;
             }
             else {
                 i->current = 

@@ -76,6 +76,11 @@ void UI::controlEvent(Control * control, EventType evt) {
 
 void UI::update(float delta) {}
 
+void clearControls(Container* c) {
+    for (size_t i = 0; i < c->getControlCount(); ++i)
+        c->removeControl(0U);
+}
+
 MainMenu::MainMenu() :UI("Main") {}
 
 #define CMPID(id) (strcmp(id, control->getId()) == 0)
@@ -115,8 +120,7 @@ void AboutMenu::event(Control* control, Event evt) {
     if (evt == Event::PRESS && CMPID("clear")) {
         std::stringstream ss;
         nativeSwap(ss, logtext);
-        auto c = get<Container>("log");
-        const_cast<std::vector<Control*>&>(c->getControls()).clear();
+        clearControls(get<Container>("log"));
     }
     if (evt == Event::PRESS && CMPID("code"))
         Game::getInstance()->launchURL("https://github.com/dtcxzyw/TFL");
@@ -182,7 +186,7 @@ void PlayMenu::update(float flag) {
                     mServers.insert(packet->systemAddress.ToString(false));
             }
             auto c = get<Container>("servers");
-            const_cast<std::vector<Control*>&>(c->getControls()).clear();
+            clearControls(c);
             for (auto&& x : mServers) {
                 uniqueRAII<Button> button = Button::create(("@" + x).c_str());
                 button->setText(x.c_str());
@@ -194,7 +198,7 @@ void PlayMenu::update(float flag) {
             std::vector<std::string> maps;
             listDirs("res/maps", maps);
             auto c = get<Container>("maps");
-            const_cast<std::vector<Control*>&>(c->getControls()).clear();
+            clearControls(c);
             for (auto&& x : maps) {
                 uniqueRAII<Button> button = Button::create(("#" + x).c_str());
                 button->setText(x.c_str());

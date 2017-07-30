@@ -89,9 +89,9 @@ void unpackAllPacks() {
     INFO("Checking key");
     std::vector<std::string> paks;
     FileSystem::listFiles("paks", paks);
-    std::remove_if(paks.begin(), paks.end(),
+    paks.erase(std::remove_if(paks.begin(), paks.end(),
         [](const std::string& name) {return !(name.size() > 4
-            && name.substr(name.size() - 4, 4) == ".pak"); });
+            && name.substr(name.size() - 4, 4) == ".pak"); }),paks.end());
 
     uint64_t key = 0;
     struct PackInfo final {

@@ -1,3 +1,4 @@
+//Pause maintenance
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -217,8 +218,8 @@ public:
             }
         }
 
-        std::remove_if(mFree.begin(), mFree.end(),
-            [this](uint32_t id) {return mMine.find(id) == mMine.cend(); });
+        mFree.erase(std::remove_if(mFree.begin(), mFree.end(),
+            [this](uint32_t id) {return mMine.find(id) == mMine.cend(); }),mFree.end());
 
         if (mStep == Type::discover && mFree.size() > 5) {
             TeamInfo team;

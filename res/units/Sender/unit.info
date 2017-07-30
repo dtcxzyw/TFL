@@ -1,11 +1,11 @@
 HP = 200
 cost = 20
-FOV = 3000
+FOV = 2500
 plane= 10,10
 offset=0,-10,0
 radius=40
 AIType=load
-loading=5
+loading=10
 control
 {
 	type=CBG
@@ -13,7 +13,7 @@ control
 	RSX = 0.01
 	RSY = 0.01
 	v=150
-	dis = 2000
+	dis = 1500
 	time=0.2
 	harm=5
 	bullet=common

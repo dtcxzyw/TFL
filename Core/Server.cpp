@@ -345,7 +345,7 @@ void Server::update(float delta) {
 
     {
         auto now = Game::getAbsoluteTime();
-        auto i=std::remove_if(mDeferred.begin(), mDeferred.end(),
+        mDeferred.erase(std::remove_if(mDeferred.begin(), mDeferred.end(),
             [this, now](const DiedInfo& x) {
             if (now - x.time > 5000.0) {
                 auto& units = mGroups[x.group].units;
@@ -357,8 +357,7 @@ void Server::update(float delta) {
                 return true;
             }
             return false;
-        });
-        mDeferred.resize(i - mDeferred.begin());
+        }),mDeferred.end());
     }
 
     std::set<CheckInfo> newCheck;
