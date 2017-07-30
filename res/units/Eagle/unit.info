@@ -1,0 +1,26 @@
+HP = 200
+cost = 2
+FOV = 2000
+sound = 1500
+plane= 10,20
+offset=0,-10,0
+radius=40
+AIType=attack
+cross=true
+loading=2
+releaseOffset=-5,-10,0
+type=air
+control
+{
+	type=Copter
+	RSC=0.005
+	v=300
+	height = 100
+	dis=1500
+	time=0.5
+	bullet=rocket
+	harm=100
+	range=20
+	speed=700
+	offset=3
+}

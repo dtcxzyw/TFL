@@ -1,0 +1,24 @@
+scene Eagle
+{
+	node root
+	{
+		scale = 0.2,0.2,0.2
+		node base
+		{
+			url = res/units/Eagle/model.gpb#base
+			material = res/shared/Core/color.material
+		}
+		
+		node up
+		{
+			url = res/units/Eagle/model.gpb#up
+			material = res/shared/Core/color.material
+		}
+		
+		node rotate
+		{
+			url = res/units/Eagle/model.gpb#rotate
+			material = res/shared/Core/color.material
+		}
+	}
+}

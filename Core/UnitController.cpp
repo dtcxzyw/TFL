@@ -829,6 +829,106 @@ struct Ship final :public UnitController {
         return true;
     }
 };
+
+struct Copter final :public UnitController {
+    float RSC, v, height, dis, time, offset,count[2],fcnt,harm,range,speed;
+    std::string bullet;
+    Vector3 last,forward;
+    Copter(const Properties* info) :Init(RSC), Init(v), Init(height), Init(dis), Init(time), Init(offset),
+        bullet(info->getString("bullet")),fcnt(0.0f),Init(harm),Init(range),Init(speed)
+        ,forward(Vector3::unitZ()) {
+        v /= 1000.0f;
+        dis *= dis;
+        time *= 1000.0f;
+        count[0] = count[1] = 0.0f;
+    }
+
+    bool update(UnitInstance& instance, float delta) override {
+
+        if (instance.isDied()) {
+            float x;
+            correct(instance, delta, fcnt, x);
+            return false;
+        }
+
+        auto node = instance.getNode();
+        auto now = instance.getNode()->getTranslation();
+        auto point =localClient->getPos(mObject);
+
+        for(auto i=0;i<2;++i)
+            count[i] = std::min(count[i] + delta, time + 0.1f);
+
+        if (mObject && !point.isZero()) {
+            auto in = point.distanceSquared(now) <= dis && point.y <= now.y;
+            auto ready = count[0] >= time || count[1] >= time;
+            if (mIsServer) {
+                if (in && ready) {
+                    auto left = node->getLeftVector().normalize();
+                    auto f = node->getForwardVector().normalize();
+                    for (auto i = 0; i<2; ++i)
+                        if (count[i] >= time) {
+                            count[i] = 0.0f;
+                            localServer->newBullet(BulletInstance(bullet, now +
+                                offset*left*(i-0.5f)*2.0f, point, f, speed, harm, range, instance.getGroup()));
+                        }
+                }
+            }
+            else {
+                if (in)localClient->getAudio().voice(StateType::in, instance.getID(), now, { mObject });
+                if (ready)localClient->getAudio().voice(StateType::ready, instance.getID(), now);
+                if (in&&ready) {
+                    for (auto i = 0; i<2; ++i)
+                        if (count[i] >= time) {
+                            count[i] = 0.0f;
+                            localClient->getAudio().voice(StateType::fire, instance.getID(), now);
+                        }
+                }
+            }
+        }
+
+        auto h = localClient->getHeight(now.x, now.z);
+        if (mDest.isZero()) {
+            if (h > 0.0f) {
+                float tmp;
+                correct(instance, delta, fcnt, tmp);
+            }
+            else {
+                correctVector(node, &Node::getUpVector, Vector3::unitY(), RSC*delta, 0.0f, RSC*delta);
+                node->translateUp(v*delta);
+            }
+        }
+        else {
+            h = std::max(h, 0.0f) + height;
+            Vector3 dest = { mDest.x,h,mDest.y };
+            auto offset = dest - now;
+            correctVector(node, &Node::getForwardVector,offset.normalize(), RSC*delta, RSC*delta,0.0f);
+            correctVector(node, &Node::getUpVector, Vector3::unitY(), 0.0f, 0.0f, RSC*delta);
+            node->translateUp((offset.y>0?v:-v)*delta);
+        }
+
+        if (!mIsServer) {
+            constexpr auto fac1 = 1.0f;
+            auto dis = last.distanceSquared(now);
+            node->findNode("up")->rotateY(dis*fac1);
+            last = now;
+            auto f = node->getForwardVector().normalize();
+            auto dot = forward.dot(f);
+            bool rotate = false;
+            {
+                node->rotateY(0.01f);
+                auto nf= node->getForwardVector().normalize();
+                auto ndot = forward.dot(nf);
+                if (ndot > dot)rotate = true;
+                node->rotateY(-0.01f);
+            }
+            constexpr auto fac2 = 1.0f;
+            node->findNode("rotate")->rotateY(std::acos(dis)*fac2);
+            forward = f;
+        }
+
+        return true;
+    }
+};
 #undef Init
 
 using factoryFunction = std::function<std::unique_ptr<UnitController>(const Properties *)>;
@@ -845,6 +945,7 @@ void UnitController::initAllController() {
     Model(TP);
     Model(Submarine);
     Model(Ship);
+    Model(Copter);
 #undef Model
 }
 
