@@ -6,6 +6,7 @@ offset=0,-10,0
 radius=60
 AIType=attack
 cross=true
+type=air
 control
 {
 	type=PBM

@@ -8,6 +8,7 @@ radius=45
 AIType=attack
 cross=true
 loading=5
+type=navy
 control
 {
 	type = Ship

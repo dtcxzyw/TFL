@@ -21,6 +21,7 @@ protected:
     auto get(const char* id) {
         return dynamic_cast<T*>(mForm->getControl(id));
     }
+    void UI::clearControls(Container* c);
 public:
 
     template<typename T>
@@ -91,6 +92,7 @@ public:
 class GameMain final :public UI {
 private:
     std::string mCurrent;
+    void choose(const char* type);
 public:
     GameMain();
     void event(Control* control, Event evt) override;

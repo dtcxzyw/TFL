@@ -6,7 +6,7 @@ class Unit final {
 private:
     float mHP,mTime,mFOV, mRadius,mSound;
     mutable uniqueRAII<Scene> mModel;
-    std::string mName;
+    std::string mName,mType;
     uniqueRAII<Properties> mInfo;
     Vector2 mPlane;
     Vector3 mOffset, mReleaseOffset;
@@ -27,6 +27,7 @@ public:
     uint32_t getLoading() const;
     Vector3 getReleaseOffset() const;
     float getSound() const;
+    std::string getType() const;
 };
 
 extern std::map<std::string,Unit> globalUnits;

@@ -381,11 +381,36 @@ form GameMain
 		valueTextPrecision = 0
 	}
 	
+	container type
+	{
+		layout=LAYOUT_FLOW 
+		width = 100%
+		height = 10%
+		image army
+		{
+			path=res/flags/army.png
+			width=33%
+			height=100%
+		}
+		image navy
+		{
+			path=res/flags/navy.png
+			width=33%
+			height=100%
+		}
+		image air
+		{
+			path=res/flags/air.png
+			width=33%
+			height=100%
+		}
+	}
+	
 	container units
 	{
 		layout = LAYOUT_VERTICAL
 		width = 100%
-		height = 60%
+		height = 50%
 		scroll = SCROLL_BOTH
 		scrollBarsAutoHide = true 
 	}

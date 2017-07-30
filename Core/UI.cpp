@@ -76,9 +76,11 @@ void UI::controlEvent(Control * control, EventType evt) {
 
 void UI::update(float delta) {}
 
-void clearControls(Container* c) {
-    for (size_t i = 0; i < c->getControlCount(); ++i)
+void UI::clearControls(Container* c) {
+    while(c->getControlCount()) {
+        removeListener(c->getControl(0U));
         c->removeControl(0U);
+    }
 }
 
 MainMenu::MainMenu() :UI("Main") {}
@@ -352,6 +354,20 @@ ServerMenu::~ServerMenu() {
     localServer.reset();
 }
 
+void GameMain::choose(const char * type) {
+    auto c = get<Container>("units");
+    clearControls(c);
+    for (auto&& u : globalUnits)
+        if (u.second.getType() == type) {
+            uniqueRAII<Button> button = Button::create("");
+            button->setText(u.first.c_str());
+            button->setWidth(1.0, true);
+            button->setTextAlignment(Font::Justify::ALIGN_VCENTER_HCENTER);
+            button->addListener(this, Event::PRESS);
+            c->addControl(button.get());
+        }
+}
+
 GameMain::GameMain() :UI("GameMain") {
     auto c = get<Container>("units");
 #ifdef ANDROID
@@ -369,7 +385,7 @@ GameMain::GameMain() :UI("GameMain") {
         bs->addControl(u.get());
         bs->addControl(d.get());
         mForm->insertControl(bs.get(), 2);
-        c->setHeight(0.4f, true);
+        c->setHeight(c->getHeight() / mForm->getHeight() - 0.2f, true);
         uniqueRAII<Button> b = Button::create("cancel");
         b->setText("Cancel");
         b->setWidth(1.0f, true);
@@ -377,15 +393,8 @@ GameMain::GameMain() :UI("GameMain") {
         mForm->addControl(b.get());
     }
 #endif // ANDROID
-    for (auto&& u : globalUnits) {
-        uniqueRAII<Button> button = Button::create("");
-        button->setText(u.first.c_str());
-        button->setWidth(1.0, true);
-        button->setTextAlignment(Font::Justify::ALIGN_VCENTER_HCENTER);
-        button->addListener(this, Event::PRESS);
-        c->addControl(button.get());
-    }
-    mCurrent = globalUnits.cbegin()->first;
+    choose("army");
+    mCurrent = c->getControl(0U)->getId();
     get<Label>("weight")->setText(("Weight " + mCurrent).c_str());
 }
 
@@ -397,6 +406,8 @@ void GameMain::event(Control * control, Event evt) {
     }
     else if (evt == Event::VALUE_CHANGED && CMPID("weight"))
         localClient->changeWeight(mCurrent, dynamic_cast<Slider*>(control)->getValue());
+    else if (evt == Event::PRESS && control->getTypeName() == "ImageControl"s)
+        choose(control->getId());
 #ifdef ANDROID
     else if (evt == Event::PRESS && CMPID("up"))
         localClient->scaleEvent(100.0f);
