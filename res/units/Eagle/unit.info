@@ -15,12 +15,12 @@ control
 	type=Copter
 	RSC=0.005
 	v=300
-	height = 100
+	height = 300
 	dis=1500
 	time=0.5
-	bullet=rocket
+	missile=rocket
 	harm=100
-	range=20
-	speed=700
+	range=10
+	speed=600
 	offset=6
 }

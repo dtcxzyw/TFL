@@ -97,18 +97,20 @@ void BulletInstance::update(float delta) {
             correctVector(mNode.get(), &Node::getForwardVector, f.normalize(),
                 mAngle*delta, mAngle*delta, 0.0f);
             mNode->translateForward(mSpeed*delta);
+            mNode->rotateZ(mAngle*delta);
         }
     }
     else {
         mCnt += delta;
+        auto now = mNode->getTranslation();
         if (mCnt > 0.3f*mTime) {
             constexpr auto angle = 0.01f;
-            auto f =mEnd-mNode->getTranslation();
+            auto f =mEnd-now;
             f.y = std::min(f.y, 0.0f);
             correctVector(mNode.get(), &Node::getForwardVector, f.normalize(),
                 angle*delta, angle*delta, 0.0f);
         }
-        auto dis = mEnd.distance(mNode->getTranslation());
+        auto dis = mEnd.distance(now);
         if(dis>=mHitRadius)
             mNode->translateForward(std::min(mSpeed*delta, dis));
         else

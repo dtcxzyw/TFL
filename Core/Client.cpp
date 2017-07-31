@@ -447,10 +447,16 @@ bool Client::update(float delta) {
 
         if (mChoosed.size()) {
             str += "\nChoosed " + to_string(mChoosed.size());
+            float cnt=0.0f, tot=0.0f;
+            for (auto&& x : mChoosed) {
+                auto& u = mUnits[x];
+                cnt +=std::max(u.getHP(),0.0f);
+                tot += u.getKind().getHP();
+            }
+            str += "\nHP " + to_string(static_cast<int32_t>(cnt))
+                + "/" + to_string(static_cast<int32_t>(tot));
             if (mChoosed.size() == 1) {
                 auto& u = mUnits[*mChoosed.begin()];
-                str += "\nHP " + to_string(static_cast<int32_t>(u.getHP()))
-                    + "/" + to_string(static_cast<int32_t>(u.getKind().getHP()));
                 if (u.getKind().getLoading())
                     str += "\nLoad " + to_string(mLoadSize[u.getID()])
                     + "/" + to_string(u.getKind().getLoading());

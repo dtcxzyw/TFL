@@ -185,7 +185,7 @@ struct Tank final :public UnitController {
             sample = 0.0f;
         }
 
-        if (mObject && !point.isZero() && abs(point.y - now.y) <= 100.0f && bt <= 15.0f) {
+        if (mObject && abs(point.y - now.y) <= 100.0f && bt <= 15.0f) {
             auto obj = Vector2{ point.x,point.z } -np;
             obj.normalize();
             auto d = dot(yr, obj);
@@ -286,7 +286,7 @@ struct DET final :public UnitController {
         }
 
         float d = 0.0f;
-        if (mObject && !point.isZero()) {
+        if (mObject) {
             auto obj = point - now; obj.normalize();
             correctVector(ty, &Node::getForwardVectorWorld, obj, 0.0f, RSY*delta, 0.0f);
             auto limit = ty->getForwardVectorWorld().normalize()
@@ -374,7 +374,7 @@ struct CBM final :public UnitController {
             localClient->getAudio().voice(StateType::ready, instance.getID(), now);
         }
 
-        if (mObject && !point.isZero() && count >= time) {
+        if (mObject && count >= time) {
             if (mIsServer) {
                 auto m = node->findNode("missile");
                 localServer->newBullet(BulletInstance(missile, m->getTranslationWorld(), Vector3::zero(),
@@ -420,7 +420,7 @@ struct CBR final :public UnitController {
             sample = 0.0f;
         }
 
-        if (mObject && !point.isZero() && mIsServer) {
+        if (mObject && mIsServer) {
             auto d = now.distanceSquared(point);
             auto fov = instance.getKind().getFOV();
             localServer->attack(mObject, delta*harm*fov / d);
@@ -472,7 +472,7 @@ struct CBG final :public UnitController {
             sample = 0.0f;
         }
 
-        if (mObject && !point.isZero()) {
+        if (mObject) {
             auto obj = point - now; obj.normalize();
             correctVector(ty, &Node::getForwardVectorWorld, obj, 0.0f, RSY*delta, 0.0f);
             if (!onBack) {
@@ -566,7 +566,7 @@ struct PBM final :public UnitController {
         auto point = localClient->getPos(mObject);
         auto now = node->getTranslation();
 
-        if (mIsServer && mObject && !point.isZero() && count >= time) {
+        if (mIsServer && mObject && count >= time) {
             localServer->newBullet(BulletInstance(missile, now + instance.getKind().getOffset(),
                 Vector3::zero(), node->getForwardVectorWorld().normalize(), speed, harm, range,
                 instance.getGroup(), mObject, angle));
@@ -665,7 +665,7 @@ struct Submarine final :public UnitController {
         count = std::min(count + delta, time + 0.1f);
 
         auto point = localClient->getPos(mObject);
-        if (mObject && !point.isZero()) {
+        if (mObject) {
             bool in = point.distanceSquared(now) <= dis;
             if (!mIsServer) {
                 if (in)
@@ -757,7 +757,7 @@ struct Ship final :public UnitController {
         mcnt = std::min(mcnt + delta, time + 0.1f);
 
         auto point = localClient->getPos(mObject);
-        if (mObject && !point.isZero()) {
+        if (mObject) {
             bool in = point.distanceSquared(now) <= dis;
             auto off = point - t->getTranslationWorld();
             auto d = dot(t, Vector2{ off.x,off.z }.normalize());
@@ -832,10 +832,12 @@ struct Ship final :public UnitController {
 
 struct Copter final :public UnitController {
     float RSC, v, height, dis, time, offset,count[2],fcnt,harm,range,speed,ry;
-    std::string bullet;
+    std::string missile;
     Vector3 last;
+    bool onCritical;
     Copter(const Properties* info) :Init(RSC), Init(v), Init(height), Init(dis), Init(time), Init(offset),
-        bullet(info->getString("bullet")),fcnt(0.0f),Init(harm),Init(range),Init(speed),ry(0.0f) {
+        missile(info->getString("missile")),fcnt(0.0f),Init(harm),Init(range),Init(speed),ry(0.0f)
+        ,onCritical(false) {
         v /= 1000.0f;
         dis *= dis;
         time *= 1000.0f;
@@ -857,19 +859,30 @@ struct Copter final :public UnitController {
         for(auto i=0;i<2;++i)
             count[i] = std::min(count[i] + delta, time + 0.1f);
 
-        if (mObject && !point.isZero()) {
-            auto in = point.distanceSquared(now) <= dis && point.y <= now.y+100.0f;
+        auto h = localClient->getHeight(now.x, now.z);
+
+        if (mObject) {
+            auto f = node->getForwardVector().normalize();
+            auto off = point - now;
+            off.normalize();
+            auto in = point.distanceSquared(now) <= dis && point.y <= now.y+100.0f
+                && f.dot(off)>0.7f;
             auto ready = count[0] >= time || count[1] >= time;
             if (mIsServer) {
                 if (in && ready) {
                     auto left = node->getLeftVector().normalize();
-                    auto f = node->getForwardVector().normalize();
                     for (auto i = 0; i<2; ++i)
                         if (count[i] >= time) {
                             count[i] = 0.0f;
-                            localServer->newBullet(BulletInstance(bullet, now +
-                                offset*left*(i-0.5f)*2.0f, point, f, speed, harm, range, instance.getGroup()));
+                            localServer->newBullet(BulletInstance(missile, now + offset*left*(i - 0.5f)*2.0f,
+                                Vector3::zero(), f, speed, harm, range,
+                                instance.getGroup(), mObject, RSC));
                         }
+                }
+
+                if (mDest.isZero() && point.distanceSquared(now)<=instance.getKind().getFOV()) {
+                    correctVector(node, &Node::getForwardVector, off, 0.0f, RSC*delta, 0.0f);
+                    onCritical = true;
                 }
             }
             else {
@@ -884,17 +897,17 @@ struct Copter final :public UnitController {
                 }
             }
         }
+        else onCritical = false;
 
-        auto h = localClient->getHeight(now.x, now.z);
         if (mIsServer) {
             if (mDest.isZero()) {
-                if (h > 0.0f) {
+                if (h > 0.0f && !onCritical) {
                     float tmp;
                     correct(instance, delta, fcnt, tmp);
                 }
                 else {
                     correctVector(node, &Node::getUpVector, Vector3::unitY(), RSC*delta, 0.0f, RSC*delta);
-                    if (node->getTranslationY() < height)
+                    if (node->getTranslationY() < std::max(h,0.0f) + height)
                         node->translateUp(v*delta);
                 }
             }
