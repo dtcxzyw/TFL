@@ -90,7 +90,7 @@ MainMenu::MainMenu() :UI("Main") {}
 
 void MainMenu::event(Control* control, Event evt) {
     if (evt == Event::PRESS && CMPID("exit"))
-        Game::getInstance()->exit();
+        std::quick_exit(0);
     if (evt == Event::PRESS && CMPID("play"))
         push<PlayMenu>();
     if (evt == Event::PRESS && CMPID("about"))
@@ -366,6 +366,10 @@ void GameMain::choose(const char * type) {
             button->addListener(this, Event::PRESS);
             c->addControl(button.get());
         }
+    if (c->getControlCount()) {
+        mCurrent = dynamic_cast<Button*>(c->getControl(0U))->getText();
+        get<Slider>("weight")->setText(("Weight " + mCurrent).c_str());
+    }
 }
 
 GameMain::GameMain() :UI("GameMain") {
@@ -394,8 +398,6 @@ GameMain::GameMain() :UI("GameMain") {
     }
 #endif // ANDROID
     choose("army");
-    mCurrent = dynamic_cast<Button*>(c->getControl(0U))->getText();
-    get<Slider>("weight")->setText(("Weight " + mCurrent).c_str());
 }
 
 void GameMain::event(Control * control, Event evt) {

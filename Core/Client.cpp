@@ -439,7 +439,7 @@ bool Client::update(float delta) {
                 auto&& u = getUnit(x.kind);
                 uint32_t t = u.getTime() / 1000.0f;
                 uint32_t p = x.time*100.0f / t;
-                str += "\nThe key " + to_string(static_cast<uint16_t>(x.key)+1) + " is producing " + 
+                str += "\nThe key " + to_string(static_cast<uint16_t>(x.key) + 1) + " is producing " +
                     u.getName() + ' ' + to_string(100U - p)
                     + "% (" + to_string(static_cast<uint32_t>(x.time)) + '/' + to_string(t) + ")";
             }
@@ -674,10 +674,12 @@ void Client::render() {
     }
 }
 
-Vector3 Client::getPos(uint32_t id) {
+Vector3 Client::getPos(uint32_t& id) {
     auto i = mUnits.find(id);
-    if (i == mUnits.cend() || i->second.isDied())
+    if (i == mUnits.cend() || i->second.isDied()) {
+        id = 0;
         return Vector3::zero();
+    }
     return i->second.getNode()->getTranslation();
 }
 

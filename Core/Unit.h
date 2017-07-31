@@ -51,7 +51,7 @@ private:
     bool mIsServer;
     std::vector<std::pair<uint16_t,float>> mLoading;
     uint32_t mLoadTarget;
-    void updateMoveTarget();
+    Vector2 updateMoveTarget();
 public:
     UnitInstance() {
         throw;

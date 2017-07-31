@@ -917,13 +917,12 @@ struct Copter final :public UnitController {
         }
         else {
             auto up = node->getTranslationY() - 10.0f > h ? M_PI*delta: 0.0f;
-            constexpr auto fac1 = 0.005f;
-            auto dis = last.distanceSquared(now);
-            constexpr auto w = 0.9f;
-            ry = ry*w + (up + dis)*fac1*(1 - w);
-            node->findNode("up")->rotateY((up+dis)*fac1);
+            auto dis =last.isZero()?0.0f:last.distanceSquared(now);
+            constexpr auto w = 0.99f,fac=0.005f;
+            ry = ry*w + (up + dis)*fac*(1.0f - w);
+            node->findNode("up")->rotateY(ry);
             last = now;
-            node->findNode("rotate")->rotateY(up/300.0f);
+            node->findNode("rotate")->rotateY(ry);
         }
 
         return true;

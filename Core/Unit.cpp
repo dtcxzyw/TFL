@@ -2,6 +2,7 @@
 #include "Client.h"
 #include "Unit.h"
 #include <iterator>
+#include <future>
 
 std::map<std::string, Unit> globalUnits;
 
@@ -20,7 +21,7 @@ void Unit::operator=(const std::string& name) {
     mRadius = mInfo->getFloat("radius");
     mCross = mInfo->getBool("cross", false);
     mLoading = mInfo->getInt("loading");
-    if(mInfo->exists("releaseOffset"))
+    if (mInfo->exists("releaseOffset"))
         mInfo->getVector3("releaseOffset", &mReleaseOffset);
     mSound = mInfo->getFloat("sound");
     mType = mInfo->getString("type", "army");
@@ -31,7 +32,7 @@ std::string Unit::getName() const {
 }
 
 Node* Unit::getModel() const {
-    if (!mModel) 
+    if (!mModel)
         mModel = Scene::load(("/res/units/" + mName + "/model.scene").c_str());
     return mModel->findNode("root")->clone();
 }
@@ -95,7 +96,7 @@ void UnitInstance::setMoveTarget(Vector2 pos) {
         mController->setMoveTarget(pos);
     else {
         mTarget = pos;
-        updateMoveTarget();
+        mController->setMoveTarget(updateMoveTarget());
     }
 }
 
@@ -106,7 +107,7 @@ bool UnitInstance::update(float delta) {
     if (mPos.z < -mapSizeHF)mNode->setTranslationZ(-mapSizeHF);
     if (mPos.z > mapSizeHF)mNode->setTranslationZ(mapSizeHF);
     if (mIsServer && !mKind->canCross() && !isDied()) {
-        updateMoveTarget();
+        mController->setMoveTarget(updateMoveTarget());
         if (mPos.y < -10.0f)
             mHP -= 1000.0f;
     }
@@ -116,69 +117,53 @@ bool UnitInstance::update(float delta) {
 }
 
 BoundingSphere UnitInstance::getBound() const {
-    return {mNode->getTranslation(),mKind->getRadius()};
+    return { mNode->getTranslation(),mKind->getRadius() };
 }
 
 bool test(Vector2 b, Vector2 e) {
     if (e.x<-mapSizeHF || e.x>mapSizeHF || e.y<-mapSizeHF || e.y>mapSizeHF
         || localClient->getHeight(e.x, e.y) < 0.0f)
         return false;
-    auto dis = b.distance(e);
-    constexpr auto step = 10.0f;
-    if (dis <= step)return true;
-    for (auto i = step; i < dis; i += step) {
-        auto p = (b*i + e*(dis - i))/dis;
+    constexpr auto num = 16;
+    for (auto i = 1; i < num; ++i) {
+        auto p = (b*i + e*(num - i)) / num;
         if (localClient->getHeight(p.x, p.y) < 0.0f)
             return false;
     }
     return true;
 }
 
-Vector2 choose(Vector2 b, Vector2 m,Vector2 unit, float maxv) {
-    for(float r=1.0f;r<maxv;++r)
-        if(test(b,m+unit*r))
-            return m + unit*r;
+float choose(Vector2 b, Vector2 m, Vector2 unit, float maxv) {
+    for (float i = 1.0f; i < maxv; ++i) {
+        if (test(b, m + unit*i)) return i;
+        if (test(b, m - unit*i)) return -i;
+    }
+    return maxv;
 }
 
-void UnitInstance::updateMoveTarget() {
+Vector2 UnitInstance::updateMoveTarget() {
     Vector2 mp = { mPos.x,mPos.z };
-    if (mTarget.isZero() || mTarget.distanceSquared(mp) <= 16.0f) {
-        mTarget = {};
-        mController->setMoveTarget({});
-        return;
-    }
-    if (test(mp, mTarget) || mPos.y<=0.0f) {
-        mController->setMoveTarget(mTarget);
-        return;
-    }
+    if (mTarget.isZero() || mTarget.distanceSquared(mp) <= 16.0f)
+        return mTarget = {};
+    if (test(mp, mTarget) || mPos.y <= 0.0f) 
+        return mTarget;
     auto offset = mTarget - mp;
-    if (offset.x == 0.0f)offset.x = std::numeric_limits<float>::epsilon();
-    if (offset.y == 0.0f)offset.y = std::numeric_limits<float>::epsilon();
-    constexpr auto maxFac =128.0f;
-    auto fac = 1.0f;
-    while (fac <= maxFac) {
-        float w = 0.5f;
-        while (w >= 0.05f) {
-            auto mid = mTarget*w + mp*(1.0f - w);
-            Vector2 unit = { 1.0f,-offset.x / offset.y };
-            unit.normalize();
-            auto dis = offset.length()*fac;
-            auto p1 = choose(mp, mid, unit, dis);
-            auto p2 = choose(mp, mid, -unit, dis);
-            if (std::min(p1.distanceSquared(mid), p2.distanceSquared(mid)) <= dis*dis - 1.0f) {
-                mController->setMoveTarget(
-                    p1.distanceSquared(mid) < p2.distanceSquared(mid) ? p1 : p2);
-                return;
-            }
-            w *= 0.5f;
-        }
-        fac *= 2.0f;
+    if (offset.x == 0.0f)offset.x =1.0f;
+    if (offset.y == 0.0f)offset.y =1.0f;
+    Vector3 tmp = { offset.x,0.0f,offset.y };
+    tmp.cross(Vector3::unitY());
+    Vector2 unit = { tmp.x,tmp.z };
+    unit.normalize();
+    auto dis = offset.length()*10.0f;
+    float w = 0.5f;
+    while (w >= 0.01f) {
+        auto mid = mTarget*w + mp*(1.0f - w);
+        auto p = choose(mp, mid, unit, dis);
+        if (p<dis) return mid+unit*p;
+        w*=0.618f;
     }
 
-    if (fac> maxFac) {
-        mTarget = {};
-        mController->setMoveTarget({});
-    }
+    return mTarget = {};
 }
 
 void UnitInstance::setAttackTarget(uint32_t id) {
@@ -201,7 +186,7 @@ const Unit & UnitInstance::getKind() const {
 UnitInstance::UnitInstance(const Unit & unit, uint8_t group, uint32_t id,
     Scene* add, bool isServer, Vector3 pos)
     :mGroup(group), mHP(unit.getHP()), mNode(nullptr), mPID(id), mKind(&unit),
-    mDelta(0.0f),mIsServer(isServer),mLoadTarget(0),mPos(pos) {
+    mDelta(0.0f), mIsServer(isServer), mLoadTarget(0), mPos(pos) {
     mNode = unit.getModel();
     add->addNode(mNode.get());
     mNode->setTranslation(pos);
@@ -230,7 +215,7 @@ uint8_t UnitInstance::getGroup() const {
     return mGroup;
 }
 
-uint32_t UnitInstance::askID(){
+uint32_t UnitInstance::askID() {
     return ++cnt;
 }
 
@@ -239,10 +224,10 @@ uint32_t UnitInstance::getAttackTarget() const {
 }
 
 bool UnitInstance::isDied() const {
-    return mHP<=0.0f;
+    return mHP <= 0.0f;
 }
 
-Vector3 UnitInstance::getRoughPos() const{
+Vector3 UnitInstance::getRoughPos() const {
     return mPos;
 }
 
@@ -264,7 +249,7 @@ float UnitInstance::getHP() const {
 bool UnitInstance::tryLoad(const UnitInstance & rhs) {
     if (mLoading.size() >= mKind->getLoading() ||
         rhs.getKind().getLoading() || rhs.isDied())return false;
-    mLoading.emplace_back(getUnitID(rhs.getKind().getName()),rhs.getHP());
+    mLoading.emplace_back(getUnitID(rhs.getKind().getName()), rhs.getHP());
     return true;
 }
 

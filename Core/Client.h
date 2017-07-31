@@ -72,8 +72,10 @@ public:
     void stop();
     bool update(float delta);
     void render();
-    Vector3 getPos(uint32_t id);
+    Vector3 getPos(uint32_t& id);
     float getHeight(int x, int z) const;
+    AudioManager& getAudio();
+    bool isMine(uint32_t id) const;
     //UI
     void setViewport(uint32_t right);
     void changeWeight(const std::string& name,uint16_t weight);
@@ -87,8 +89,6 @@ public:
     void endPoint(int x, int y);
     void cancel();
     bool isPlaying() const;
-    AudioManager& getAudio();
-    bool isMine(uint32_t id) const;
 };
 
 extern std::unique_ptr<Client> localClient;
