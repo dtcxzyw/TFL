@@ -43,13 +43,16 @@ public:
         auto& r = const_cast<BulletInstance&>(rhs);
         mNode.swap(r.mNode);
         mHarm = rhs.mHarm;
+        mSpeed = rhs.mSpeed;
         mTime = rhs.mTime;
         mCnt = rhs.mCnt;
         mHitRadius=rhs.mHitRadius;
         mRadius = rhs.mRadius;
-        mBegin = rhs.mBegin;
         mEnd = rhs.mEnd;
         mKind = rhs.mKind;
+        mGroup = rhs.mGroup;
+        mObject = rhs.mObject;
+        mAngle = rhs.mAngle;
     }
 #endif
     void update(float delta);

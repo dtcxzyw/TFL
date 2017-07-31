@@ -21,7 +21,7 @@ protected:
     auto get(const char* id) {
         return dynamic_cast<T*>(mForm->getControl(id));
     }
-    void UI::clearControls(Container* c);
+    void clearControls(Container* c);
 public:
 
     template<typename T>

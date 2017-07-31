@@ -903,7 +903,7 @@ struct Copter final :public UnitController {
                 Vector3 dest = { mDest.x,h,mDest.y };
                 auto offset = dest - now;
                 offset.y = (offset.y > 0.0f ? -1.0f : 1.0f)*std::min(std::abs(offset.y),
-                    std::abs(std::hypot(offset.x, offset.z)*0.363f));
+                    std::abs(hypotf(offset.x, offset.z)*0.363f));
                 correctVector(node, &Node::getForwardVector, offset.normalize(), RSC*delta, RSC*delta, 0.0f);
                 correctVector(node, &Node::getUpVector, Vector3::unitY(), 0.0f, 0.0f, RSC*delta);
                 node->translateForward(v*delta);
