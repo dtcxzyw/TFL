@@ -268,8 +268,10 @@ protected:
         setMultiTouch(true);
 #endif // ANDROID
         setVsync(true);
-        setMultiSampling(true);
+        setMultiSampling(false);
         readSettings();
+
+        INFO("OpenGL exts:", glGetString(GL_EXTENSIONS));
 
         INFO("Loading resources...");
         br = std::make_unique<BindingResolver>();
@@ -315,7 +317,7 @@ protected:
             return;
 #endif
 
-        clear(CLEAR_COLOR_DEPTH, Vector4::zero(), 1.0f, 0);
+        clear(CLEAR_COLOR, Vector4::zero(), 1.0f, 0);
         if (localClient)localClient->render();
         else setViewport(gameplay::Rectangle(getWidth(), getHeight()));
         UI::render();
@@ -365,4 +367,8 @@ public:
             }
         }
     }
-    } game;
+    void resizeEvent(unsigned int width, unsigned int height) override {
+        if (localClient)
+            localClient->recreate(width, height);
+    }
+} game;

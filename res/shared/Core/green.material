@@ -69,7 +69,7 @@ material green
 			stencilOpDpfail = KEEP 
 			stencilOpDppass = REPLACE 
 			stencilFunc = ALWAYS
-			stencilFuncRef =1
+			stencilFuncRef =2
 			stencilTest = true
 			stencilWrite = 4294967295 
         }
@@ -115,7 +115,7 @@ material green
             depthTest = true
 			depthFunc = ALWAYS
 			stencilFunc = NOTEQUAL
-			stencilFuncRef = 1
+			stencilFuncRef = 2
 			stencilWrite = 0
 			stencilTest = true
 			stencilOpSfail = KEEP 

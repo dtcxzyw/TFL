@@ -49,7 +49,11 @@ private:
     uniqueRAII<Node> mLight;
     uniqueRAII<Node> mSky;
     uniqueRAII<Node> mWaterPlane;
-    uniqueRAII<DepthStencilTarget> mWaterBuffer;
+    uniqueRAII<FrameBuffer> mScreenBuffer;
+    uniqueRAII<Texture::Sampler> mScreenMap;
+    Vector2 mBlurOffset;
+    Vector2 getOffset() const;
+    const Texture::Sampler* getScreen() const;
 
     void drawNode(Node* node, const char* effect="shadow");
 
@@ -89,6 +93,7 @@ public:
     void endPoint(int x, int y);
     void cancel();
     bool isPlaying() const;
+    void recreate(uint32_t width, uint32_t height);
 };
 
 extern std::unique_ptr<Client> localClient;

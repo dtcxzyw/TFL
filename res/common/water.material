@@ -48,4 +48,60 @@ material water
             }
         }
     }
+	
+	technique blur
+    { 
+        renderState
+        {
+            cullFace = true
+            depthTest = false
+			blend = true
+			blendSrc = ONE
+			blendDst = ONE
+			
+			stencilOpSfail = KEEP 
+			stencilOpDpfail = KEEP 
+			stencilOpDppass = KEEP 
+			stencilFunc = EQUAL
+			stencilFuncRef = 1
+			stencilTest = true
+			stencilWrite = 0 
+        }
+        
+        pass
+        {
+            u_matrix = WORLD_VIEW_PROJECTION_MATRIX
+			u_texture=SCREEN
+			u_offset=OFFSET
+            
+            vertexShader = res/shaders/postprocessing.vert
+            fragmentShader = res/shaders/blur.frag
+        }
+    }
+	
+	technique none
+    { 
+        renderState
+        {
+            cullFace = true
+            depthTest = false
+			
+			stencilOpSfail = KEEP 
+			stencilOpDpfail = KEEP 
+			stencilOpDppass = KEEP 
+			stencilFunc = NOTEQUAL
+			stencilFuncRef = 1
+			stencilTest = true
+			stencilWrite = 0 
+        }
+        
+        pass
+        {
+            u_matrix = WORLD_VIEW_PROJECTION_MATRIX
+			u_texture=SCREEN
+            
+            vertexShader = res/shaders/postprocessing.vert
+            fragmentShader = res/shaders/none.frag
+        }
+    }
 }

@@ -17,6 +17,10 @@ bool Client::resolveAutoBinding(const char * autoBinding, Node * node, MaterialP
         parameter->bindValue(this, &Client::getMat);
     else if (CMP("BIAS"))
         parameter->setValue(bias);
+    else if (CMP("SCREEN"))
+        parameter->bindValue(this,&Client::getScreen);
+    else if (CMP("OFFSET"))
+        parameter->bindValue(this, &Client::getOffset);
     else return false;
 #undef CMP
     return true;
@@ -24,6 +28,14 @@ bool Client::resolveAutoBinding(const char * autoBinding, Node * node, MaterialP
 
 Matrix Client::getMat() const {
     return mLightSpace;
+}
+
+Vector2 Client::getOffset() const {
+    return mBlurOffset;
+}
+
+const Texture::Sampler * Client::getScreen() const {
+    return mScreenMap.get();
 }
 
 void Client::drawNode(Node * node, const char* effect) {
@@ -145,16 +157,15 @@ Client::Client(const std::string & server, bool& res) :
     auto f = -Vector3::one();
     correctVector(mLight.get(), &Node::getForwardVector, f.normalize(), M_PI, M_PI, 0.0f);
 
+    if (reflection > 0.0f) {
+        auto game = Game::getInstance();
+        recreate(game->getWidth(), game->getHeight());
+    }
+
     uniqueRAII<Scene> model = Scene::load("res/common/common.scene");
     mFlagModel = model->findNode("key")->clone();
     mWaterPlane = model->findNode("plane")->clone();
     mWaterPlane->scale(1.4f*mapSizeHF / mWaterPlane->getBoundingSphere().radius);
-
-    if (reflection > 0.0f) {
-        auto old = FrameBuffer::getCurrent();
-        mWaterBuffer = DepthStencilTarget::create("water",
-            DepthStencilTarget::DEPTH_STENCIL, old->getWidth(), old->getHeight());
-    }
 
     {
         mStateInfo = Form::create("label", Theme::getDefault()->getStyle("Label"));
@@ -447,10 +458,10 @@ bool Client::update(float delta) {
 
         if (mChoosed.size()) {
             str += "\nChoosed " + to_string(mChoosed.size());
-            float cnt=0.0f, tot=0.0f;
+            float cnt = 0.0f, tot = 0.0f;
             for (auto&& x : mChoosed) {
                 auto& u = mUnits[x];
-                cnt +=std::max(u.getHP(),0.0f);
+                cnt += std::max(u.getHP(), 0.0f);
                 tot += u.getKind().getHP();
             }
             str += "\nHP " + to_string(static_cast<int32_t>(cnt))
@@ -503,8 +514,12 @@ void Client::render() {
             drawNode(mScene->findNode("terrain"), depth);
 
             mScene->setActiveCamera(mCamera.get());
-            FrameBuffer::bindDefault();
         }
+
+        if (reflection > 0.0f) mScreenBuffer->bind();
+        else FrameBuffer::bindDefault();
+
+        game->clear(Game::CLEAR_COLOR_DEPTH_STENCIL, Vector4::zero(), 1.0f, 0);
 
         game->setViewport(rect);
         mCamera->setAspectRatio(rect.width / rect.height);
@@ -524,8 +539,6 @@ void Client::render() {
         for (auto&& x : mUnits)
             if (!x.second.isDied() && mChoosed.find(x.first) != mChoosed.cend())
                 list.emplace_back(x.second.getNode());
-
-        game->clear(Game::CLEAR_STENCIL, {}, 0.0f, 0);
 
         for (auto&& x : list)
             drawNode(x, "choosedShadow");
@@ -553,19 +566,19 @@ void Client::render() {
 
         drawNode(mSky.get());
 
-        uniqueRAII<DepthStencilTarget> old;
-        if (reflection > 0.0f) {
-            old = FrameBuffer::getCurrent()->getDepthStencilTarget();
-            FrameBuffer::getCurrent()->setDepthStencilTarget(mWaterBuffer.get());
-            game->clear(Game::CLEAR_STENCIL, {}, 0.0f, 0);
-        }
-
         glBlendColor(1.0f, 1.0f, 1.0f, waterAlpha);
         drawNode(mWaterPlane.get());
 
         if (reflection > 0.0f) {
+            mScreenBuffer->bind(GL_READ_FRAMEBUFFER);
+            FrameBuffer::bindDefault(GL_DRAW_FRAMEBUFFER);
+
+            glBlitFramebuffer(0, 0, rect.width, rect.height
+                , 0, 0, rect.width,rect.height
+                , GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+            mScreenBuffer->bind(GL_DRAW_FRAMEBUFFER);
+
             glBlendColor(1.0f, 1.0f, 1.0f, reflection);
-            auto cn = mCamera->getNode();
 
             game->clear(Game::CLEAR_DEPTH, {}, 1.0f, 0);
 
@@ -595,7 +608,14 @@ void Client::render() {
 
             drawNode(mSky.get(), water);
 
-            FrameBuffer::getCurrent()->setDepthStencilTarget(old.get());
+            //Postprocessing
+            FrameBuffer::bindDefault();
+            game->clear(Game::CLEAR_COLOR, Vector4::zero(), 1.0f, 0);
+            mBlurOffset = { 1.0f / rect.width,0.0f };
+            drawNode(mWaterPlane.get(), "blur");
+            mBlurOffset = { 0.0f,1.0f / rect.height };
+            drawNode(mWaterPlane.get(), "blur");
+            drawNode(mWaterPlane.get(), "none");
         }
 
         for (auto&& x : mBullets)
@@ -909,6 +929,17 @@ void Client::cancel() {
 
 bool Client::isPlaying() const {
     return mState;
+}
+
+void Client::recreate(uint32_t width, uint32_t height) {
+    mScreenBuffer = FrameBuffer::create("screen",width, height, Texture::RGBA8888);
+    uniqueRAII<DepthStencilTarget> DS = DepthStencilTarget::create("water", 
+        DepthStencilTarget::DEPTH_STENCIL, width, height);
+    mScreenBuffer->setDepthStencilTarget(DS.get());
+
+    mScreenMap = Texture::Sampler::create(mScreenBuffer->getRenderTarget()->getTexture());
+    mScreenMap->setWrapMode(Texture::Wrap::CLAMP, Texture::Wrap::CLAMP);
+    mScreenMap->setFilterMode(Texture::Filter::LINEAR, Texture::Filter::LINEAR);
 }
 
 AudioManager & Client::getAudio() {
