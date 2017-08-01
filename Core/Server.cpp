@@ -542,7 +542,7 @@ void Server::update(float delta) {
         for (auto&& x : update.units) {
             auto old = x.second.getAttackTarget();
             if (old && !getUnitPos(old).isZero())continue;
-            auto p = x.second.getNode()->getTranslation();
+            auto p = x.second.getRoughPos();
             float md = std::numeric_limits<float>::max();
             uint32_t maxwell = 0;
             for (auto&& y : saw)
@@ -638,14 +638,11 @@ void Server::newBullet(BulletInstance && bullet) {
 }
 
 Vector3 Server::getUnitPos(uint32_t id) const {
-    if (std::find_if(mDeferred.cbegin(), mDeferred.cend(),
-        [id](auto&& x) {return x.id == id; }) != mDeferred.cend())
-        return {};
     for (auto&& g : mGroups) {
         auto&& units = g.second.units;
         auto i = units.find(id);
         if (i != units.end())
-            return i->second.getNode()->getTranslation();
+            return i->second.isDied() ? Vector3{}:i->second.getNode()->getTranslation();
     }
     return {};
 }

@@ -1,0 +1,10 @@
+scene God
+{
+	node root
+	{
+		scale = 0.2,0.2,0.2
+		
+		url = res/units/God/model.gpb#root
+		material = res/shared/Core/color.material
+	}
+}

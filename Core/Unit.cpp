@@ -8,7 +8,7 @@ std::map<std::string, Unit> globalUnits;
 
 void Unit::operator=(const std::string& name) {
     mName = name;
-    INFO("Load unit ", name);
+    INFO("Loading unit ", name);
     std::string full = "/res/units/" + name + "/";
     mInfo = Properties::create((full + "unit.info").c_str());
     mHP = mInfo->getFloat("HP");
