@@ -28,8 +28,6 @@ material green
         pass
         {
             u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
-            u_inverseTransposeWorldViewMatrix = INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX
-            u_ambientColor = 0.0,0.0,0.0
             
             u_matrix = LIGHT_MATRIX
             u_model= WORLD_MATRIX 

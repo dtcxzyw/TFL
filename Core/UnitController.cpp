@@ -26,7 +26,7 @@ void correct(UnitInstance& instance, float delta, float& cnt, float& time) {
     auto p = node->getTranslation();
     auto b = p + kind.getOffset();
     auto h = localClient->getHeight(b.x, b.z);
-    if (b.y < h) {
+    if (b.y <= h) {
         Vector3 pos = { p.x,h - kind.getOffset().y,p.z };
         node->translateSmooth(pos,delta,100.0f);
         auto d = kind.getPlane();
@@ -69,6 +69,8 @@ void correct(UnitInstance& instance, float delta, float& cnt, float& time) {
     }
     else {
         node->translateY(-49.0f*(2.0f*cnt + delta)*delta / 1e6f);
+        if (node->getTranslationY() < h-kind.getOffset().y)
+            node->setTranslationY(h-kind.getOffset().y);
         cnt += delta;
     }
 }

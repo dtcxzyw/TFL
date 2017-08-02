@@ -2,7 +2,7 @@ HP = 800
 cost = 15
 FOV = 1000
 plane= 10,10
-offset=0,-10,0
+offset=0,-3,0
 radius=35
 AIType=defense
 control

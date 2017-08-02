@@ -235,7 +235,7 @@ Client::WaitResult Client::wait() {
 
             mScene = Scene::create();
             mCamera =
-                Camera::createPerspective(45.0f, Game::getInstance()->getAspectRatio(), 1.0f, 5000.0f);
+                Camera::createPerspective(45.0f, Game::getInstance()->getAspectRatio(), 1.0f, 10000.0f);
             mScene->addNode()->setCamera(mCamera.get());
             mScene->setActiveCamera(mCamera.get());
             mScene->addNode(mFlagModel.get());
@@ -290,17 +290,17 @@ bool Client::update(float delta) {
             auto back = node->getBackVector().normalize();
             auto up = node->getUpVector().normalize();
             auto len = u->second.getKind().getRadius()*10.0f;
-            auto pos = p + (back*2.0f + up)*len;
+            auto pos = p + (back*2.0f+up)*len;
             pos.y = std::max(getHeight(pos.x, pos.z) + 10.0f, pos.y);
             mCamera->getNode()->translateSmooth(pos, delta, 500.0f);
             auto off = p - pos;
-            off.normalize();
-            constexpr auto RV = 0.001f;
+            auto isNear = mCamera->getNode()->getTranslation().distanceSquared(pos)<10000.0f;
+            constexpr auto RV = 0.00005f;
+            auto r = isNear ? RV*delta : M_PI;
             correctVector(mCamera->getNode(), &Node::getForwardVector,
-                off, delta*RV, 0.0f, 0.0f);
-            correctVector(mCamera->getNode(), &Node::getForwardVector,
-                off, 0.0f, delta*RV, 0.0f);
-            correctVector(mCamera->getNode(), &Node::getUpVector, Vector3::unitY(), 0.0f, 0.0f, M_PI);
+                off.normalize(), r, r, 0.0f);
+            correctVector(mCamera->getNode(), &Node::getUpVector,
+                node->getUpVector().normalize(), 0.0f, 0.0f, r);
         }
         else mFollower = 0;
     }
@@ -733,15 +733,18 @@ void Client::render() {
                 }
             mMiniMapUnit->finish();
 
-            auto p1 = getPoint(0, 0)*fac,
-                p2 = getPoint(rect.width, rect.height)*fac;
-            float x1 = p1.x, y1 = p1.z, x2 = p2.x, y2 = p2.z;
-            if (x1 > x2)std::swap(x1, x2);
-            if (y1 > y2)std::swap(y1, y2);
-            gameplay::Rectangle range{ base.x + x1,base.y + y1,std::max(x2 - x1,16.0f),std::max(y2 - y1,16.0f) };
-            mRECT->start();
-            mRECT->draw(range, { 32,32 });
-            mRECT->finish();
+            if (!mFollower) {
+                auto p1 = getPoint(0, 0)*fac,
+                    p2 = getPoint(rect.width, rect.height)*fac;
+                float x1 = p1.x, y1 = p1.z, x2 = p2.x, y2 = p2.z;
+                if (x1 > x2)std::swap(x1, x2);
+                if (y1 > y2)std::swap(y1, y2);
+                gameplay::Rectangle range{ base.x + x1,base.y + y1
+                    ,std::max(x2 - x1,16.0f),std::max(y2 - y1,16.0f) };
+                mRECT->start();
+                mRECT->draw(range, { 32,32 });
+                mRECT->finish();
+            }
         }
 
         mStateInfo->draw();
@@ -971,6 +974,9 @@ void Client::endPoint(int x, int y) {
             }
             else move(x, y);
         }
+
+        if (mFollower && mUnits.find(mFollower)!=mUnits.cend() && !mUnits[mFollower].isDied())
+            mChoosed.insert(mFollower);
     }
     mBX = 0, mBY = 0;
 }

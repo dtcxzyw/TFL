@@ -267,7 +267,6 @@ void Server::update(float delta) {
     }
 
     //check state
-
     auto win = [this](uint8_t group) {
         RakNet::BitStream data;
         data.Write(ServerMessage::win);

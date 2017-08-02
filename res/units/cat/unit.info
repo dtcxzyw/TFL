@@ -2,7 +2,7 @@ HP = 60
 cost = 5
 FOV = 2000
 plane= 5,10
-offset=0,-8,0
+offset=0,-1,0
 radius=15
 AIType=discover
 control
