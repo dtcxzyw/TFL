@@ -51,8 +51,8 @@ private:
     uniqueRAII<Node> mWaterPlane;
     uniqueRAII<FrameBuffer> mScreenBuffer;
     uniqueRAII<Texture::Sampler> mScreenMap;
-    Vector2 mBlurOffset;
-    Vector2 getOffset() const;
+    Vector2 mBlurPixel;
+    Vector2 getPixel() const;
     const Texture::Sampler* getScreen() const;
 
     void drawNode(Node* node, const char* effect="shadow");

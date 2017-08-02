@@ -268,7 +268,7 @@ protected:
         setMultiTouch(true);
 #endif // ANDROID
         setVsync(true);
-        setMultiSampling(false);
+        setMultiSampling(true);
         readSettings();
 
         INFO("OpenGL exts:", glGetString(GL_EXTENSIONS));

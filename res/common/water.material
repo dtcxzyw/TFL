@@ -55,9 +55,6 @@ material water
         {
             cullFace = true
             depthTest = false
-			blend = true
-			blendSrc = ONE
-			blendDst = ONE
 			
 			stencilOpSfail = KEEP 
 			stencilOpDpfail = KEEP 
@@ -67,12 +64,12 @@ material water
 			stencilTest = true
 			stencilWrite = 0 
         }
-        
+		
         pass
         {
             u_matrix = WORLD_VIEW_PROJECTION_MATRIX
 			u_texture=SCREEN
-			u_offset=OFFSET
+			u_pixel=PIXEL
             
             vertexShader = res/shaders/postprocessing.vert
             fragmentShader = res/shaders/blur.frag

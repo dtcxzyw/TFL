@@ -19,8 +19,8 @@ bool Client::resolveAutoBinding(const char * autoBinding, Node * node, MaterialP
         parameter->setValue(bias);
     else if (CMP("SCREEN"))
         parameter->bindValue(this,&Client::getScreen);
-    else if (CMP("OFFSET"))
-        parameter->bindValue(this, &Client::getOffset);
+    else if (CMP("PIXEL"))
+        parameter->bindValue(this, &Client::getPixel);
     else return false;
 #undef CMP
     return true;
@@ -30,8 +30,8 @@ Matrix Client::getMat() const {
     return mLightSpace;
 }
 
-Vector2 Client::getOffset() const {
-    return mBlurOffset;
+Vector2 Client::getPixel() const {
+    return mBlurPixel;
 }
 
 const Texture::Sampler * Client::getScreen() const {
@@ -114,7 +114,7 @@ void Client::move(int x, int y) {
 
 Client::Client(const std::string & server, bool& res) :
     mPeer(RakNet::RakPeerInterface::GetInstance()), mServer(server.c_str(), 23333),
-    mState(false), mWeight(globalUnits.size(), 1), mSpeed(1.0f) {
+    mState(false), mWeight(globalUnits.size(), 1), mSpeed(1.0f),mRight(0) {
 
     RakNet::SocketDescriptor SD;
     mPeer->Startup(1, &SD, 1);
@@ -573,10 +573,10 @@ void Client::render() {
             mScreenBuffer->bind(GL_READ_FRAMEBUFFER);
             FrameBuffer::bindDefault(GL_DRAW_FRAMEBUFFER);
 
-            glBlitFramebuffer(0, 0, rect.width, rect.height
+            glBlitFramebuffer(0, 0,rect.width, rect.height
                 , 0, 0, rect.width,rect.height
                 , GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT, GL_NEAREST);
-            mScreenBuffer->bind(GL_DRAW_FRAMEBUFFER);
+            mScreenBuffer->bind();
 
             glBlendColor(1.0f, 1.0f, 1.0f, reflection);
 
@@ -611,9 +611,15 @@ void Client::render() {
             //Postprocessing
             FrameBuffer::bindDefault();
             game->clear(Game::CLEAR_COLOR, Vector4::zero(), 1.0f, 0);
-            mBlurOffset = { 1.0f / rect.width,0.0f };
+            mBlurPixel = { 1.0f / rect.width,0.0f };
             drawNode(mWaterPlane.get(), "blur");
-            mBlurOffset = { 0.0f,1.0f / rect.height };
+            drawNode(mWaterPlane.get(), "none");
+            mScreenBuffer->bind(GL_DRAW_FRAMEBUFFER);
+            FrameBuffer::bindDefault(GL_READ_FRAMEBUFFER);
+            glBlitFramebuffer(0, 0, rect.width, rect.height
+                , 0, 0, rect.width, rect.height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+            FrameBuffer::bindDefault();
+            mBlurPixel = { 0.0f,1.0f / rect.height };
             drawNode(mWaterPlane.get(), "blur");
             drawNode(mWaterPlane.get(), "none");
         }
@@ -713,7 +719,13 @@ float Client::getHeight(int x, int z) const {
     return mMap->getHeight(x, z);
 }
 
-void Client::setViewport(uint32_t right) { mRight = right; }
+void Client::setViewport(uint32_t right) { 
+    if (mRight != right) {
+        mRight = right;
+        auto game = Game::getInstance();
+        recreate(game->getWidth(), game->getHeight());
+    }
+}
 
 void Client::changeWeight(const std::string& name, uint16_t weight) {
     uint16_t id = getUnitID(name);
@@ -932,6 +944,8 @@ bool Client::isPlaying() const {
 }
 
 void Client::recreate(uint32_t width, uint32_t height) {
+    if (reflection == 0.0f)return;
+    width -= mRight;
     mScreenBuffer = FrameBuffer::create("screen",width, height, Texture::RGBA8888);
     uniqueRAII<DepthStencilTarget> DS = DepthStencilTarget::create("water", 
         DepthStencilTarget::DEPTH_STENCIL, width, height);
