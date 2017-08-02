@@ -64,6 +64,7 @@ private:
     bool checkCamera();
     std::set<uint32_t> mChoosed,mLastChoosed;
     void move(int x, int y);
+    uint32_t mFollower;
 
 public:
     Client(const std::string& server,bool& res);
@@ -92,6 +93,7 @@ public:
     void beginPoint(int x, int y);
     void endPoint(int x, int y);
     void cancel();
+    void follow();
     bool isPlaying() const;
     void recreate(uint32_t width, uint32_t height);
 };

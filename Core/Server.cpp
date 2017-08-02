@@ -338,7 +338,7 @@ void Server::update(float delta) {
                 else u.instance->setLoadTarget(0);
             }
 
-            if (u.instance->updateSum(delta))
+            if (u.instance->update(delta))
                 mCheck.insert(u);
         }
     }

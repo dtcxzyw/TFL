@@ -47,7 +47,6 @@ private:
     Vector3 mPos;
     Vector2 mTarget;
     std::unique_ptr<UnitController> mController;
-    float mDelta;
     bool mIsServer;
     std::vector<std::pair<uint16_t,float>> mLoading;
     uint32_t mLoadTarget;
@@ -81,7 +80,6 @@ public:
     uint32_t getAttackTarget() const;
     bool isDied() const;
     Vector3 getRoughPos() const;
-    bool updateSum(float delta);
     void setHP(float HP);
     float getHP() const;
     bool tryLoad(const UnitInstance& rhs);

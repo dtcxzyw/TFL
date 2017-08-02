@@ -371,4 +371,8 @@ public:
         if (localClient)
             localClient->recreate(width, height);
     }
+    void keyEvent(Keyboard::KeyEvent evt, int key) override{
+        if (localClient && evt == Keyboard::KEY_PRESS && key == Keyboard::KEY_F)
+            localClient->follow();
+    }
 } game;

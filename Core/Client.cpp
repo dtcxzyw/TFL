@@ -85,6 +85,7 @@ Vector3 Client::getPoint(int x, int y) const {
 }
 
 bool Client::checkCamera() {
+    if (mFollower)return false;
     auto game = Game::getInstance();
     auto rect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
     mCamera->setAspectRatio(rect.width / rect.height);
@@ -116,7 +117,7 @@ void Client::move(int x, int y) {
 
 Client::Client(const std::string & server, bool& res) :
     mPeer(RakNet::RakPeerInterface::GetInstance()), mServer(server.c_str(), 23333),
-    mState(false), mWeight(globalUnits.size(), 1), mSpeed(1.0f), mRight(0) {
+    mState(false), mWeight(globalUnits.size(), 1), mSpeed(1.0f), mRight(0), mFollower(0) {
 
     RakNet::SocketDescriptor SD;
     mPeer->Startup(1, &SD, 1);
@@ -157,18 +158,13 @@ Client::Client(const std::string & server, bool& res) :
     mLight->setCamera(light.get());
 
     Vector3 init{ 0.7f,-1.0f,0.7f };
-    correctVector(mLight.get(), &Node::getForwardVector,init.normalize(), M_PI, M_PI, 0.0f);
+    correctVector(mLight.get(), &Node::getForwardVector, init.normalize(), M_PI, M_PI, 0.0f);
     correctVector(mLight.get(), &Node::getUpVector, Vector3::unitY(), 0.0f, 0.0f, M_PI);
 
     if (reflection > 0.0f) {
         auto game = Game::getInstance();
         recreate(game->getWidth(), game->getHeight());
     }
-
-    uniqueRAII<Scene> model = Scene::load("res/common/common.scene");
-    mFlagModel = model->findNode("key")->clone();
-    mWaterPlane = model->findNode("plane")->clone();
-    mWaterPlane->scale(1.4f*mapSizeHF / mWaterPlane->getBoundingSphere().radius);
 
     {
         mStateInfo = Form::create("label", Theme::getDefault()->getStyle("Label"));
@@ -228,6 +224,15 @@ Client::WaitResult Client::wait() {
             data.Read(mSpeed);
         }
         CheckHeader(ServerMessage::go) {
+
+            //lazy load
+            if (!mFlagModel) {
+                uniqueRAII<Scene> model = Scene::load("res/common/common.scene");
+                mFlagModel = model->findNode("key")->clone();
+                mWaterPlane = model->findNode("plane")->clone();
+                mWaterPlane->scale(1.4f*mapSizeHF / mWaterPlane->getBoundingSphere().radius);
+            }
+
             mScene = Scene::create();
             mCamera =
                 Camera::createPerspective(45.0f, Game::getInstance()->getAspectRatio(), 1.0f, 5000.0f);
@@ -277,10 +282,37 @@ void Client::stop() {
 
 bool Client::update(float delta) {
 
-    if (checkCamera())
-        mCamera->getNode()->setTranslation(mCameraPos);
-    else
-        mCameraPos = mCamera->getNode()->getTranslation();
+    if (mFollower) {
+        auto u = mUnits.find(mFollower);
+        if (u != mUnits.cend() && !u->second.isDied()) {
+            auto node = u->second.getNode();
+            auto p = node->getTranslation();
+            auto back = node->getBackVector().normalize();
+            auto up = node->getUpVector().normalize();
+            auto len = u->second.getKind().getRadius()*10.0f;
+            auto pos = p + (back*2.0f + up)*len;
+            pos.y = std::max(getHeight(pos.x, pos.z) + 10.0f, pos.y);
+            mCamera->getNode()->translateSmooth(pos, delta, 500.0f);
+            auto off = p - pos;
+            off.normalize();
+            constexpr auto RV = 0.001f;
+            correctVector(mCamera->getNode(), &Node::getForwardVector,
+                off, delta*RV, 0.0f, 0.0f);
+            correctVector(mCamera->getNode(), &Node::getForwardVector,
+                off, 0.0f, delta*RV, 0.0f);
+            correctVector(mCamera->getNode(), &Node::getUpVector, Vector3::unitY(), 0.0f, 0.0f, M_PI);
+        }
+        else mFollower = 0;
+    }
+    else {
+        if (checkCamera())
+            mCamera->getNode()->setTranslation(mCameraPos);
+        else
+            mCameraPos = mCamera->getNode()->getTranslation();
+        correctVector(mCamera->getNode(), &Node::getForwardVector,
+            -Vector3::unitY(), M_PI, M_PI, 0.0f);
+        correctVector(mCamera->getNode(), &Node::getUpVector, -Vector3::unitZ(), 0.0f, 0.0f, M_PI);
+    }
 
     {
         mLight->rotateX(delta*0.000001f);
@@ -339,7 +371,7 @@ bool Client::update(float delta) {
                 data.Read(u);
                 auto oi = old.find(u.id);
                 if (oi != old.cend()) {
-                    mUnits[u.id].getNode()->setTranslation(u.pos);
+                    mUnits[u.id].getNode()->translateSmooth(u.pos, delta, 100.0f);
                     mUnits[u.id].getNode()->setRotation(u.rotation);
                     mUnits[u.id].setAttackTarget(u.at);
                     old.erase(oi);
@@ -774,13 +806,11 @@ void Client::moveEvent(float x, float y) {
 void Client::scaleEvent(float x) {
     if (mState) {
         auto node = mCamera->getNode();
-        auto pos = node->getTranslation();
-        auto height = mMap->getHeight(pos.x, pos.z);
-        if (pos.y + x > 10.0f && pos.y + x - 100.0f > height) {
-            node->translateY(x);
-            if (checkCamera())
-                node->translateY(-x);
-        }
+        auto old = node->getTranslation();
+        node->translateForward(-x);
+        auto p = node->getTranslation();
+        if (node->getTranslationY() <= std::max(getHeight(p.x, p.z), 0.0f) + 100.0f || checkCamera())
+            node->setTranslation(old);
     }
 }
 
@@ -947,6 +977,13 @@ void Client::endPoint(int x, int y) {
 
 void Client::cancel() {
     mChoosed.clear();
+}
+
+void Client::follow() {
+    if (mState && mChoosed.size() == 1 && !mFollower)
+        mFollower = *mChoosed.begin();
+    else
+        mFollower = 0;
 }
 
 bool Client::isPlaying() const {

@@ -111,8 +111,6 @@ bool UnitInstance::update(float delta) {
         if (mPos.y < -10.0f)
             mHP -= 1000.0f;
     }
-    delta += mDelta;
-    mDelta = 0.0f;
     return mController->update(*this, delta);
 }
 
@@ -186,7 +184,7 @@ const Unit & UnitInstance::getKind() const {
 UnitInstance::UnitInstance(const Unit & unit, uint8_t group, uint32_t id,
     Scene* add, bool isServer, Vector3 pos)
     :mGroup(group), mHP(unit.getHP()), mNode(nullptr), mPID(id), mKind(&unit),
-    mDelta(0.0f), mIsServer(isServer), mLoadTarget(0), mPos(pos) {
+    mIsServer(isServer), mLoadTarget(0), mPos(pos) {
     mNode = unit.getModel();
     add->addNode(mNode.get());
     mNode->setTranslation(pos);
@@ -229,12 +227,6 @@ bool UnitInstance::isDied() const {
 
 Vector3 UnitInstance::getRoughPos() const {
     return mPos;
-}
-
-bool UnitInstance::updateSum(float delta) {
-    mDelta += delta;
-    if (mDelta > 20.0f) return update(0.0f);
-    return false;
 }
 
 void UnitInstance::setHP(float HP) {

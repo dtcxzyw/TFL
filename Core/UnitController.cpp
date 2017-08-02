@@ -22,13 +22,14 @@ void UnitController::onDied(UnitInstance & instance) {}
 
 void correct(UnitInstance& instance, float delta, float& cnt, float& time) {
     auto node = instance.getNode();
-    auto kind = &instance.getKind();
+    auto&& kind = instance.getKind();
     auto p = node->getTranslation();
-    auto b = p + kind->getOffset();
+    auto b = p + kind.getOffset();
     auto h = localClient->getHeight(b.x, b.z);
     if (b.y < h) {
-        node->setTranslationY(h - kind->getOffset().y);
-        auto d = kind->getPlane();
+        Vector3 pos = { p.x,h - kind.getOffset().y,p.z };
+        node->translateSmooth(pos,delta,100.0f);
+        auto d = kind.getPlane();
 
         std::array<Vector2, 4> base =
         { Vector2{ b.x + d.x,b.z + d.y },
@@ -647,7 +648,8 @@ struct TP final :public UnitController {
                         fly(instance, mDest, h, v, delta, RSC, now);
                         h += std::max(localClient->getHeight(now.x, now.z), 0.0f);
                         if (h < node->getTranslationY()) {
-                            node->setTranslationY(h);
+                            auto p = node->getTranslation();
+                            node->translateSmooth({ p.x,h,p.y },delta,100.0f);
                             correctVector(instance.getNode(), &Node::getUpVector, Vector3::unitY(),
                                 M_PI, 0.0f, M_PI);
                         }
