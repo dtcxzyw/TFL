@@ -308,7 +308,7 @@ void Server::update(float delta) {
                 Vector3 p(pos.x, mMap.getHeight(pos.x, pos.y) + 10.0f, pos.y);
                 auto id = UnitInstance::askID();
                 mGroups[k.owner].units.
-                    insert({ id,std::move(UnitInstance{ getUnit(k.id), k.owner, id, mScene.get(), true, p }) });
+                    emplace(id,std::move(UnitInstance{ getUnit(k.id), k.owner, id, mScene.get(), true, p }));
                 mGroups[k.owner].units[id].update(0);
                 mCheck.insert({ id,k.owner,&mGroups[k.owner].units[id] });
                 chooseNew(k);

@@ -29,23 +29,29 @@ material green
         {
             u_worldViewProjectionMatrix = WORLD_VIEW_PROJECTION_MATRIX
             u_inverseTransposeWorldViewMatrix = INVERSE_TRANSPOSE_WORLD_VIEW_MATRIX
-            u_directionalLightDirection[0] = LIGHT_DIRECTION
-            u_directionalLightColor[0] = LIGHT_COLOR
             u_ambientColor = 0.0,0.0,0.0
             
-            u_shadowMap=SHADOW_MAP
             u_matrix = LIGHT_MATRIX
             u_model= WORLD_MATRIX 
-            u_mapSize =MAP_SIZE
+            u_mapSize =1
 			u_bias = BIAS
             
             vertexShader = res/shaders/textured.vert
             fragmentShader = res/shaders/textured.frag
-            defines = DIRECTIONAL_LIGHT_COUNT 1
 
             sampler u_diffuseTexture
             {
                 path = res/units/Xdog/ray.png
+                mipmap = false
+                wrapS = REPEAT
+                wrapT = REPEAT
+                minFilter = NEAREST
+                magFilter = NEAREST
+            }
+			
+			sampler u_shadowMap
+            {
+                path = res/common/white.png
                 mipmap = false
                 wrapS = REPEAT
                 wrapT = REPEAT

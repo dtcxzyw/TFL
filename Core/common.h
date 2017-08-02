@@ -68,16 +68,16 @@ void nativeSwap(T& a, T& b) {
 }
 
 extern std::mt19937_64 mt;
+class Client;
+extern std::unique_ptr<Client> localClient;
 
 struct BindingResolver final :private RenderState::AutoBindingResolver {
     bool resolveAutoBinding(const char* autoBinding, Node* node, MaterialParameter* parameter) override {
 #define CMP(x) (strcmp(autoBinding,x)==0)
         if (CMP("LIGHT_COLOR"))
             parameter->setValue(Vector3::one()*1.5f);
-        else if (CMP("LIGHT_DIRECTION")) {
-            auto dir = -Vector3::one();
-            parameter->setValue(dir.normalize());
-        }
+        else if (CMP("LIGHT_DIRECTION") && !localClient)
+            parameter->setValue(Vector3::zero());
         else return false;
 #undef CMP
         return true;

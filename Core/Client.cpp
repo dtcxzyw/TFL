@@ -18,9 +18,11 @@ bool Client::resolveAutoBinding(const char * autoBinding, Node * node, MaterialP
     else if (CMP("BIAS"))
         parameter->setValue(bias);
     else if (CMP("SCREEN"))
-        parameter->bindValue(this,&Client::getScreen);
+        parameter->bindValue(this, &Client::getScreen);
     else if (CMP("PIXEL"))
         parameter->bindValue(this, &Client::getPixel);
+    else if (CMP("LIGHT_DIRECTION"))
+        parameter->bindValue(mLight.get(), &Node::getForwardVectorView);
     else return false;
 #undef CMP
     return true;
@@ -114,7 +116,7 @@ void Client::move(int x, int y) {
 
 Client::Client(const std::string & server, bool& res) :
     mPeer(RakNet::RakPeerInterface::GetInstance()), mServer(server.c_str(), 23333),
-    mState(false), mWeight(globalUnits.size(), 1), mSpeed(1.0f),mRight(0) {
+    mState(false), mWeight(globalUnits.size(), 1), mSpeed(1.0f), mRight(0) {
 
     RakNet::SocketDescriptor SD;
     mPeer->Startup(1, &SD, 1);
@@ -154,8 +156,9 @@ Client::Client(const std::string & server, bool& res) :
     uniqueRAII<Camera> light = Camera::createOrthographic(1.0f, 1.0f, 1.0f, 1.0f, 2.0f);
     mLight->setCamera(light.get());
 
-    auto f = -Vector3::one();
-    correctVector(mLight.get(), &Node::getForwardVector, f.normalize(), M_PI, M_PI, 0.0f);
+    Vector3 init{ 0.7f,-1.0f,0.7f };
+    correctVector(mLight.get(), &Node::getForwardVector,init.normalize(), M_PI, M_PI, 0.0f);
+    correctVector(mLight.get(), &Node::getUpVector, Vector3::unitY(), 0.0f, 0.0f, M_PI);
 
     if (reflection > 0.0f) {
         auto game = Game::getInstance();
@@ -279,6 +282,14 @@ bool Client::update(float delta) {
     else
         mCameraPos = mCamera->getNode()->getTranslation();
 
+    {
+        mLight->rotateX(delta*0.000001f);
+        auto dir = mLight->getForwardVector().normalize();
+        auto atNight = dir.y >= 0.0f || dir.dot(-Vector3::unitY()) < 0.55f;
+        if (atNight)
+            mLight->rotateZ(M_PI);
+    }
+
 #ifdef WIN32
     if (!(mBX || mBY)) {
         auto game = Game::getInstance();
@@ -334,8 +345,8 @@ bool Client::update(float delta) {
                     old.erase(oi);
                 }
                 else {
-                    auto i = mUnits.insert({ u.id,
-                        std::move(UnitInstance{ getUnit(u.kind), u.group, u.id, mScene.get(), false, u.pos }) });
+                    auto i = mUnits.emplace(u.id,
+                        UnitInstance{ getUnit(u.kind), u.group, u.id, mScene.get(), false, u.pos });
                     i.first->second.getNode()->setRotation(u.rotation);
                     i.first->second.update(0);
                     i.first->second.setAttackTarget(u.at);
@@ -488,16 +499,15 @@ void Client::render() {
         auto rect = gameplay::Rectangle(game->getWidth() - mRight, game->getHeight());
 
         if (shadowSize > 1) {
-            static const char* depth = "depth";
+            constexpr auto depth = "depth";
             mDepth->bind();
             game->setViewport(gameplay::Rectangle(shadowSize, shadowSize));
-            game->clear(Game::CLEAR_COLOR_DEPTH, Vector4::one(), 1.0f, 1.0f);
+            game->clear(Game::CLEAR_COLOR_DEPTH, Vector4::one(), 1.0f, 0);
             auto y = mCamera->getNode()->getTranslationY();
             Matrix projection;
             auto p = getPoint(rect.width / 2, rect.height / 2);
-            auto fn = (Vector3::one()*100.0f).length();
-            Matrix::createOrthographic(y*2.0f, y*2.0f, 0.0f, fn*(y / 500.0f + 6.0f), &projection);
-            mLight->setTranslation(p + Vector3::one()*100.0f);
+            Matrix::createOrthographic(y*2.0f, y*2.0f, 0.0f, 170.0f*(y / 500.0f + 6.0f), &projection);
+            mLight->setTranslation(p + mLight->getBackVector()*100.0f);
             mLight->getCamera()->setProjectionMatrix(projection);
             mLightSpace = mLight->getCamera()->getViewProjectionMatrix();
             mScene->setActiveCamera(mLight->getCamera());
@@ -573,16 +583,16 @@ void Client::render() {
             mScreenBuffer->bind(GL_READ_FRAMEBUFFER);
             FrameBuffer::bindDefault(GL_DRAW_FRAMEBUFFER);
 
-            glBlitFramebuffer(0, 0,rect.width, rect.height
-                , 0, 0, rect.width,rect.height
-                , GL_DEPTH_BUFFER_BIT|GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+            glBlitFramebuffer(0, 0, rect.width, rect.height
+                , 0, 0, rect.width, rect.height
+                , GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
             mScreenBuffer->bind();
 
             glBlendColor(1.0f, 1.0f, 1.0f, reflection);
 
             game->clear(Game::CLEAR_DEPTH, {}, 1.0f, 0);
 
-            static const char* water = "water";
+            constexpr auto water = "water";
 
             mScene->setAmbientColor(-0.8f, -0.8f, -0.8f);
             for (auto&& x : mUnits)
@@ -719,7 +729,7 @@ float Client::getHeight(int x, int z) const {
     return mMap->getHeight(x, z);
 }
 
-void Client::setViewport(uint32_t right) { 
+void Client::setViewport(uint32_t right) {
     if (mRight != right) {
         mRight = right;
         auto game = Game::getInstance();
@@ -946,8 +956,8 @@ bool Client::isPlaying() const {
 void Client::recreate(uint32_t width, uint32_t height) {
     if (reflection == 0.0f)return;
     width -= mRight;
-    mScreenBuffer = FrameBuffer::create("screen",width, height, Texture::RGBA8888);
-    uniqueRAII<DepthStencilTarget> DS = DepthStencilTarget::create("water", 
+    mScreenBuffer = FrameBuffer::create("screen", width, height, Texture::RGBA8888);
+    uniqueRAII<DepthStencilTarget> DS = DepthStencilTarget::create("water",
         DepthStencilTarget::DEPTH_STENCIL, width, height);
     mScreenBuffer->setDepthStencilTarget(DS.get());
 
