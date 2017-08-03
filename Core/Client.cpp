@@ -612,13 +612,6 @@ void Client::render() {
 
         drawNode(mSky.get());
 
-        for (auto&& x : list) {
-            auto s = x->getScale();
-            x->scale(1.2f);
-            drawNode(x, "choosed");
-            x->setScale(s);
-        }
-
         glBlendColor(1.0f, 1.0f, 1.0f, waterAlpha);
         drawNode(mWaterPlane.get());
 
@@ -675,6 +668,13 @@ void Client::render() {
             mBlurPixel = { 0.0f,1.0f / rect.height };
             drawNode(mWaterPlane.get(), "blur");
             drawNode(mWaterPlane.get(), "none");
+        }
+
+        for (auto&& x : list) {
+            auto s = x->getScale();
+            x->scale(1.2f);
+            drawNode(x, "choosed");
+            x->setScale(s);
         }
 
         for (auto&& x : mBullets)

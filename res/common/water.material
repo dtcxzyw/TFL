@@ -7,15 +7,16 @@ material water
         {
             cullFace = true
             depthTest = true
+			depthWrite = false
 			blend = true
 			blendSrc = CONSTANT_ALPHA
 			blendDst = ONE_MINUS_CONSTANT_ALPHA
 			
 			stencilOpSfail = KEEP 
 			stencilOpDpfail = KEEP 
-			stencilOpDppass = REPLACE 
-			stencilFunc = ALWAYS
-			stencilFuncRef = 1
+			stencilOpDppass = INCR  
+			stencilFunc = NOTEQUAL
+			stencilFuncRef = 2
 			stencilTest = true
 			stencilWrite = 4294967295 
         }
