@@ -267,7 +267,6 @@ void Server::update(float delta) {
     }
 
     //check state
-    /*
     auto win = [this](uint8_t group) {
         RakNet::BitStream data;
         data.Write(ServerMessage::win);
@@ -295,8 +294,6 @@ void Server::update(float delta) {
                 win(g.first);
                 return;
             }
-
-    */
 
     //produce unit
     auto now = Game::getAbsoluteTime();
@@ -582,6 +579,7 @@ void Server::update(float delta) {
     }
 
     //update state
+    if(mt()%10==0)
     {
         RakNet::BitStream data;
         data.Write(ServerMessage::updateState);

@@ -838,6 +838,11 @@ struct Submarine final :public UnitController {
             }
         }
 
+        {
+            float tmp;
+            correct(instance, now.y >= 0.0f ? delta : 0.0f, fcnt, tmp);
+        }
+
         if (!mDest.isZero()) {
             if (mDest.distanceSquared({ now.x,now.z }) < 1e3f)
                 mDest = Vector2::zero();
@@ -859,11 +864,6 @@ struct Submarine final :public UnitController {
                 }
 
                 correctVector(node, &Node::getUpVector, Vector3::unitY(), 0.0f, 0.0f, M_PI);
-
-                {
-                    float tmp;
-                    correct(instance, now.y >= 0.0f ? delta : 0.0f, fcnt, tmp);
-                }
 
                 return true;
             }

@@ -291,8 +291,8 @@ bool Client::update(float delta) {
             auto back = node->getBackVector().normalize();
             auto up = node->getUpVector().normalize();
             auto len = bs.radius*3.0f;
-            auto pos = p + (back)*len;
-            pos.y = std::max(getHeight(pos.x, pos.z) + 0.0f, pos.y);
+            auto pos = p + (back+up)*len;
+            pos.y = std::max(getHeight(pos.x, pos.z) + 10.0f, pos.y);
             mCamera->getNode()->translateSmooth(pos, delta, 500.0f);
             auto off = p - pos;
             auto isNear = mCamera->getNode()->getTranslation().distanceSquared(pos) < 10000.0f;
@@ -492,11 +492,12 @@ bool Client::update(float delta) {
             auto pos = mCamera->getNode()->getTranslation();
             for (auto&& x : mProducingState) {
                 auto&& u = getUnit(x.kind);
-                uint32_t t = u.getTime() / 1000.0f;
+                float t = u.getTime() / 1000.0f / mSpeed;
                 uint32_t p = x.time*100.0f / t;
                 str += "\nThe key " + to_string(static_cast<uint16_t>(x.key) + 1) + " is producing " +
                     u.getName() + ' ' + to_string(100U - p)
-                    + "% (" + to_string(static_cast<uint32_t>(x.time)) + '/' + to_string(t) + ")";
+                    + "% (" + to_string(static_cast<uint32_t>(x.time))
+                    + '/' + to_string(static_cast<uint32_t>(t)) + ")";
             }
         }
 
