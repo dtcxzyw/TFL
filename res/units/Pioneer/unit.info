@@ -2,12 +2,12 @@ HP = 300
 cost = 20
 FOV = 1500
 plane= 10,20
-offset=0,-10,0
+offset=10
 radius=60
 AIType=load
 cross=true
 loading=15
-releaseOffset=0,-10,0
+releaseOffset=0,-20,0
 type=air
 control
 {

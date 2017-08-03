@@ -4,12 +4,12 @@
 
 class Unit final {
 private:
-    float mHP,mTime,mFOV, mRadius,mSound;
+    float mHP,mTime,mFOV, mRadius,mSound,mOffset;
     mutable uniqueRAII<Scene> mModel;
     std::string mName,mType;
     uniqueRAII<Properties> mInfo;
     Vector2 mPlane;
-    Vector3 mOffset, mReleaseOffset;
+    Vector3 mReleaseOffset;
     bool mCross;
     uint32_t mLoading;
 public:
@@ -21,7 +21,7 @@ public:
     float getFOV() const;
     const Properties* getControlInfo() const;
     Vector2 getPlane() const;
-    Vector3 getOffset() const;
+    float getOffset() const;
     float getRadius() const;
     bool canCross() const;
     uint32_t getLoading() const;

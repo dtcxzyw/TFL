@@ -16,7 +16,7 @@ void Unit::operator=(const std::string& name) {
     mFOV = mInfo->getFloat("FOV");
     mFOV *= mFOV;
     mInfo->getVector2("plane", &mPlane);
-    mInfo->getVector3("offset", &mOffset);
+    mOffset = mInfo->getFloat("offset");
     mPlane *= 0.5f;
     mRadius = mInfo->getFloat("radius");
     mCross = mInfo->getBool("cross", false);
@@ -57,7 +57,7 @@ Vector2 Unit::getPlane() const {
     return mPlane;
 }
 
-Vector3 Unit::getOffset() const {
+float Unit::getOffset() const {
     return mOffset;
 }
 

@@ -286,16 +286,17 @@ bool Client::update(float delta) {
         auto u = mUnits.find(mFollower);
         if (u != mUnits.cend() && !u->second.isDied()) {
             auto node = u->second.getNode();
+            auto bs = node->getBoundingSphere();
             auto p = node->getTranslation();
             auto back = node->getBackVector().normalize();
             auto up = node->getUpVector().normalize();
-            auto len = u->second.getKind().getRadius()*10.0f;
-            auto pos = p + (back*2.0f+up)*len;
-            pos.y = std::max(getHeight(pos.x, pos.z) + 10.0f, pos.y);
+            auto len = bs.radius*3.0f;
+            auto pos = p + (back)*len;
+            pos.y = std::max(getHeight(pos.x, pos.z) + 0.0f, pos.y);
             mCamera->getNode()->translateSmooth(pos, delta, 500.0f);
             auto off = p - pos;
-            auto isNear = mCamera->getNode()->getTranslation().distanceSquared(pos)<10000.0f;
-            constexpr auto RV = 0.00005f;
+            auto isNear = mCamera->getNode()->getTranslation().distanceSquared(pos) < 10000.0f;
+            constexpr auto RV = 0.00001f;
             auto r = isNear ? RV*delta : M_PI;
             correctVector(mCamera->getNode(), &Node::getForwardVector,
                 off.normalize(), r, r, 0.0f);
@@ -566,6 +567,14 @@ void Client::render() {
         game->setViewport(rect);
         mCamera->setAspectRatio(rect.width / rect.height);
 
+        mScene->setAmbientColor(0.3f, 0.0f, 0.0f);
+        std::vector<Node*> list;
+        for (auto&& x : mUnits)
+            if (!x.second.isDied() && mChoosed.find(x.first) != mChoosed.cend()) {
+                list.emplace_back(x.second.getNode());
+                drawNode(list.back(), "choosedShadow");
+            }
+
         mScene->setAmbientColor(-0.8f, -0.8f, -0.8f);
         for (auto&& x : mUnits)
             if (x.second.isDied())
@@ -576,21 +585,6 @@ void Client::render() {
             if (!x.second.isDied() && mChoosed.find(x.first) == mChoosed.cend()
                 && x.second.getGroup() == mGroup)
                 drawNode(x.second.getNode());
-
-        std::vector<Node*> list;
-        for (auto&& x : mUnits)
-            if (!x.second.isDied() && mChoosed.find(x.first) != mChoosed.cend())
-                list.emplace_back(x.second.getNode());
-
-        for (auto&& x : list)
-            drawNode(x, "choosedShadow");
-
-        for (auto&& x : list) {
-            auto s = x->getScale();
-            x->scale(1.2f);
-            drawNode(x, "choosed");
-            x->setScale(s);
-        }
 
         mScene->setAmbientColor(0.0f, 0.0f, 0.3f);
         for (auto&& x : mUnits)
@@ -607,6 +601,13 @@ void Client::render() {
         drawNode(mScene->findNode("terrain"));
 
         drawNode(mSky.get());
+
+        for (auto&& x : list) {
+            auto s = x->getScale();
+            x->scale(1.2f);
+            drawNode(x, "choosed");
+            x->setScale(s);
+        }
 
         glBlendColor(1.0f, 1.0f, 1.0f, waterAlpha);
         drawNode(mWaterPlane.get());
@@ -975,7 +976,7 @@ void Client::endPoint(int x, int y) {
             else move(x, y);
         }
 
-        if (mFollower && mUnits.find(mFollower)!=mUnits.cend() && !mUnits[mFollower].isDied())
+        if (mFollower && mUnits.find(mFollower) != mUnits.cend() && !mUnits[mFollower].isDied())
             mChoosed.insert(mFollower);
     }
     mBX = 0, mBY = 0;

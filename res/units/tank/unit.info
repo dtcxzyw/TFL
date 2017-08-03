@@ -2,7 +2,7 @@ HP = 200
 cost = 10
 FOV = 600
 plane= 5,10
-offset=0,-6,0
+offset=3
 radius=20
 AIType=attack
 control

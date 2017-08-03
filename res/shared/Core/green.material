@@ -113,7 +113,7 @@ material green
 		{
 		    cullFace = true
             depthTest = true
-			depthFunc = ALWAYS
+			depthWrite = false
 			stencilFunc = NOTEQUAL
 			stencilFuncRef = 2
 			stencilWrite = 0
