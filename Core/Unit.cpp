@@ -25,6 +25,12 @@ void Unit::operator=(const std::string& name) {
         mInfo->getVector3("releaseOffset", &mReleaseOffset);
     mSound = mInfo->getFloat("sound");
     mType = mInfo->getString("type", "army");
+    auto p = mInfo->getNamespace("control", true);
+    mMoveArg.x = p->getFloat("v")/1000.0f;
+    mMoveArg.y =std::min(p->getFloat("RSC"),static_cast<float>(M_PI/1000.0));
+    mMoveArg.z = p->getFloat("rfac");
+    if (mMoveArg.z == 0.0f)
+        mMoveArg.z = 1.0f;
 }
 
 std::string Unit::getName() const {
@@ -83,6 +89,10 @@ float Unit::getSound() const {
 
 std::string Unit::getType() const {
     return mType;
+}
+
+Vector3 Unit::getMoveArg() const {
+    return mMoveArg;
 }
 
 uint32_t UnitInstance::cnt = 0;
@@ -265,4 +275,22 @@ uint32_t UnitInstance::getLoadSize() const {
 
 bool UnitInstance::isStoped() const {
     return mController->isStoped();
+}
+
+void UnitInstance::move(Vector2 force) const {
+    auto arg = mKind->getMoveArg();
+    float fac = 1.0f;
+    if (force.y != 0.0f) fac = arg.z, mNode->rotateY(force.y*arg.y);
+    if (force.x != 0.0f) {
+        auto b = mPos + mNode->getDownVector().normalize()*mKind->getOffset();
+        if (b.y < localClient->getHeight(b.x, b.z)) {
+            auto f = mNode->getForwardVector().normalize();
+            auto base = -Vector3::unitY();
+            auto fd = f.dot(base.normalize());
+            if (force.x > 0)fd = 1.0f + fd;
+            else fd = 1.0f - fd;
+            fac *= fd;
+        }
+        mNode->translateForward(arg.x*fac*force.x);
+    }
 }

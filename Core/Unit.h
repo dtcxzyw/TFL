@@ -12,6 +12,7 @@ private:
     Vector3 mReleaseOffset;
     bool mCross;
     uint32_t mLoading;
+    Vector3 mMoveArg;
 public:
     void operator=(const std::string& name);
     std::string getName() const;
@@ -28,6 +29,7 @@ public:
     Vector3 getReleaseOffset() const;
     float getSound() const;
     std::string getType() const;
+    Vector3 getMoveArg() const;
 };
 
 extern std::map<std::string,Unit> globalUnits;
@@ -88,6 +90,7 @@ public:
     uint32_t getLoadTarget() const;
     uint32_t getLoadSize() const;
     bool isStoped() const;
+    void move(Vector2 force) const;
     //Client
     UnitInstance(const Unit& unit, uint8_t group, uint32_t id, Scene* add, bool isServer,Vector3 pos);
     uint8_t getGroup() const;

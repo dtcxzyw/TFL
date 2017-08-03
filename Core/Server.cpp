@@ -199,6 +199,17 @@ void Server::update(float delta) {
                     u->second.setMoveTarget(pos);
             }
         }
+        CheckHeader(ClientMessage::moveUnit) {
+            uint32_t id;
+            Vector2 force;
+            data.Read(id);
+            data.Read(force);
+            auto i = units.find(id);
+            if (i != units.cend()) {
+                i->second.move(force);
+                mCheck.insert({ id, group, &i->second });
+            }
+        }
         CheckHeader(ClientMessage::load) {
             uint32_t id;
             data.Read(id);
@@ -337,7 +348,7 @@ void Server::update(float delta) {
                 else u.instance->setLoadTarget(0);
             }
 
-            if (u.instance->update(delta))
+            if (u.instance->update(delta) || u.instance->isDied())
                 mCheck.insert(u);
         }
     }

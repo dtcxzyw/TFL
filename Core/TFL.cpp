@@ -229,6 +229,7 @@ private:
         INFO("Done.");
     }
 
+    int mIsPressed[4] = {};
 protected:
 
     void initialize() override {
@@ -286,6 +287,10 @@ protected:
     void finalize() override {}
 
     void update(float delta) override {
+        if (localClient) {
+            auto fz = mIsPressed[0]-mIsPressed[1], fx = mIsPressed[2]-mIsPressed[3];
+            localClient->moveFollower(fz, fx);
+        }
         UI::updateForm(delta);
         auto now = Game::getAbsoluteTime();
 
@@ -372,7 +377,38 @@ public:
             localClient->recreate(width, height);
     }
     void keyEvent(Keyboard::KeyEvent evt, int key) override{
-        if (localClient && evt == Keyboard::KEY_PRESS && key == Keyboard::KEY_F)
-            localClient->follow();
+        constexpr auto mv = 1.0f;
+        if (localClient) {
+            switch (evt) {
+            case Keyboard::KEY_PRESS:
+            {
+                switch (key) {
+                case Keyboard::KEY_F: localClient->follow(); break;
+                case Keyboard::KEY_W:mIsPressed[0] = 1; break;
+                case Keyboard::KEY_S:mIsPressed[1] = 1; break;
+                case Keyboard::KEY_A:mIsPressed[2] = 1; break;
+                case Keyboard::KEY_D:mIsPressed[3] = 1; break;
+                default:
+                    break;
+                }
+            }
+                break;
+            case Keyboard::KEY_RELEASE:
+            {
+                switch (key) {
+                case Keyboard::KEY_W:mIsPressed[0] = 0; break;
+                case Keyboard::KEY_S:mIsPressed[1] = 0; break;
+                case Keyboard::KEY_A:mIsPressed[2] = 0; break;
+                case Keyboard::KEY_D:mIsPressed[3] = 0; break;
+                default:
+                    break;
+                }
+            }
+                break;
+            default:
+                break;
+            }
+
+        }
     }
 } game;

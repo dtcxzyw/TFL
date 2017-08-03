@@ -281,38 +281,47 @@ void Client::stop() {
 }
 
 bool Client::update(float delta) {
+    {
+        auto cn = mCamera->getNode();
+        if (mFollower) {
+            auto u = mUnits.find(mFollower);
+            if (u != mUnits.cend() && !u->second.isDied()) {
+                auto node = u->second.getNode();
+                auto bs = node->getBoundingSphere();
+                auto p = node->getTranslation();
+                auto back = node->getBackVector().normalize();
+                auto up = node->getUpVector().normalize();
+                auto len = bs.radius*5.0f;
+                auto pos = p + (back*2.0f + up)*len;
+                pos.y = std::max(std::max(0.0f, getHeight(pos.x, pos.z)) + 10.0f, pos.y);
+                cn->translateSmooth(pos, delta, 100.0f);
+                auto off = p - cn->getTranslation();
+                auto RV = 0.001f*delta;
+                correctVector(cn, &Node::getForwardVector,
+                    off.normalize(), RV, RV, 0.0f);
+                correctVector(cn, &Node::getUpVector,
+                    node->getUpVector().normalize(), 0.0f, 0.0f,RV);
 
-    if (mFollower) {
-        auto u = mUnits.find(mFollower);
-        if (u != mUnits.cend() && !u->second.isDied()) {
-            auto node = u->second.getNode();
-            auto bs = node->getBoundingSphere();
-            auto p = node->getTranslation();
-            auto back = node->getBackVector().normalize();
-            auto up = node->getUpVector().normalize();
-            auto len = bs.radius*3.0f;
-            auto pos = p + (back+up)*len;
-            pos.y = std::max(getHeight(pos.x, pos.z) + 10.0f, pos.y);
-            mCamera->getNode()->translateSmooth(pos, delta, 500.0f);
-            auto off = p - pos;
-            auto isNear = mCamera->getNode()->getTranslation().distanceSquared(pos) < 10000.0f;
-            constexpr auto RV = 0.00001f;
-            auto r = isNear ? RV*delta : M_PI;
-            correctVector(mCamera->getNode(), &Node::getForwardVector,
-                off.normalize(), r, r, 0.0f);
-            correctVector(mCamera->getNode(), &Node::getUpVector,
-                node->getUpVector().normalize(), 0.0f, 0.0f, r);
+                if (!mForce.isZero()) {
+                    RakNet::BitStream data;
+                    data.Write(ClientMessage::moveUnit);
+                    data.Write(mFollower);
+                    data.Write(mForce*delta);
+                    mPeer->Send(&data, PacketPriority::MEDIUM_PRIORITY,
+                        PacketReliability::RELIABLE_ORDERED, 0, mServer, false);
+                }
+            }
+            else mFollower = 0;
         }
-        else mFollower = 0;
-    }
-    else {
-        if (checkCamera())
-            mCamera->getNode()->setTranslation(mCameraPos);
-        else
-            mCameraPos = mCamera->getNode()->getTranslation();
-        correctVector(mCamera->getNode(), &Node::getForwardVector,
-            -Vector3::unitY(), M_PI, M_PI, 0.0f);
-        correctVector(mCamera->getNode(), &Node::getUpVector, -Vector3::unitZ(), 0.0f, 0.0f, M_PI);
+        else {
+            if (checkCamera())
+                cn->setTranslation(mCameraPos);
+            else
+                mCameraPos = cn->getTranslation();
+            correctVector(cn, &Node::getForwardVector,
+                -Vector3::unitY(), M_PI, M_PI, 0.0f);
+            correctVector(cn, &Node::getUpVector, -Vector3::unitZ(), 0.0f, 0.0f, M_PI);
+        }
     }
 
     {
@@ -372,7 +381,7 @@ bool Client::update(float delta) {
                 data.Read(u);
                 auto oi = old.find(u.id);
                 if (oi != old.cend()) {
-                    mUnits[u.id].getNode()->translateSmooth(u.pos, delta, 100.0f);
+                    mUnits[u.id].getNode()->setTranslation(u.pos);
                     mUnits[u.id].getNode()->setRotation(u.rotation);
                     mUnits[u.id].setAttackTarget(u.at);
                     old.erase(oi);
@@ -985,6 +994,8 @@ void Client::endPoint(int x, int y) {
 
 void Client::cancel() {
     mChoosed.clear();
+    if (mFollower && mUnits.find(mFollower) != mUnits.cend() && !mUnits[mFollower].isDied())
+        mChoosed.insert(mFollower);
 }
 
 void Client::follow() {
@@ -1009,6 +1020,11 @@ void Client::recreate(uint32_t width, uint32_t height) {
     mScreenMap = Texture::Sampler::create(mScreenBuffer->getRenderTarget()->getTexture());
     mScreenMap->setWrapMode(Texture::Wrap::CLAMP, Texture::Wrap::CLAMP);
     mScreenMap->setFilterMode(Texture::Filter::LINEAR, Texture::Filter::LINEAR);
+}
+
+void Client::moveFollower(float z, float x) {
+    mForce.x = z;
+    mForce.y = x;
 }
 
 AudioManager & Client::getAudio() {

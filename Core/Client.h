@@ -30,7 +30,7 @@ private:
     std::map<uint32_t, UnitInstance> mUnits;
     std::map<uint32_t, BulletInstance> mBullets;
     uniqueRAII<Node> mFlagModel;
-    uint32_t mGroup;
+    uint8_t mGroup;
     float mSpeed;
     Vector3 mCameraPos;
     uniqueRAII<Form> mStateInfo;
@@ -65,6 +65,7 @@ private:
     std::set<uint32_t> mChoosed,mLastChoosed;
     void move(int x, int y);
     uint32_t mFollower;
+    Vector2 mForce;
 
 public:
     Client(const std::string& server,bool& res);
@@ -96,6 +97,7 @@ public:
     void follow();
     bool isPlaying() const;
     void recreate(uint32_t width, uint32_t height);
+    void moveFollower(float z, float x);
 };
 
 extern std::unique_ptr<Client> localClient;

@@ -9,6 +9,7 @@ enum class ClientMessage : unsigned char {
     changeWeight,
     setAttackTarget,
     setMoveTarget,
+    moveUnit,
     load,
     release
 };
