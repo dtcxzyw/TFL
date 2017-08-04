@@ -11,4 +11,5 @@ public:
     void set(Node* node);
     const std::vector<Vector2>& getKey() const;
     float getHeight(float x, float z) const;
+    Terrain* get() const;
 };

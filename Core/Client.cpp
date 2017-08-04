@@ -550,12 +550,39 @@ void Client::render() {
             mDepth->bind();
             game->setViewport(gameplay::Rectangle(shadowSize, shadowSize));
             game->clear(Game::CLEAR_COLOR_DEPTH, Vector4::one(), 1.0f, 0);
-            auto y = mCamera->getNode()->getTranslationY();
-            Matrix projection;
+            
+            auto t = mMap->get();
+            std::vector<BoundingBox> bbv;
+            bbv.reserve(t->getPatchCount());
+            mCamera->getNode()->setScale(2.0f);
+            auto f = mCamera->getFrustum();
+            mCamera->getNode()->setScale(1.0f);
+            for (unsigned int i = 0; i < t->getPatchCount(); ++i) {
+                auto bb = t->getPatch(i)->getBoundingBox(true);
+                if (f.intersects(bb))
+                    bbv.emplace_back(bb);
+            }
+
             auto p = getPoint(rect.width / 2, rect.height / 2);
-            Matrix::createOrthographic(y*2.0f, y*2.0f, 0.0f, 170.0f*(y / 500.0f + 6.0f), &projection);
-            mLight->setTranslation(p + mLight->getBackVector()*100.0f);
-            mLight->getCamera()->setProjectionMatrix(projection);
+            mLight->setTranslation(p + mLight->getBackVector().normalize()*1000.0f);
+            auto LC=mLight->getCamera();
+            LC->setNearPlane(1.0f), LC->setFarPlane(2.0f), LC->setAspectRatio(1.0f)
+                , LC->setZoomX(1.0f), LC->setZoomY(1.0f);
+
+            constexpr auto scale = 1.1f;
+            while (true) {
+                f = LC->getFrustum();
+                if (std::all_of(bbv.cbegin(), bbv.cend(), [f](auto&& x) {return f.intersects(x); }))
+                    break;
+                LC->setFarPlane(LC->getFarPlane()*scale);
+                LC->setZoomX(LC->getZoomX()*scale);
+                LC->setZoomY(LC->getZoomY()*scale);
+            }
+
+            LC->setFarPlane(LC->getFarPlane()*2.0f);
+            LC->setZoomX(LC->getZoomX()*2.0f);
+            LC->setZoomY(LC->getZoomY()*2.0f);
+
             mLightSpace = mLight->getCamera()->getViewProjectionMatrix();
             mScene->setActiveCamera(mLight->getCamera());
             for (auto&& x : mUnits)
@@ -648,7 +675,7 @@ void Client::render() {
             mScene->setAmbientColor(0.0f, 0.0f, 0.3f);
             for (auto&& x : mUnits)
                 if (!x.second.isDied() && x.second.getGroup() != mGroup)
-                    drawNode(x.second.getNode());
+                    drawNode(x.second.getNode(),water);
 
             mScene->setAmbientColor(0.0f, 0.0f, 0.0f);
 
