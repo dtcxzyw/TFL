@@ -15,8 +15,8 @@ material water
 			stencilOpSfail = KEEP 
 			stencilOpDpfail = KEEP 
 			stencilOpDppass = INCR  
-			stencilFunc = NOTEQUAL
-			stencilFuncRef = 2
+			stencilFunc = ALWAYS
+			stencilFuncRef = 1
 			stencilTest = true
 			stencilWrite = 4294967295 
         }
@@ -62,13 +62,13 @@ material water
 			stencilOpDppass = KEEP 
 			stencilFunc = EQUAL
 			stencilFuncRef = 1
+			stencilFuncMask  = 1
 			stencilTest = true
 			stencilWrite = 0 
         }
 		
         pass
         {
-            u_matrix = WORLD_VIEW_PROJECTION_MATRIX
 			u_texture=SCREEN
 			u_pixel=PIXEL
             
@@ -89,13 +89,13 @@ material water
 			stencilOpDppass = KEEP 
 			stencilFunc = NOTEQUAL
 			stencilFuncRef = 1
+			stencilFuncMask  = 1
 			stencilTest = true
 			stencilWrite = 0 
         }
         
         pass
         {
-            u_matrix = WORLD_VIEW_PROJECTION_MATRIX
 			u_texture=SCREEN
             
             vertexShader = res/shaders/postprocessing.vert

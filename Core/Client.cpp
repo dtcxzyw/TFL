@@ -164,6 +164,10 @@ Client::Client(const std::string & server, bool& res) :
     if (reflection > 0.0f) {
         auto game = Game::getInstance();
         recreate(game->getWidth(), game->getHeight());
+        uniqueRAII<Mesh> quad = Mesh::createQuadFullscreen();
+        mScreenQuad= Model::create(quad.get());
+        mScreenQuad->setMaterial("res/common/water.material");
+        mScreenQuad->getMaterial()->setNodeBinding(mLight.get());
     }
 
     {
@@ -616,6 +620,7 @@ void Client::render() {
         drawNode(mWaterPlane.get());
 
         if (reflection > 0.0f) {
+
             mScreenBuffer->bind(GL_READ_FRAMEBUFFER);
             FrameBuffer::bindDefault(GL_DRAW_FRAMEBUFFER);
 
@@ -654,20 +659,24 @@ void Client::render() {
 
             drawNode(mSky.get(), water);
 
+            auto drawScreen = [&] (auto&& t){
+                mScreenQuad->getMaterial()->setTechnique(t);
+                mScreenQuad->draw();
+            };
             //Postprocessing
             FrameBuffer::bindDefault();
             game->clear(Game::CLEAR_COLOR, Vector4::zero(), 1.0f, 0);
             mBlurPixel = { 1.0f / rect.width,0.0f };
-            drawNode(mWaterPlane.get(), "blur");
-            drawNode(mWaterPlane.get(), "none");
+            drawScreen("blur");
+            drawScreen("none");
             mScreenBuffer->bind(GL_DRAW_FRAMEBUFFER);
             FrameBuffer::bindDefault(GL_READ_FRAMEBUFFER);
             glBlitFramebuffer(0, 0, rect.width, rect.height
                 , 0, 0, rect.width, rect.height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
             FrameBuffer::bindDefault();
             mBlurPixel = { 0.0f,1.0f / rect.height };
-            drawNode(mWaterPlane.get(), "blur");
-            drawNode(mWaterPlane.get(), "none");
+            drawScreen("blur");
+            drawScreen("none");
         }
 
         for (auto&& x : list) {

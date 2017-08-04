@@ -67,6 +67,7 @@ material terrain
 			stencilOpDppass = KEEP
 			stencilFunc = EQUAL
 			stencilFuncRef =1
+			stencilFuncMask = 1
 			stencilTest = true
 			stencilWrite = 0 
         }

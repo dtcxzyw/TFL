@@ -51,6 +51,7 @@ private:
     uniqueRAII<Node> mWaterPlane;
     uniqueRAII<FrameBuffer> mScreenBuffer;
     uniqueRAII<Texture::Sampler> mScreenMap;
+    uniqueRAII<Model> mScreenQuad;
     Vector2 mBlurPixel;
     Vector2 getPixel() const;
     const Texture::Sampler* getScreen() const;

@@ -116,6 +116,7 @@ material color
 			depthWrite = false
 			stencilFunc = NOTEQUAL
 			stencilFuncRef = 2
+			stencilFuncMask  = 2
 			stencilWrite = 0
 			stencilTest = true
 			stencilOpSfail = KEEP 
@@ -148,6 +149,7 @@ material color
 			stencilOpDppass = KEEP 
 			stencilFunc = EQUAL
 			stencilFuncRef =1
+			stencilFuncMask  = 1
 			stencilTest = true
 			stencilWrite = 0 
         }
