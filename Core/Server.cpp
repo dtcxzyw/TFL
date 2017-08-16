@@ -197,8 +197,12 @@ void Server::update(float delta) {
                 auto u = units.find(id);
                 if (u != units.cend()) {
                     u->second.setMoveTarget(pos);
-                    if (u->second.getKind().getType() == "base")
-                        u->second.setAttackPos(pos);
+                    if (u->second.getKind().getType() == "base") {
+                        if (u->second.getAttackTarget() == pointID)
+                            u->second.setAttackTarget(0);
+                        else
+                            u->second.setAttackPos(pos);
+                    }
                 }
             }
         }
@@ -580,7 +584,7 @@ void Server::update(float delta) {
     //choose a nearest object
     for (auto&& x : update.units) {
         auto old = x.second.getAttackTarget();
-        if (old && !getUnitPos(old).isZero() && !x.second.getAttackPos().isZero())continue;
+        if (old && (!getUnitPos(old).isZero() || !x.second.getAttackPos().isZero()))continue;
         auto p = x.second.getRoughPos();
         float md = std::numeric_limits<float>::max();
         uint32_t maxwell = 0;

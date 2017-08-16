@@ -189,7 +189,7 @@ struct Tank final :public UnitController {
             sample = 0.0f;
         }
 
-        if (mObject && abs(point.y - now.y) <= 100.0f && bt <= 15.0f) {
+        if (mObject && point.y- now.y <= 200.0f && bt <= 15.0f) {
             auto obj = Vector2{ point.x,point.z } -np;
             obj.normalize();
             auto d = dot(yr, obj);
@@ -237,7 +237,6 @@ struct Tank final :public UnitController {
         else if (!onBack) {
             auto f = node->getForwardVector();
             correctVector(yr, &Node::getForwardVectorWorld, f.normalize(), 0.0f, RST*delta, 0.0f);
-            mObject = 0;
         }
 
         if (onBack) {
