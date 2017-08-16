@@ -6,7 +6,7 @@ offset=-10
 radius=80
 AIType=attack
 cross=true
-type=air
+type=base
 control
 {
 	type=PBM

@@ -81,7 +81,7 @@ BulletInstance::BulletInstance(uint16_t kind, Vector3 begin, Vector3 end,
 void BulletInstance::update(float delta) {
 
     if (mObject) {
-        auto p = localServer->getUnitPos(mObject);
+        auto p =mObject==pointID?mEnd :localServer->getUnitPos(mObject);
         if (p.isZero())mHitRadius = 1e10f;
         else {
             auto mp= mNode->getTranslation();

@@ -38,6 +38,7 @@ struct UnitSyncInfo final {
     Quaternion rotation;
     uint8_t group;
     uint32_t at;
+    Vector2 atp;
     uint32_t size;
     float HP;
 };
@@ -61,4 +62,8 @@ struct ProducingSyncInfo final {
 };
 
 extern uint64_t pakKey;
+
+constexpr auto pointID = std::numeric_limits<uint32_t>::max();
+constexpr auto typeOffset = std::numeric_limits<uint32_t>::max() >> 1;
+//[1,offset]->unit (offset,maxuint)->bullet maxunit->point
 

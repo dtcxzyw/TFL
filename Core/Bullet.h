@@ -38,23 +38,6 @@ public:
         float speed, float harm, float radius, uint8_t group, uint32_t obj=0,float angle=0.0f);
     BulletInstance(uint16_t kind, Vector3 begin,Vector3 end,
         float speed,float harm,float radius, uint8_t group, uint32_t obj=0,float angle=0.0f);
-#ifdef ANDROID
-    BulletInstance(const BulletInstance& rhs) {
-        auto& r = const_cast<BulletInstance&>(rhs);
-        mNode.swap(r.mNode);
-        mHarm = rhs.mHarm;
-        mSpeed = rhs.mSpeed;
-        mTime = rhs.mTime;
-        mCnt = rhs.mCnt;
-        mHitRadius=rhs.mHitRadius;
-        mRadius = rhs.mRadius;
-        mEnd = rhs.mEnd;
-        mKind = rhs.mKind;
-        mGroup = rhs.mGroup;
-        mObject = rhs.mObject;
-        mAngle = rhs.mAngle;
-    }
-#endif
     void update(float delta);
     BoundingSphere getHitBound();
     BoundingSphere getBound();

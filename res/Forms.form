@@ -389,19 +389,25 @@ form GameMain
 		image army
 		{
 			path=res/flags/army.png
-			width=33%
+			width=24%
 			height=100%
 		}
 		image navy
 		{
 			path=res/flags/navy.png
-			width=33%
+			width=24%
 			height=100%
 		}
 		image air
 		{
 			path=res/flags/air.png
-			width=33%
+			width=24%
+			height=100%
+		}
+		image base
+		{
+			path=res/flags/base.png
+			width=24%
 			height=100%
 		}
 	}

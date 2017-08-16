@@ -46,7 +46,7 @@ void correct(UnitInstance& instance, float delta, float& cnt, float& time) {
         std::array<Vector3, 4> sample;
         size_t idx = 0;
         for (auto&&x : base) {
-            auto sp = p+r*x.x+f*x.y;
+            auto sp = p + r*x.x + f*x.y;
             sample[idx] = { sp.x,localClient->getHeight(sp.x,sp.z),sp.z };
             ++idx;
         }
@@ -178,7 +178,7 @@ struct Tank final :public UnitController {
         auto c = node;
         auto yr = node->findNode("yr");
         auto t = yr->findNode("turret");
-        auto point = localClient->getPos(mObject);
+        auto point = instance.getPos(mObject);
         auto now = node->getTranslation();
         Vector2 np{ now.x,now.z };
 
@@ -279,7 +279,7 @@ struct DET final :public UnitController {
         auto c = node;
         auto ty = node->findNode("yr");
         auto t = ty->findNode("xr");
-        auto point = localClient->getPos(mObject);
+        auto point = instance.getPos(mObject);
         auto now = node->getTranslation();
         Vector2 np{ now.x,now.z };
 
@@ -363,7 +363,7 @@ struct CBM final :public UnitController {
         count = std::min(count, time + 0.1f);
 
         auto c = node;
-        auto point = localClient->getPos(mObject);
+        auto point = instance.getPos(mObject);
         auto now = node->getTranslation();
         Vector2 np{ now.x,now.z };
 
@@ -385,7 +385,7 @@ struct CBM final :public UnitController {
         if (mObject && count >= time && now.distanceSquared(point) <= dis) {
             if (mIsServer) {
                 auto m = node->findNode("missile");
-                localServer->newBullet(BulletInstance(missile, m->getTranslationWorld(), Vector3::zero(),
+                localServer->newBullet(BulletInstance(missile, m->getTranslationWorld(), point,
                     m->getForwardVectorWorld().normalize(), speed, harm, range, instance.getGroup()
                     , mObject, angle));
             }
@@ -417,7 +417,7 @@ struct CBR final :public UnitController {
         auto node = instance.getNode();
 
         auto c = node;
-        auto point = localClient->getPos(mObject);
+        auto point = instance.getPos(mObject);
         auto now = node->getTranslation();
         Vector2 np{ now.x,now.z };
 
@@ -469,7 +469,7 @@ struct CBG final :public UnitController {
         auto c = node;
         auto ty = node->findNode("yr");
         auto t = ty->findNode("xr");
-        auto point = localClient->getPos(mObject);
+        auto point = instance.getPos(mObject);
         auto now = node->getTranslation();
         Vector2 np{ now.x,now.z };
 
@@ -583,7 +583,7 @@ struct PBM final :public UnitController {
         count = std::min(count, time + 0.1f);
 
         auto c = node;
-        auto point = localClient->getPos(mObject);
+        auto point = instance.getPos(mObject);
         auto now = node->getTranslation();
         auto in = mObject && now.distanceSquared(point) <= dis;
 
@@ -597,7 +597,7 @@ struct PBM final :public UnitController {
         }
         else if (count >= time && in) {
             localServer->newBullet(BulletInstance(missile, now +
-                Vector3{ 0.0f, instance.getKind().getOffset(), 0.0f }, Vector3::zero(),
+                Vector3{ 0.0f, instance.getKind().getOffset(), 0.0f }, point,
                 node->getForwardVectorWorld().normalize(), speed, harm, range,
                 instance.getGroup(), mObject, angle));
             count = 0.0f;
@@ -704,7 +704,7 @@ struct Copter final :public UnitController {
         }
 
         auto now = instance.getNode()->getTranslation();
-        auto point = localClient->getPos(mObject);
+        auto point = instance.getPos(mObject);
 
         for (auto i = 0; i < 2; ++i)
             count[i] = std::min(count[i] + delta, time + 0.1f);
@@ -725,7 +725,7 @@ struct Copter final :public UnitController {
                         if (count[i] >= time) {
                             count[i] = 0.0f;
                             localServer->newBullet(BulletInstance(missile, now + offset*left*(i - 0.5f)*2.0f,
-                                Vector3::zero(), f, speed, harm, range,
+                                point, f, speed, harm, range,
                                 instance.getGroup(), mObject, RSC));
                         }
                 }
@@ -812,7 +812,7 @@ struct Submarine final :public UnitController {
 
         count = std::min(count + delta, time + 0.1f);
 
-        auto point = localClient->getPos(mObject);
+        auto point = instance.getPos(mObject);
         if (mObject) {
             bool in = point.distanceSquared(now) <= dis;
             if (!mIsServer) {
@@ -832,7 +832,7 @@ struct Submarine final :public UnitController {
                         , speed, harm, range, instance.getGroup()));
                 else
                     localServer->newBullet(BulletInstance(missile, now + Vector3::unitY()*10.0f,
-                        Vector3::zero(), Vector3::unitY(), speed, harm, range,
+                        point, Vector3::unitY(), speed, harm, range,
                         instance.getGroup(), mObject, RSC));
                 count = 0.0f;
             }
@@ -904,7 +904,7 @@ struct Ship final :public UnitController {
         bcnt = std::min(bcnt + delta, btime + 0.1f);
         mcnt = std::min(mcnt + delta, time + 0.1f);
 
-        auto point = localClient->getPos(mObject);
+        auto point = instance.getPos(mObject);
         if (mObject) {
             bool in = point.distanceSquared(now) <= dis;
             auto off = point - t->getTranslationWorld();
@@ -944,7 +944,7 @@ struct Ship final :public UnitController {
                     }
                     if (mcnt >= time) {
                         localServer->newBullet(BulletInstance(missile, now + Vector3::unitY()*10.0f,
-                            Vector3::zero(), Vector3::unitY(), speed, harm, range,
+                            point, Vector3::unitY(), speed, harm, range,
                             instance.getGroup(), mObject, RSC));
                         mcnt = 0.0f;
                     }

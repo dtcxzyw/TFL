@@ -5,6 +5,7 @@ plane= 10,10
 offset=3
 radius=40
 AIType=attack
+type = base
 control
 {
 	type=Tank

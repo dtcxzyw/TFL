@@ -24,7 +24,7 @@ void AudioManager::voice(const char * name, Vector3 pos, std::vector<uint32_t> a
             if (x == "arg") {
                 if (cnt >= args.size())INFO("Error format");
                 else {
-                    std::string id = to_string(args[cnt]+10);
+                    std::string id = to_string(args[cnt]%typeOffset+10);
                     for (auto&& y : id)
                         last.push({ y });
                     ++cnt;

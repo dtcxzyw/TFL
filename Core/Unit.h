@@ -46,7 +46,7 @@ private:
     uint8_t mGroup;
     uint32_t mPID;
     const Unit* mKind;
-    Vector3 mPos;
+    Vector3 mPos, mAttackPos;
     Vector2 mTarget;
     std::unique_ptr<UnitController> mController;
     bool mIsServer;
@@ -57,18 +57,6 @@ public:
     UnitInstance() {
         throw;
     }
-#ifdef ANDROID
-    UnitInstance(const UnitInstance& rhs)
-    {
-        auto& r = const_cast<UnitInstance&>(rhs);
-        mNode.swap(r.mNode);
-        mController.swap(r.mController);
-        mHP = rhs.mHP;
-        mGroup = rhs.mGroup;
-        mKind = rhs.mKind;
-        mPID = rhs.mPID;
-    }
-#endif
     void setAttackTarget(uint32_t id);
     bool update(float delta);
     BoundingSphere getBound() const;
@@ -91,6 +79,9 @@ public:
     uint32_t getLoadSize() const;
     bool isStoped() const;
     void move(Vector2 force) const;
+    Vector2 getAttackPos() const;
+    void setAttackPos(Vector2 pos);
+    Vector3 getPos(uint32_t& id) const;
     //Client
     UnitInstance(const Unit& unit, uint8_t group, uint32_t id, Scene* add, bool isServer,Vector3 pos);
     uint8_t getGroup() const;

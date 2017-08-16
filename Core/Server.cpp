@@ -195,8 +195,11 @@ void Server::update(float delta) {
                 uint32_t id;
                 data.Read(id);
                 auto u = units.find(id);
-                if (u != units.cend())
+                if (u != units.cend()) {
                     u->second.setMoveTarget(pos);
+                    if (u->second.getKind().getType() == "base")
+                        u->second.setAttackPos(pos);
+                }
             }
         }
         CheckHeader(ClientMessage::moveUnit) {
@@ -318,7 +321,7 @@ void Server::update(float delta) {
                 Vector3 p(pos.x, mMap.getHeight(pos.x, pos.y) + 10.0f, pos.y);
                 auto id = UnitInstance::askID();
                 mGroups[k.owner].units.
-                    emplace(id,std::move(UnitInstance{ getUnit(k.id), k.owner, id, mScene.get(), true, p }));
+                    emplace(id, std::move(UnitInstance{ getUnit(k.id), k.owner, id, mScene.get(), true, p }));
                 mGroups[k.owner].units[id].update(0);
                 mCheck.insert({ id,k.owner,&mGroups[k.owner].units[id] });
                 chooseNew(k);
@@ -341,7 +344,7 @@ void Server::update(float delta) {
             if (u.instance->isStoped() && u.instance->getLoadTarget()) {
                 auto&& units = mGroups[u.group].units;
                 auto x = units.find(u.instance->getLoadTarget());
-                if (x != units.cend() && x->second.getLoadSize()<x->second.getKind().getLoading()) {
+                if (x != units.cend() && x->second.getLoadSize() < x->second.getKind().getLoading()) {
                     auto p = x->second.getRoughPos();
                     u.instance->setMoveTarget({ p.x,p.z });
                 }
@@ -367,7 +370,7 @@ void Server::update(float delta) {
                 return true;
             }
             return false;
-        }),mDeferred.end());
+        }), mDeferred.end());
     }
 
     std::set<CheckInfo> newCheck;
@@ -397,7 +400,7 @@ void Server::update(float delta) {
                                     (u.second.getLoadTarget() == c.id && c.instance->tryLoad(u.second)))) {
                                     if (c.instance->getLoadTarget() == u.first)
                                         mDeferred.push_back({ c.group, c.id,0.0f });
-                                    else 
+                                    else
                                         mDeferred.push_back({ u.second.getGroup(), u.first,0.0f });
                                 }
                                 else {
@@ -429,7 +432,7 @@ void Server::update(float delta) {
                     }
                 }
             }
-    } while (newCheck.size() && Game::getAbsoluteTime()-now<=10.0);
+    } while (newCheck.size() && Game::getAbsoluteTime() - now <= 10.0);
 
     if (newCheck.size()) {
         mCheck.swap(newCheck);
@@ -520,27 +523,29 @@ void Server::update(float delta) {
     std::vector<uint8_t> groups;
     for (auto c : mClients)
         groups.emplace_back(c.second.group);
-    uint8_t choose = groups[mt() % groups.size()];
+    uint8_t gid = mt() % groups.size();
+    uint8_t choose = groups[gid];
     GroupInfo& update = mGroups[choose];
 
     //update unit
+    std::vector<UnitSyncInfo> saw;
+    for (auto&& g : mGroups)
+        for (auto&& u : g.second.units) {
+            auto p = u.second.getNode()->getTranslation();
+            for (auto&& mu : update.units)
+                if ((g.first == mu.second.getGroup() && !u.second.isDied()) ||
+                    (!mu.second.isDied() && p.distanceSquared(mu.second.getNode()->getTranslation())
+                        <= (p.y >= 0.0f ? mu.second.getKind().getFOV() : mu.second.getKind().getSound()))) {
+                    uint16_t uk = getUnitID(u.second.getKind().getName());
+                    saw.push_back({ u.first,uk,p,u.second.getNode()->getRotation(),
+                        g.first,u.second.getAttackTarget(),u.second.getAttackPos(),
+                        g.first == mu.second.getGroup() ? u.second.getLoadSize() : 0
+                        ,u.second.getHP() });
+                    break;
+                }
+        }
+
     {
-        std::vector<UnitSyncInfo> saw;
-        for (auto&& g : mGroups)
-            for (auto&& u : g.second.units) {
-                auto p = u.second.getNode()->getTranslation();
-                for (auto&& mu : update.units)
-                    if ((g.first == mu.second.getGroup() && !u.second.isDied()) ||
-                        (!mu.second.isDied() && p.distanceSquared(mu.second.getNode()->getTranslation())
-                        <=(p.y>=0.0f?mu.second.getKind().getFOV():mu.second.getKind().getSound()))) {
-                        uint16_t uk = getUnitID(u.second.getKind().getName());
-                        saw.push_back({ u.first,uk,p,u.second.getNode()->getRotation(),
-                            g.first,u.second.getAttackTarget(),
-                            g.first == mu.second.getGroup() ? u.second.getLoadSize() : 0
-                            ,u.second.getHP() });
-                        break;
-                    }
-            }
         RakNet::BitStream data;
         data.Write(ServerMessage::updateUnit);
         data.Write(static_cast<uint32_t>(saw.size()));
@@ -548,57 +553,65 @@ void Server::update(float delta) {
             data.Write(u);
 
         send(choose, data, PacketPriority::HIGH_PRIORITY);
+    }
 
-        for (auto&& x : update.units) {
-            auto old = x.second.getAttackTarget();
-            if (old && !getUnitPos(old).isZero())continue;
-            auto p = x.second.getRoughPos();
-            float md = std::numeric_limits<float>::max();
-            uint32_t maxwell = 0;
+    //update bullet
+    std::vector<BulletSyncInfo> bullets;
+    for (auto&& b : mBullets) {
+        auto p = b.second.getBound().center;
+        for (auto&& mu : update.units)
+            if ((b.second.getGroup() == mu.second.getGroup()) ||
+                (!mu.second.isDied() && p.distanceSquared(mu.second.getNode()->getTranslation())
+                    <= (p.y >= 0.0f ? mu.second.getKind().getFOV() : mu.second.getKind().getSound()))) {
+                bullets.push_back({ b.first,b.second.getKind(),p,b.second.getNode()->getRotation() });
+                break;
+            }
+    }
+
+    {
+        RakNet::BitStream data;
+        data.Write(ServerMessage::updateBullet);
+        data.Write(static_cast<uint32_t>(bullets.size()));
+        for (auto&& b : bullets)
+            data.Write(b);
+        send(choose, data, PacketPriority::HIGH_PRIORITY);
+    }
+
+    //choose a nearest object
+    for (auto&& x : update.units) {
+        auto old = x.second.getAttackTarget();
+        if (old && !getUnitPos(old).isZero() && !x.second.getAttackPos().isZero())continue;
+        auto p = x.second.getRoughPos();
+        float md = std::numeric_limits<float>::max();
+        uint32_t maxwell = 0;
+        if (x.second.getKind().getType() != "base") {
             for (auto&& y : saw)
                 if (y.group != x.second.getGroup()) {
                     auto dis = p.distanceSquared(y.pos);
                     if (dis < md)
                         md = dis, maxwell = y.id;
                 }
-            x.second.setAttackTarget(maxwell);
+            if (maxwell != 0) {
+                for (auto&& y : bullets)
+                    if (mBullets[y.id].getGroup() != x.second.getGroup()) {
+                        auto dis = mBullets[y.id].getNode()->getTranslation().distanceSquared(p);
+                        if (dis < md)
+                            md = dis, maxwell = y.id + typeOffset;
+                    }
+            }
         }
-    }
-
-
-    //update bullet
-    {
-        std::vector<BulletSyncInfo> bullets;
-        for (auto&& b : mBullets) {
-            auto p = b.second.getBound().center;
-            for (auto&& mu : update.units)
-                if ((b.second.getGroup() == mu.second.getGroup()) || 
-                    (!mu.second.isDied() && p.distanceSquared(mu.second.getNode()->getTranslation())
-                    <= (p.y >= 0.0f ? mu.second.getKind().getFOV() : mu.second.getKind().getSound()))) {
-                    bullets.push_back({ b.first,b.second.getKind(),p,b.second.getNode()->getRotation() });
-                    break;
-                }
-        }
-
-        RakNet::BitStream data;
-        data.Write(ServerMessage::updateBullet);
-        data.Write(static_cast<uint32_t>(bullets.size()));
-        for (auto&& b : bullets)
-            data.Write(b);
-
-        send(choose, data, PacketPriority::HIGH_PRIORITY);
+        x.second.setAttackTarget(maxwell);
     }
 
     //update state
-    if(mt()%10==0)
-    {
+    if (mt() % 10 == 0) {
         RakNet::BitStream data;
         data.Write(ServerMessage::updateState);
         for (auto&& x : update.weight)
             data.Write(x);
         float now = Game::getAbsoluteTime();
         for (auto&& k : update.key) {
-            ProducingSyncInfo info{ k,mKey[k].id,std::max((mKey[k].time-now)/1000.0f,0.0f) };
+            ProducingSyncInfo info{ k,mKey[k].id,std::max((mKey[k].time - now) / 1000.0f,0.0f) };
             data.Write(info);
         }
         send(choose, data, PacketPriority::MEDIUM_PRIORITY);
@@ -649,11 +662,18 @@ void Server::newBullet(BulletInstance && bullet) {
 }
 
 Vector3 Server::getUnitPos(uint32_t id) const {
-    for (auto&& g : mGroups) {
-        auto&& units = g.second.units;
-        auto i = units.find(id);
-        if (i != units.end())
-            return i->second.isDied() ? Vector3{}:i->second.getNode()->getTranslation();
+    if (id <= typeOffset) {
+        for (auto&& g : mGroups) {
+            auto&& units = g.second.units;
+            auto i = units.find(id);
+            if (i != units.end())
+                return i->second.isDied() ? Vector3{} : i->second.getNode()->getTranslation();
+        }
+    }
+    else {
+        auto&& x = mBullets.find(id - typeOffset);
+        if (x != mBullets.cend())
+            return x->second.getNode()->getTranslation();
     }
     return {};
 }

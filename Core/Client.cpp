@@ -387,7 +387,10 @@ bool Client::update(float delta) {
                 if (oi != old.cend()) {
                     mUnits[u.id].getNode()->setTranslation(u.pos);
                     mUnits[u.id].getNode()->setRotation(u.rotation);
-                    mUnits[u.id].setAttackTarget(u.at);
+                    if (u.at != pointID)
+                        mUnits[u.id].setAttackTarget(u.at);
+                    else
+                        mUnits[u.id].setAttackPos(u.atp);
                     old.erase(oi);
                 }
                 else {
@@ -395,7 +398,10 @@ bool Client::update(float delta) {
                         UnitInstance{ getUnit(u.kind), u.group, u.id, mScene.get(), false, u.pos });
                     i.first->second.getNode()->setRotation(u.rotation);
                     i.first->second.update(0);
-                    i.first->second.setAttackTarget(u.at);
+                    if (u.at != pointID)
+                        i.first->second.setAttackTarget(u.at);
+                    else
+                        i.first->second.setAttackPos(u.atp);
                     if (u.group != mGroup && u.HP > 0.0f)
                         mAudio.voice(CodeType::found, { u.id });
                 }
@@ -801,12 +807,22 @@ void Client::render() {
 }
 
 Vector3 Client::getPos(uint32_t& id) {
-    auto i = mUnits.find(id);
-    if (i == mUnits.cend() || i->second.isDied()) {
-        id = 0;
-        return Vector3::zero();
+    if (id <= typeOffset) {
+        auto i = mUnits.find(id);
+        if (i == mUnits.cend() || i->second.isDied()) {
+            id = 0;
+            return Vector3::zero();
+        }
+        return i->second.getNode()->getTranslation();
     }
-    return i->second.getNode()->getTranslation();
+    else {
+        auto i = mBullets.find(id - typeOffset);
+        if (i == mBullets.cend()) {
+            id = 0;
+            return Vector3::zero();
+        }
+        return i->second.getNode()->getTranslation();
+    }
 }
 
 float Client::getHeight(int x, int z) const {

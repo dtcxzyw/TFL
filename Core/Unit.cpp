@@ -176,6 +176,7 @@ Vector2 UnitInstance::updateMoveTarget() {
 
 void UnitInstance::setAttackTarget(uint32_t id) {
     mController->setAttackTarget(id);
+    mAttackPos = {};
 }
 
 bool UnitInstance::attacked(float harm) {
@@ -293,4 +294,17 @@ void UnitInstance::move(Vector2 force) const {
         }
         mNode->translateForward(arg.x*fac*force.x);
     }
+}
+
+Vector2 UnitInstance::getAttackPos() const {
+    return { mAttackPos.x,mAttackPos.z };
+}
+
+void UnitInstance::setAttackPos(Vector2 pos) {
+    mAttackPos = { pos.x,localClient->getHeight(pos.x,pos.y),pos.y };
+    mController->setAttackTarget(pointID);
+}
+
+Vector3 UnitInstance::getPos(uint32_t& id) const {
+    return id==pointID?mAttackPos:localClient->getPos(id);
 }
