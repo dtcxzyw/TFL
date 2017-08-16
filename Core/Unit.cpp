@@ -241,7 +241,7 @@ Vector3 UnitInstance::getRoughPos() const {
 
 void UnitInstance::setHP(float HP) {
     mHP = HP;
-    if (mHP < 0.0f)mController->onDied(*this);
+    if (isDied())mController->onDied(*this);
 }
 
 float UnitInstance::getHP() const {

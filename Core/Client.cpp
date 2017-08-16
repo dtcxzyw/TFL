@@ -563,7 +563,9 @@ void Client::render() {
                     bbv.emplace_back(bb);
             }
 
-            auto p = getPoint(rect.width / 2, rect.height / 2);
+            auto fu = mUnits.find(mFollower);
+            auto p = fu!=mUnits.cend() ? fu->second.getRoughPos()
+                : getPoint(rect.width / 2, rect.height / 2);
             mLight->setTranslation(p + mLight->getBackVector().normalize()*1000.0f);
             auto LC=mLight->getCamera();
             LC->setNearPlane(1.0f), LC->setFarPlane(2.0f), LC->setAspectRatio(1.0f)
