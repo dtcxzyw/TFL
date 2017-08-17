@@ -648,14 +648,21 @@ std::string Server::getIP() {
 }
 
 void Server::attack(uint32_t id, float harm) {
-    for (auto&& g : mGroups) {
-        auto&& units = g.second.units;
-        auto i = units.find(id);
-        if (i != units.end()) {
-            if (i->second.attacked(harm))
-                mDeferred.push_back({ g.first,id,Game::getAbsoluteTime() });
-            break;
+    if (id <= typeOffset) {
+        for (auto&& g : mGroups) {
+            auto&& units = g.second.units;
+            auto i = units.find(id);
+            if (i != units.end()) {
+                if (i->second.attacked(harm))
+                    mDeferred.push_back({ g.first,id,Game::getAbsoluteTime() });
+                break;
+            }
         }
+    }
+    else {
+        auto i = mBullets.find(id-typeOffset);
+        if (i != mBullets.cend())
+            mBullets.erase(i);
     }
 }
 
