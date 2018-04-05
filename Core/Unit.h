@@ -54,9 +54,10 @@ private:
     uint32_t mLoadTarget;
     Vector2 updateMoveTarget();
 public:
-    UnitInstance() {
-        throw;
-    }
+    UnitInstance();
+#ifdef ANDROID
+    UnitInstance(const UnitInstance& src);
+#endif
     void setAttackTarget(uint32_t id);
     bool update(float delta);
     BoundingSphere getBound() const;

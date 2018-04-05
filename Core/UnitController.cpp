@@ -384,8 +384,11 @@ struct CBM final :public UnitController {
         if (mObject && count >= time && now.distanceSquared(point) <= dis) {
             if (mIsServer) {
                 auto m = node->findNode("missile");
-                localServer->newBullet(BulletInstance(missile, m->getTranslationWorld(), point,
-                    m->getForwardVectorWorld().normalize(), speed, harm, range, instance.getGroup()
+                auto pos= m->getTranslationWorld();
+                auto forward = m->getForwardVectorWorld().normalize();
+                pos += forward * 10.0f;
+                localServer->newBullet(BulletInstance(missile, pos, point,
+                    forward, speed, harm, range, instance.getGroup()
                     , mObject, angle));
             }
             else localClient->getAudio().voice(StateType::fire, instance.getID(), now);
@@ -581,7 +584,6 @@ struct PBM final :public UnitController {
         count += delta;
         count = std::min(count, time + 0.1f);
 
-        auto c = node;
         auto point = instance.getPos(mObject);
         auto now = node->getTranslation();
         auto in = mObject && now.distanceSquared(point) <= dis;
@@ -631,11 +633,10 @@ struct TP final :public UnitController {
                 if (localClient->getHeight(mDest.x, mDest.y) < 0.0f)
                     mDest = Vector2::zero();
                 auto node = instance.getNode();
-                auto c = node;
                 auto now = node->getTranslation();
 
                 if (instance.getLoadSize()) {
-                    if (mDest.distanceSquared({ now.x,now.z }) < 10000.0f)
+                    if (mDest.distanceSquared({ now.x,now.z }) < 1e4f)
                         localServer->releaseUnit(instance), mDest = mStart;
 
                     fly(instance, mDest, height, v, delta, RSC, now);
@@ -643,17 +644,17 @@ struct TP final :public UnitController {
                 else {
                     auto dis = mDest.distanceSquared({ now.x,now.z });
                     auto flag = now.y - localClient->getHeight(now.x, now.z) < instance.getKind().getRadius();
-                    if (flag && dis < 2.5e5f) {
+                    if (flag && dis < 1e4f) {
                         mDest = Vector2::zero();
                         correct(instance, delta, fcnt, x);
                     }
                     else {
-                        auto h = std::pow(std::min(dis / 9e6f, 1.0f), 0.25f)*height;
+                        auto h = std::min(dis / 2.5e5f, 1.0f)*height;
                         fly(instance, mDest, h, v, delta, RSC, now);
                         h += std::max(localClient->getHeight(now.x, now.z), 0.0f);
                         if (h < node->getTranslationY()) {
                             auto p = node->getTranslation();
-                            node->translateSmooth({ p.x,h,p.y }, delta, 100.0f);
+                            node->setTranslationY(h);
                             correctVector(instance.getNode(), &Node::getUpVector, Vector3::unitY(),
                                 M_PI, 0.0f, M_PI);
                         }

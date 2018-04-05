@@ -104,9 +104,8 @@ void BulletInstance::update(float delta) {
         mCnt += delta;
         auto now = mNode->getTranslation();
         if (mCnt > 0.3f*mTime) {
-            constexpr auto angle = 0.01f;
+            constexpr auto angle = 0.05f;
             auto f =mEnd-now;
-            f.y = std::min(f.y, 0.0f);
             correctVector(mNode.get(), &Node::getForwardVector, f.normalize(),
                 angle*delta, angle*delta, 0.0f);
         }
@@ -157,3 +156,24 @@ Node * BulletInstance::getNode() const {
     return mNode.get();
 }
 
+BulletInstance::BulletInstance() {
+    throw;
+}
+
+#ifdef ANDROID
+BulletInstance::BulletInstance(const BulletInstance& src) {
+    auto&& rhs = const_cast<BulletInstance&>(src);
+    mHarm = rhs.mHarm;
+    mSpeed = rhs.mSpeed;
+    mCnt = rhs.mCnt;
+    mHitRadius = rhs.mHitRadius;
+    mRadius = rhs.mRadius;
+    mTime = rhs.mTime;
+    mNode.swap(rhs.mNode);
+    mEnd = rhs.mEnd;
+    mKind = rhs.mKind;
+    mGroup = rhs.mGroup;
+    mObject = rhs.mObject;
+    mAngle = rhs.mAngle;
+}
+#endif

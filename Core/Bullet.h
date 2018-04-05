@@ -31,9 +31,10 @@ private:
     static uint32_t cnt;
 public:
     static uint32_t askID();
-    BulletInstance() {
-        throw;
-    }
+    BulletInstance();
+#ifdef ANDROID
+    BulletInstance(const BulletInstance& src);
+#endif
     BulletInstance(const std::string& kind, Vector3 begin, Vector3 end, Vector3 forward,
         float speed, float harm, float radius, uint8_t group, uint32_t obj=0,float angle=0.0f);
     BulletInstance(uint16_t kind, Vector3 begin,Vector3 end,

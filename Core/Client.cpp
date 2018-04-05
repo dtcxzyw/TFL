@@ -366,7 +366,7 @@ bool Client::update(float delta) {
             continue;
         }
         CheckHeader(ServerMessage::win) {
-            INFO("We are winner!");
+            INFO("We are winners!");
         }
         CheckHeader(ServerMessage::out) {
             INFO("What a pity!");
@@ -650,6 +650,16 @@ void Client::render() {
         drawNode(mScene->findNode("terrain"));
 
         drawNode(mSky.get());
+
+#ifdef ANDROID
+#define GL_READ_FRAMEBUFFER 0x8CA8
+#define GL_DRAW_FRAMEBUFFER 0x8CA9
+#define GL_DEPTH_BUFFER_BIT 0x00000100
+#define GL_STENCIL_BUFFER_BIT 0x00000400
+#define GL_NEAREST 0x2600
+#define glBlendColor
+#define glBlitFramebuffer
+#endif
 
         glBlendColor(1.0f, 1.0f, 1.0f, waterAlpha);
         drawNode(mWaterPlane.get());

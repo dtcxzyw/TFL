@@ -89,13 +89,18 @@ MainMenu::MainMenu() :UI("Main") {}
 #define CHECKRET() if (evt == Event::PRESS && CMPID("return"))pop()
 
 void MainMenu::event(Control* control, Event evt) {
-    if (evt == Event::PRESS && CMPID("exit"))
+    if (evt == Event::PRESS && CMPID("exit")){
+#ifdef ANDROID
+        std::exit(0);
+#else
         std::quick_exit(0);
-    if (evt == Event::PRESS && CMPID("play"))
+#endif
+    }
+    else if (evt == Event::PRESS && CMPID("play"))
         push<PlayMenu>();
-    if (evt == Event::PRESS && CMPID("about"))
+    else if (evt == Event::PRESS && CMPID("about"))
         push<AboutMenu>();
-    if (evt == Event::PRESS && CMPID("settings"))
+    else if (evt == Event::PRESS && CMPID("settings"))
         push<SettingsMenu>();
 }
 

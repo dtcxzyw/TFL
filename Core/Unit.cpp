@@ -308,3 +308,25 @@ void UnitInstance::setAttackPos(Vector2 pos) {
 Vector3 UnitInstance::getPos(uint32_t& id) const {
     return id==pointID?mAttackPos:localClient->getPos(id);
 }
+
+UnitInstance::UnitInstance() {
+    throw;
+}
+
+#ifdef ANDROID
+UnitInstance::UnitInstance(const UnitInstance& src) {
+    auto&& rhs = const_cast<UnitInstance&>(src);
+    mNode.swap(rhs.mNode);
+    mHP = rhs.mHP;
+    mGroup = rhs.mGroup;
+    mPID = rhs.mPID;
+    mKind = rhs.mKind;
+    mPos = rhs.mPos;
+    mAttackPos = rhs.mAttackPos;
+    mTarget = rhs.mTarget;
+    mController.swap(rhs.mController);
+    mIsServer = rhs.mIsServer;
+    mLoading.swap(rhs.mLoading);
+    mLoadTarget = rhs.mLoadTarget;
+}
+#endif
