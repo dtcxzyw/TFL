@@ -146,16 +146,16 @@ varying vec3 v_fragPos;
 void main()
 {
     vec4 position = getPosition();
-	
+    
     #ifdef WATER
-	vec4 pos=u_model*position;
-	pos.y=-pos.y;
-	v_fragPos = pos.xyz;
-	gl_Position=u_viewProjectionMatrix*pos;
-	#else
+    vec4 pos=u_model*position;
+    pos.y=-pos.y;
+    v_fragPos = pos.xyz;
+    gl_Position=u_viewProjectionMatrix*pos;
+    #else
     gl_Position = u_worldViewProjectionMatrix * position;
     #endif
-	
+    
     v_pos = u_matrix * u_model *position;
     
     #if defined(LIGHTING)

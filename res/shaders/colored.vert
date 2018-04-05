@@ -140,7 +140,7 @@ void main()
     
     // Pass the vertex color
     #if defined(VERTEX_COLOR)
-	v_color = a_color;
+    v_color = a_color;
     #endif
     
     #if defined(CLIP_PLANE)

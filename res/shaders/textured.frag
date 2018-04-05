@@ -127,9 +127,9 @@ varying vec3 v_fragPos;
 
 void main()
 {
-	#ifdef WATER
-	if(v_fragPos.y>=0.0)discard;
-	#endif
+    #ifdef WATER
+    if(v_fragPos.y>=0.0)discard;
+    #endif
 
     #if defined(CLIP_PLANE)
     if(v_clipDistance < 0.0) discard;

@@ -161,6 +161,7 @@ Client::Client(const std::string & server, bool& res) :
     correctVector(mLight.get(), &Node::getForwardVector, init.normalize(), M_PI, M_PI, 0.0f);
     correctVector(mLight.get(), &Node::getUpVector, Vector3::unitY(), 0.0f, 0.0f, M_PI);
 
+#ifndef ANDROID
     if (reflection > 0.0f) {
         auto game = Game::getInstance();
         recreate(game->getWidth(), game->getHeight());
@@ -169,6 +170,7 @@ Client::Client(const std::string & server, bool& res) :
         mScreenQuad->setMaterial("res/common/water.material");
         mScreenQuad->getMaterial()->setNodeBinding(mLight.get());
     }
+#endif
 
     {
         mStateInfo = Form::create("label", Theme::getDefault()->getStyle("Label"));
@@ -608,8 +610,10 @@ void Client::render() {
             mScene->setActiveCamera(mCamera.get());
         }
 
+#ifndef ANDROID
         if (reflection > 0.0f) mScreenBuffer->bind();
         else FrameBuffer::bindDefault();
+#endif
 
         game->clear(Game::CLEAR_COLOR_DEPTH_STENCIL, Vector4::zero(), 1.0f, 0);
 
@@ -651,19 +655,10 @@ void Client::render() {
 
         drawNode(mSky.get());
 
-#ifdef ANDROID
-#define GL_READ_FRAMEBUFFER 0x8CA8
-#define GL_DRAW_FRAMEBUFFER 0x8CA9
-#define GL_DEPTH_BUFFER_BIT 0x00000100
-#define GL_STENCIL_BUFFER_BIT 0x00000400
-#define GL_NEAREST 0x2600
-#define glBlendColor
-#define glBlitFramebuffer
-#endif
-
         glBlendColor(1.0f, 1.0f, 1.0f, waterAlpha);
         drawNode(mWaterPlane.get());
 
+#ifndef ANDROID
         if (reflection > 0.0f) {
 
             mScreenBuffer->bind(GL_READ_FRAMEBUFFER);
@@ -723,6 +718,7 @@ void Client::render() {
             drawScreen("blur");
             drawScreen("none");
         }
+#endif
 
         for (auto&& x : list) {
             auto s = x->getScale();
@@ -1074,6 +1070,7 @@ bool Client::isPlaying() const {
 }
 
 void Client::recreate(uint32_t width, uint32_t height) {
+#ifndef ANDROID
     if (reflection == 0.0f)return;
     width -= mRight;
     mScreenBuffer = FrameBuffer::create("screen", width, height, Texture::RGBA8888);
@@ -1084,6 +1081,7 @@ void Client::recreate(uint32_t width, uint32_t height) {
     mScreenMap = Texture::Sampler::create(mScreenBuffer->getRenderTarget()->getTexture());
     mScreenMap->setWrapMode(Texture::Wrap::CLAMP, Texture::Wrap::CLAMP);
     mScreenMap->setFilterMode(Texture::Filter::LINEAR, Texture::Filter::LINEAR);
+#endif
 }
 
 void Client::moveFollower(float z, float x) {

@@ -13,9 +13,9 @@ varying vec3 v_pos;
 uniform sampler2D u_diffuseTexture;
 void main()
 {
-	#ifdef WATER
-	if(v_pos.y>=0.0)discard;
-	#endif
-	
-	gl_FragColor=texture2D(u_diffuseTexture, v_texCoord);
+    #ifdef WATER
+    if(v_pos.y>=0.0)discard;
+    #endif
+    
+    gl_FragColor=texture2D(u_diffuseTexture, v_texCoord);
 }

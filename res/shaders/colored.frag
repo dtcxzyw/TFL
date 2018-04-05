@@ -110,10 +110,10 @@ void main()
     #if defined(LIGHTING)
 
     #if defined(VERTEX_COLOR)
-	_baseColor.rgb = v_color;
+    _baseColor.rgb = v_color;
     #else
     _baseColor = u_diffuseColor;
-	#endif
+    #endif
     
     gl_FragColor.a = _baseColor.a;
     gl_FragColor.rgb = getLitPixel();
@@ -129,16 +129,16 @@ void main()
     
     #endif
 
-	#if defined(LIGHTMAP)
-	vec4 lightColor = texture2D(u_lightmapTexture, v_texCoord1);
-	gl_FragColor.rgb *= lightColor.rgb;
-	#endif
+    #if defined(LIGHTMAP)
+    vec4 lightColor = texture2D(u_lightmapTexture, v_texCoord1);
+    gl_FragColor.rgb *= lightColor.rgb;
+    #endif
 
-	#if defined(MODULATE_COLOR)
+    #if defined(MODULATE_COLOR)
     gl_FragColor *= u_modulateColor;
     #endif
 
-	#if defined(MODULATE_ALPHA)
+    #if defined(MODULATE_ALPHA)
     gl_FragColor.a *= u_modulateAlpha;
     #endif
 }

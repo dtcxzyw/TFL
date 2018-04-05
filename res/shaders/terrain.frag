@@ -104,10 +104,10 @@ varying vec3 v_fragPos;
 
 void main()
 {
-	#ifdef WATER
-	if(v_fragPos.y>=0.0)discard;
-	#endif
-	
+    #ifdef WATER
+    if(v_fragPos.y>=0.0)discard;
+    #endif
+    
     #if (LAYER_COUNT > 0)
     // Sample base texture
     _baseColor.rgb = texture2D(u_surfaceLayerMap, mod(v_texCoordLayer0, vec2(1,1))).rgb;
@@ -128,7 +128,7 @@ void main()
     v_normalVector = texture2D(u_normalMap, v_texCoord0).xyz * 2.0 - 1.0;
     v_normalVector = (u_normalMatrix * vec4(v_normalVector.x, v_normalVector.y, v_normalVector.z, 0)).xyz;
     #endif
-	
+    
     gl_FragColor.rgb = getLitPixel()*getShadowValue();
 
     #else
@@ -136,6 +136,6 @@ void main()
     gl_FragColor.rgb = _baseColor.rgb;
 
     #endif
-	
-	gl_FragColor.a = 1.0;
+    
+    gl_FragColor.a = 1.0;
 }

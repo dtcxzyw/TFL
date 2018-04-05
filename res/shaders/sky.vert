@@ -16,10 +16,10 @@ void main()
 {
     v_texCoord = a_texCoord;
 #ifdef WATER
-	vec4 pos=u_model*a_position;
-	pos.y=-pos.y;
-	v_pos = pos.xyz;
-	pos=u_viewProjectionMatrix*pos;
+    vec4 pos=u_model*a_position;
+    pos.y=-pos.y;
+    v_pos = pos.xyz;
+    pos=u_viewProjectionMatrix*pos;
 #else
     vec4 pos = u_worldViewProjectionMatrix * a_position;
 #endif

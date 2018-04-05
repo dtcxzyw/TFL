@@ -20,9 +20,9 @@ float getShadowValue()
     if(projCoords.x<0.0 || projCoords.x>1.0 || projCoords.y<0.0 || projCoords.y>1.0 
         || projCoords.z>1.0 || projCoords.z<0.0)
             return 1.0;
-	
+    
     #ifdef OPENGL_ES
-		float depth = unpackDepth(texture2D(u_shadowMap, projCoords.xy));
+        float depth = unpackDepth(texture2D(u_shadowMap, projCoords.xy));
         float shadow = currentDepth-u_bias > depth ? 0.2 : 1.0;        
     #else
         float shadow=0.0;

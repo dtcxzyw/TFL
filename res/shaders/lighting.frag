@@ -6,7 +6,7 @@ vec3 computeLighting(vec3 normalVector, vec3 lightDirection, vec3 lightColor, fl
 
     #if defined(SPECULAR)
 
-	// Phong shading
+    // Phong shading
     //vec3 vertexToEye = normalize(v_cameraDirection);
     //vec3 specularAngle = normalize(normalVector * diffuse * 2.0 - lightDirection);  
     //vec3 specularColor = vec3(pow(clamp(dot(specularAngle, vertexToEye), 0.0, 1.0), u_specularExponent)); 
@@ -82,7 +82,7 @@ vec3 getLitPixel()
         // "-lightDirection" is used because light direction points in opposite direction to spot direction.
         float spotCurrentAngleCos = dot(spotLightDirection, -vertexToSpotLightDirection);
 
-		// Apply spot attenuation
+        // Apply spot attenuation
         attenuation *= smoothstep(u_spotLightOuterAngleCos[i], u_spotLightInnerAngleCos[i], spotCurrentAngleCos);
         combinedColor += computeLighting(normalVector, vertexToSpotLightDirection, u_spotLightColor[i], attenuation);
     }
